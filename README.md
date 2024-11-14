@@ -15,3 +15,10 @@ npm start
 ```
 
 然後就可以到`localhost:3000`查看目前狀態
+
+## 設定預設頁面
+
+可以到`src/context/PageContext.js`裡面切換預設頁面，考慮之後更新成讀取env?
+每個頁面與對應名稱可以到`src/components/PageRouter.js`中查看
+
+(別問我為什麼要這樣設計，問就是gpt想的)
