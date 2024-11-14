@@ -6,14 +6,61 @@ function LoginPage()
 {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
+    const [hint_error, setHintError] = useState('');
     const { changePage } = usePage();
 
     const handleLogin = () =>
     {
         // 如何檢測登入的api
+        const return_code = checkLoginValid(username, password);
+        if (return_code === 200)
+        {
+            changePage('home');
+            setHintError('');
+        }
+        else if (return_code === 401)
+        {
+            setHintError('username or password not valid')
+        }
+        else 
+        {
+            setHintError(`unknown error, return code: ${return_code}`)
+        }
 
-        changePage('home')
+        
     };
+
+    const checkLoginValid = (check_username, check_password) =>
+    {
+        // 在這邊放login邏輯的api
+
+        // 這邊先模擬個狀況
+        // 假設return code:
+        //  200: 成功
+        //  401: 帳號或密碼錯誤
+        //  500: 單純測試用
+
+        if (check_username === "test")
+        {
+            return 500;
+        }
+
+        if (check_username !== "senen")
+        {
+            console.log("username not valid");
+            return 401;
+        }
+        else if (check_password !== "senen")
+        {
+            console.log("password not valid");
+            return 401;
+        }
+        else
+        {
+            console.log("login valid");
+            return 200;
+        }
+    }
 
     const handleGoSignup = () =>
     {
@@ -40,6 +87,9 @@ function LoginPage()
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Password"
             />
+
+            <p className='hint-text error'>{hint_error}</p>
+
             <button className='button' onClick={handleLogin}>Login</button>
 
             <p className='clickable-text' onClick={handleGoSignup}>or sign up</p>
