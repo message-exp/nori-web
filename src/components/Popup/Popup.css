@@ -1,0 +1,53 @@
+/* 背景遮罩和虛化效果 */
+.popup-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    backdrop-filter: blur(5px);
+    animation: fadeIn 0.3s ease;
+}
+
+/* 彈出視窗內容 */
+.popup-content {
+    background: white;
+    padding: 2rem;
+    border-radius: 8px;
+    width: 300px;
+    text-align: center;
+    animation: fadeIn 0.3s ease;
+}
+
+/* 狀態訊息 */
+.status-message {
+    margin-top: 1rem;
+    font-size: 1rem;
+    color: black;
+}
+
+/* 淡入效果 */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+    }
+
+    to {
+        opacity: 1;
+    }
+}
+
+/* 淡出效果 */
+@keyframes fadeOut {
+    from {
+        opacity: 1;
+    }
+
+    to {
+        opacity: 0;
+    }
+}
