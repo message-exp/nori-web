@@ -6,6 +6,7 @@ import StyleDemoPage from '../pages/StyleDemoPage';
 import LoginPage from '../pages/LoginPage/LoginPage';
 import UserHomePage from '../pages/UserHomePage/UserHomePage';
 import SignupPage from '../pages/SignupPage/SignupPage';
+import TestPage from '../pages/TestPage';
 
 const PageRouter = () =>
 {
@@ -24,7 +25,7 @@ const PageRouter = () =>
         case 'signup':
             return <SignupPage />;
         default:
-            return <HostPage />;
+            return <TestPage />;
     }
 };
 

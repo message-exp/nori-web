@@ -7,7 +7,7 @@ const PageContext = createContext();
 // 提供頁面管理的 Provider
 export const PageProvider = ({ children }) =>
 {
-    const [currentPage, setCurrentPage] = useState('login');
+    const [currentPage, setCurrentPage] = useState('');
 
     // 切換頁面的方法
     const changePage = (page) =>
