@@ -11,3 +11,14 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+html, body {
+  margin: 0;
+  /* 移除默認的外邊距 */
+  padding: 0;
+  /* 移除默認的內邊距 */
+  overflow: hidden;
+  /* 禁止全局滾動 */
+  height: 100%;
+  /* 確保佔滿視窗高度 */
+}

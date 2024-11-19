@@ -1,86 +1,95 @@
-/* 聊天應用程式的主樣式 */
-.chat-app {
+.container {
     display: flex;
+    /* 使用 Flexbox 排版 */
+    justify-content: space-between;
+    /* 讓兩個子 div 分別對齊左右 */
+    align-items: center;
+    /* 垂直置中（可選） */
     height: 100vh;
+    /* 給容器一個高度以示範 */
+    border: 1px solid #ccc;
+    /* 可視化容器邊框 */
+    align-items: stretch;
 }
 
-.room-tab-bar {
-    width: 30%;
+.left {
+    width: 400px;
+    background-color: lightblue;
+    /* 左邊區域的背景色 */
+    padding: 10px;
+    /* 內距 */
+
+    display: flex;
+    flex-direction: column;
+    /* 子元素垂直排列 */
+    border-right: 1px solid #20478f;
+    /* 左邊框線，方便觀察 */
 }
 
-.room-top{
-    padding: 5px;
-    height: 10hv;
-}
-
-/* 左側房間列表 */
-.room-list {
-    
-    border-right: 1px solid #ddd;
-    padding: 1rem;
-    overflow-y: auto;/* 允許縱向捲動 */
-    max-height: 90hv;/* 設置最大高度，讓房間列表滿高時能捲動 */
-}
-
-/* 房間列表中的房間項目 */
-.room-item {
-    padding: 0.5rem;
-    cursor: pointer;
-    transition: background-color 0.2s;
-}
-
-.room-item:hover {
-    background-color: #f5f5f5;
-}
-
-.room-item.active {
-    background-color: #f0f0f0;
-}
-
-/* 房間顯示區域 */
-.room-display {
+.right {
     flex: 1;
+    background-color: lightgreen;
+    /* 右邊區域的背景色 */
+    padding: 10px;
+    /* 內距 */
     display: flex;
     flex-direction: column;
 }
 
-/* 房間顯示的頂部區域 */
-.room-header {
+.top {
+    height: 50px;
+    /* 固定高度 */
+    background-color: lightcoral;
     display: flex;
-    justify-content: space-between;
-    padding: 1rem;
-    border-bottom: 1px solid #ddd;
+    padding: 10px;
+    /* align-items: center; */
+    /* 垂直置中內容（可選） */
+    /* justify-content: center; */
+    /* 水平置中內容（可選） */
 }
 
-/* 訊息顯示區域 */
-.message-list {
+.content {
     flex: 1;
+    /* 填滿剩餘垂直空間 */
+    background-color:cyan;
+    padding: 10px;
     overflow-y: auto;
-    padding: 1rem;
+    /* 當內容超過時垂直方向開啟捲動 */
 }
 
-/* 訊息項目 */
-.message-item {
-    margin-bottom: 1rem;
-}
-
-.message-user {
-    font-weight: bold;
-}
-
-.message-time {
-    font-size: 0.8rem;
-    color: gray;
-}
-
-/* 訊息輸入區域 */
-.message-input {
+.room-block{
+    /* font-size: 30px; */
+    padding: 5px 5px 5px 10px;
+    height: 32px;
+    border: 1px solid black;
     display: flex;
-    padding: 1rem;
-    border-top: 1px solid #ddd;
+    align-items: center;
+    /* justify-self: center; */
 }
 
-.message-input input {
-    flex: 1;
-    margin-right: 0.5rem;
+.room-block:hover{
+    filter: brightness(0.8);
+        /* 調整亮度，讓顏色變暗 */
 }
+
+.room-text{
+    font-size: 16px;
+    margin: 0px;
+}
+
+.right-top{
+    height: 50px;
+    background-color:hotpink;
+}
+
+.right-middle{
+    flex: 1;
+    background-color: coral;
+    overflow-y: auto;
+}
+
+.right-bottom{
+    height: 50px;
+    background-color:cornflowerblue;
+}
+
