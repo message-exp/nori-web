@@ -2,6 +2,7 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 // 示例頁面組件
 import LoginPage from './pages/login';
+import RoomList from './pages/room-list';
 import { Box, Card, Heading } from '@chakra-ui/react';
 import { Button } from './components/ui/button';
 // import DashboardPage from './pages/DashboardPage';
@@ -27,9 +28,9 @@ function NavigationPage() {
           path="/login"
         />
         <PageCard
-          title="Dashboard"
-          description="主控台頁面原型"
-          path="/dashboard"
+          title="Room List"
+          description="房間列表"
+          path="/roomlist"
         />
         {/* 添加更多頁面卡片 */}
       </div>
@@ -70,6 +71,7 @@ function App() {
       <Routes>
         <Route path="/" element={<NavigationPage />} />
         <Route path="/login" element={<LoginPage />} />
+        <Route path="/roomlist" element={<RoomList />} />
         {/* 添加更多路由 */}
       </Routes>
     </Router>
