@@ -2,7 +2,8 @@ import { Routes, Route } from "react-router";
 import Home from "@/pages/index";
 import RoomChat from "@/pages/roomChat";
 import RoomList from "@/pages/roomList";
-function App() {
+
+const App = () => {
   return (
     <Routes>
       <Route path="/" element={<Home />}></Route>
