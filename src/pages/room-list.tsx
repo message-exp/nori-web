@@ -1,4 +1,4 @@
-import { AbsoluteCenter, Box, Button, Center, Flex, For, Heading, Icon, Stack } from "@chakra-ui/react";
+import { Box, Button, Center, Flex, For, Heading, HStack, Icon, Stack } from "@chakra-ui/react";
 import React, { useState } from "react";
 import { IoMdAddCircleOutline } from "react-icons/io";
 
@@ -12,6 +12,20 @@ const RoomList = () => {
         borderColor: "border.disabled",
         color: "fg.disabled"
     }
+
+    const scroolStyle = {
+        '&::-webkit-scrollbar': {
+            width: '8px',
+        },
+        '&::-webkit-scrollbar-thumb': {
+            backgroundColor: 'rgba(255, 255, 255, 0.5)',
+            borderRadius: '4px',
+        },
+        '&::-webkit-scrollbar-thumb:hover': {
+            backgroundColor: 'rgba(255, 255, 255, 0.85)',
+        }
+    }
+
     const roomList = [
         { roomName: "Travel Buddies", roomId: "travel2023group" },
         { roomName: "Gaming Squad", roomId: "gamersunite123" },
@@ -52,14 +66,11 @@ const RoomList = () => {
 
     const RoomListCard: React.FC<roomListDataProps> = ({ name, id }) => {
         return (
-            <Button radioGroup="xl" height={'100px'} width={'100%'} position={'relative'} variant={'ghost'} >
-                <AbsoluteCenter axis={'horizontal'}>
-                    <Stack>
-                        <Heading size={'2xl'}>{name}</Heading>
-                        <Heading size={'md'}>{id}</Heading>
-                    </Stack>
-                    
-                </AbsoluteCenter>
+            <Button radioGroup="xl" height={'100px'} width={'100%'} variant={'ghost'} >
+                <HStack direction={'row'}>
+                    <Heading size={'2xl'}>{name}</Heading>
+                    <Heading size={'md'}>({id})</Heading>
+                </HStack>
             </Button>
         );
     };
@@ -81,21 +92,8 @@ const RoomList = () => {
                         </Button>
                     </Flex>
                 </Box>
-                {/* <Box height={"100px"} {...roomListStyle} position="relative">
-                    <AbsoluteCenter axis={'vertical'}>
-                        <Button onClick={addRoomClick} variant={"surface"}>
-                            <Center inline gap={'2'}>
-                                <Icon size={'xl'}>
-                                    <IoMdAddCircleOutline />
-                                </Icon>
-                                <Heading size={'2xl'}>ADD ROOM</Heading>
-                            
-                            </Center>
-                        </Button>
-                    </AbsoluteCenter>
-                </Box> */}
-                <Box flex={'1'} {...roomListStyle}>
-                    <Flex gap={'2'} direction={'column'}>
+                <Box flex={'1'} {...roomListStyle} overflow={'hidden'}>
+                    <Stack gap={'2'} height={'100%'} overflowY={'auto'} {...scroolStyle}>
                         <For
                             each={roomList}
                         >
@@ -103,7 +101,8 @@ const RoomList = () => {
                                 <RoomListCard name={item.roomName} id={item.roomId} />
                             )}
                         </For>
-                    </Flex>
+                    </Stack>
+                    
                 </Box>
             </Flex>
         </Box>
