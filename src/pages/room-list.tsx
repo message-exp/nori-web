@@ -1,5 +1,5 @@
-import { AbsoluteCenter, Box, Button, Center, Flex, Heading, Icon } from "@chakra-ui/react";
-import { useState } from "react";
+import { AbsoluteCenter, Box, Button, Center, Flex, For, Heading, Icon, Stack } from "@chakra-ui/react";
+import React, { useState } from "react";
 import { IoMdAddCircleOutline } from "react-icons/io";
 
 const RoomList = () => {
@@ -45,6 +45,25 @@ const RoomList = () => {
         console.log("clicked")
     }
 
+    interface roomListDataProps {
+        name: string;
+        id: string;
+    }
+
+    const RoomListCard: React.FC<roomListDataProps> = ({ name, id }) => {
+        return (
+            <Button radioGroup="xl" height={'100px'} width={'100%'} position={'relative'} variant={'ghost'} >
+                <AbsoluteCenter axis={'horizontal'}>
+                    <Stack>
+                        <Heading size={'2xl'}>{name}</Heading>
+                        <Heading size={'md'}>{id}</Heading>
+                    </Stack>
+                    
+                </AbsoluteCenter>
+            </Button>
+        );
+    };
+
     return (
         <Box height="100vh" padding={'10px'}>
             <Flex direction={'column'} gap={2} height={'100%'} >
@@ -62,7 +81,7 @@ const RoomList = () => {
                         </Button>
                     </Flex>
                 </Box>
-                <Box height={"100px"} {...roomListStyle} position="relative">
+                {/* <Box height={"100px"} {...roomListStyle} position="relative">
                     <AbsoluteCenter axis={'vertical'}>
                         <Button onClick={addRoomClick} variant={"surface"}>
                             <Center inline gap={'2'}>
@@ -74,9 +93,17 @@ const RoomList = () => {
                             </Center>
                         </Button>
                     </AbsoluteCenter>
-                </Box>
-                <Box bg={'green'} flex={'1'} {...roomListStyle}>
-                    test
+                </Box> */}
+                <Box flex={'1'} {...roomListStyle}>
+                    <Flex gap={'2'} direction={'column'}>
+                        <For
+                            each={roomList}
+                        >
+                            {(item, ) => (
+                                <RoomListCard name={item.roomName} id={item.roomId} />
+                            )}
+                        </For>
+                    </Flex>
                 </Box>
             </Flex>
         </Box>
