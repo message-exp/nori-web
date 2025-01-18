@@ -1,6 +1,17 @@
-import { Box, Button, Center, Flex, For, Heading, HStack, Icon, Stack } from "@chakra-ui/react";
+import { Box, Button, Center, DialogActionTrigger, Flex, For, Heading, HStack, Icon, Input, Stack } from "@chakra-ui/react";
 import React, { useState } from "react";
 import { IoMdAddCircleOutline } from "react-icons/io";
+import {
+    DialogBody,
+    DialogCloseTrigger,
+    DialogContent,
+    DialogFooter,
+    DialogHeader,
+    DialogRoot,
+    DialogTitle,
+    DialogTrigger,
+} from "@/components/ui/dialog"
+import { Field } from "@/components/ui/field"
 
 const RoomList = () => {
     const [username, setUsername] = useState('test username');
@@ -75,21 +86,57 @@ const RoomList = () => {
         );
     };
 
+    const AddRoomButton = () => {
+        return (
+            <Button onClick={addRoomClick} variant={"surface"}>
+                <Center inline gap={'2'}>
+                    <Icon size={'xl'}>
+                        <IoMdAddCircleOutline />
+                    </Icon>
+                    <Heading size={'2xl'}>ADD ROOM</Heading>
+
+                </Center>
+            </Button>
+        );
+    };
+
+    const AddRoomDialog = () => {
+        return (
+            <DialogRoot>
+                <DialogTrigger>
+                    <AddRoomButton></AddRoomButton>
+                </DialogTrigger>
+
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle >
+                            <Heading size={'2xl'}>Add Room</Heading>
+                        </DialogTitle>
+                            
+                    </DialogHeader>
+                    <DialogBody>
+                        <Field label="Room name">
+                            <Input placeholder="room name" />
+                        </Field>
+                    </DialogBody>
+                    <DialogFooter>
+                        <DialogActionTrigger asChild>
+                            <Button variant="outline">Cancel</Button>
+                        </DialogActionTrigger>
+                        <Button>Save</Button>
+                    </DialogFooter>
+                </DialogContent>
+            </DialogRoot>
+        );
+    };
+
     return (
         <Box height="100vh" padding={'10px'}>
             <Flex direction={'column'} gap={2} height={'100%'} >
                 <Box height={"100px"} {...roomListStyle}>
                     <Flex align={'center'} height={'100%'} width={'100%'} justify={'space-between'}>
                         <Heading size={'3xl'}>{username}</Heading>
-                        <Button onClick={addRoomClick} variant={"surface"}>
-                            <Center inline gap={'2'}>
-                                <Icon size={'xl'}>
-                                    <IoMdAddCircleOutline />
-                                </Icon>
-                                <Heading size={'2xl'}>ADD ROOM</Heading>
-
-                            </Center>
-                        </Button>
+                        <AddRoomDialog></AddRoomDialog>
                     </Flex>
                 </Box>
                 <Box flex={'1'} {...roomListStyle} overflow={'hidden'}>
