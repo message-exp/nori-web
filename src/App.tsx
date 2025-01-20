@@ -1,12 +1,10 @@
-// import React from 'react';
+
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 // 示例頁面組件
 import LoginPage from './pages/login';
 import RoomList from './pages/room-list';
 import { Box, Card, Heading } from '@chakra-ui/react';
 import { Button } from './components/ui/button';
-// import DashboardPage from './pages/DashboardPage';
-// ... existing code ...
 
 function NavigationPage() {
   return (
