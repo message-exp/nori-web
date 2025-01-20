@@ -3,7 +3,6 @@ import React, { useState } from "react";
 import { IoMdAddCircleOutline } from "react-icons/io";
 import {
     DialogBody,
-    DialogCloseTrigger,
     DialogContent,
     DialogFooter,
     DialogHeader,
