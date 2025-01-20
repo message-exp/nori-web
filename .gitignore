@@ -12,7 +12,8 @@ dist
 dist-ssr
 *.local
 
-src/generated/nori/*
+src/proto-generated/*
+!src/proto-generated/.gitkeep
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
