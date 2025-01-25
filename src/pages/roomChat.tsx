@@ -1,8 +1,7 @@
 import { Avatar } from "@/components/ui/avatar";
-import { Box, Button, Center, Flex, For, Grid, GridItem, Heading, IconButton, Text, Textarea } from "@chakra-ui/react";
+import { Box, Center, Flex, For, Heading, IconButton, Text, Textarea } from "@chakra-ui/react";
 import React, { useState } from "react";
-import { IoMenu, IoSend } from "react-icons/io5";
-import { RiFunctionAddFill } from "react-icons/ri";
+import { RiArrowLeftLine, RiFunctionAddFill, RiMenuFill, RiSendPlane2Fill } from "react-icons/ri";
 
 const RoomChat = () => {
     const [roomName, setRoomName] = useState('taki');
@@ -78,21 +77,21 @@ const RoomChat = () => {
         },
     ];
 
-    const roomChatDesignStyle = {
-        backgroundColor: 'gray.900',
-        borderRadius: 'lg',
-        // margin: '20px',
-        padding: '20px'
-    }
-
     const ChatHeader = () => {
         return (
             <Box
-                height={'100px'}
-                {...roomChatDesignStyle}
+                height={'70px'}
+                backgroundColor={'gray.900'}
+                padding={'15px'}
             >
                 <Flex direction={'column'} justify={'center'} height={'100%'}>
                     <Flex justify={'flex-start'} gap={'4'}>
+                        <Center>
+                            <IconButton rounded={'full'} variant={'subtle'} size={'xl'}>
+                                <RiArrowLeftLine />
+                            </IconButton>
+                        </Center>
+                        
                         <Avatar name={roomName} src={roomAvatarSrc} size={'lg'}></Avatar>
                         <Center>
                             <Heading>{roomName}</Heading>
@@ -151,8 +150,8 @@ const RoomChat = () => {
 
     const ChatBody = () => {
         return (
-            <Box borderWidth={'1px'} >
-                <Flex direction={'column'} >
+            <Box height={'100%'} >
+                <Flex direction={'column'} maxHeight={'100%'}>
                     <For each={mockChatData}>
                         {(item, _) =>
                             <MessageUnit
@@ -171,18 +170,23 @@ const RoomChat = () => {
 
     const ChatFooter = () => {
         return (
-            <Box background={'gray.900'} height={'100px'} padding={'10px'}>
+            <Box background={'gray.900'} height={'80px'} padding={'20px'}>
                 <Flex direction={'column'} height={'100%'} justifyContent={'center'}>
                     <Flex>
-                        <Textarea placeholder="Comment..." variant={'outline'}/>
+                        <Textarea
+                            placeholder="Comment..."
+                            variant={'outline'}
+                            resize={'none'}
+
+                        />
                         <IconButton rounded={'full'} variant={'subtle'}>
                             <RiFunctionAddFill />
                         </IconButton>
                         <IconButton rounded={'full'} variant={'subtle'}>
-                            <IoMenu />
+                            <RiMenuFill />
                         </IconButton>
                         <IconButton rounded={'full'} variant={'subtle'}>
-                            <IoSend />
+                            <RiSendPlane2Fill />
                         </IconButton>
                     </Flex>
                     
