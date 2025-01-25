@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 // 示例頁面組件
 import LoginPage from '@/pages/login';
 import RoomList from '@/pages/room-list';
+import SignupPage from './pages/signup';
 import { Box, Card, Heading } from '@chakra-ui/react';
 import { Button } from '@/components/ui/button';
 
@@ -70,6 +71,7 @@ function App() {
         <Route path="/" element={<NavigationPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/roomlist" element={<RoomList />} />
+        <Route path="/signup" element = {<SignupPage />} />
         {/* 添加更多路由 */}
       </Routes>
     </Router>
