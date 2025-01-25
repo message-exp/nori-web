@@ -1,7 +1,19 @@
 import { Avatar } from "@/components/ui/avatar";
-import { Box, Center, Flex, For, Heading, IconButton, Text, Textarea } from "@chakra-ui/react";
+import { Box, Button, Center, DialogActionTrigger, Flex, For, Heading, Icon, IconButton, Input, Text, Textarea } from "@chakra-ui/react";
 import React, { useState } from "react";
-import { RiArrowLeftLine, RiFunctionAddFill, RiMenuFill, RiSendPlane2Fill } from "react-icons/ri";
+import { RiArrowLeftLine, RiFunctionAddFill, RiMenuFill, RiSendPlane2Fill, RiUserAddFill } from "react-icons/ri";
+
+import {
+    DialogBody,
+    DialogContent,
+    DialogFooter,
+    DialogHeader,
+    DialogRoot,
+    DialogTitle,
+    DialogTrigger,
+} from "@/components/ui/dialog"
+
+import { Field } from "@/components/ui/field"
 
 const RoomChat = () => {
     const [roomName, setRoomName] = useState('taki');
@@ -77,6 +89,50 @@ const RoomChat = () => {
         },
     ];
 
+    const InviteButton = () => {
+            return (
+                <Button variant={"surface"}>
+                    <Center inline gap={'2'}>
+                        <Icon size={'xl'}>
+                            <RiUserAddFill />
+                        </Icon>
+                        <Heading size={'2xl'}>Invite</Heading>
+    
+                    </Center>
+                </Button>
+            );
+        };
+
+    const InviteDialog = () => {
+            return (
+                <DialogRoot>
+                    <DialogTrigger>
+                        <InviteButton></InviteButton>
+                    </DialogTrigger>
+    
+                    <DialogContent>
+                        <DialogHeader>
+                            <DialogTitle >
+                                <Heading size={'2xl'}>Invite User</Heading>
+                            </DialogTitle>
+                                
+                        </DialogHeader>
+                        <DialogBody>
+                            <Field label="User name">
+                                <Input placeholder="username" />
+                            </Field>
+                        </DialogBody>
+                        <DialogFooter>
+                            <DialogActionTrigger asChild>
+                                <Button variant="outline">Cancel</Button>
+                            </DialogActionTrigger>
+                            <Button>Save</Button>
+                        </DialogFooter>
+                    </DialogContent>
+                </DialogRoot>
+            );
+        };
+
     const ChatHeader = () => {
         return (
             <Box
@@ -85,17 +141,20 @@ const RoomChat = () => {
                 padding={'15px'}
             >
                 <Flex direction={'column'} justify={'center'} height={'100%'}>
-                    <Flex justify={'flex-start'} gap={'4'}>
-                        <Center>
-                            <IconButton rounded={'full'} variant={'subtle'} size={'xl'}>
-                                <RiArrowLeftLine />
-                            </IconButton>
-                        </Center>
-                        
-                        <Avatar name={roomName} src={roomAvatarSrc} size={'lg'}></Avatar>
-                        <Center>
-                            <Heading>{roomName}</Heading>
-                        </Center>
+                    <Flex justify={'space-between'} direction={'row'}>
+                        <Flex justify={'flex-start'} gap={'4'}>
+                            <Center>
+                                <IconButton rounded={'full'} variant={'subtle'} size={'xl'}>
+                                    <RiArrowLeftLine />
+                                </IconButton>
+                            </Center>
+
+                            <Avatar name={roomName} src={roomAvatarSrc} size={'lg'}></Avatar>
+                            <Center>
+                                <Heading>{roomName}</Heading>
+                            </Center>
+                        </Flex>
+                        <InviteDialog></InviteDialog>
                     </Flex>
                 </Flex>
             </Box>
