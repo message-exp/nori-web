@@ -1,33 +1,80 @@
+import { useState } from 'react';
+import { Box, Button, Input, Text, VStack, Center, Heading } from '@chakra-ui/react';
+
 const LoginPage = () => {
-  return (
-    <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100">
-      <h1 className="text-4xl font-bold mb-8">登入系統</h1>
-      <div className="w-full max-w-md bg-white rounded-lg shadow-md p-8">
-        <form className="space-y-6">
-          <div>
-            <label className="block text-lg font-medium text-gray-700">帳號</label>
-            <input
-              type="text"
-              className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md"
-            />
-          </div>
-          <div>
-            <label className="block text-lg font-medium text-gray-700">密碼</label>
-            <input
-              type="password" 
-              className="mt-1 w-full px-3 py-2 border border-gray-300 rounded-md"
-            />
-          </div>
-          <button
-            type="submit"
-            className="w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-md"
-          >
-            登入
-          </button>
-        </form>
-      </div>
-    </div>
-  );
+  const [flag, setFlag] = useState(1);
+  if (flag) {
+    return (
+      <Welcome setFlag={setFlag} />
+    );
+  } else {
+    return (
+      <Login/>
+    );
+  }
 };
+const Welcome = ({ setFlag }: { setFlag: (value: number) => void }) => {
+  return (
+    <Center height="100vh" bg="#1e1e1e" color="white">
+      <VStack>
+        <Box
+          width="96px"
+          height="96px"
+          bg="gray.600"
+          borderRadius="full"
+        />
+        <Heading as="h1" size="lg">
+          Welcome to Nori
+        </Heading>
+        <Button
+          colorScheme="gray"
+          onClick={() => setFlag(0)}
+        >
+          Log in
+        </Button>
+      </VStack>
+    </Center>
+
+  )
+
+}
+const Login = () => {
+  const [account, setAccount] = useState('');
+  const [password, setPassword] = useState('');
+
+  const loginFunc = () => {
+    console.log('account: ' + account);
+    console.log('password: ' + password);
+    /* 串接API */
+  };
+  return (
+    <Center height="100vh" bg="#1e1e1e" color="white">
+      <VStack width="300px">
+        <Heading as="h1" size="lg">Login</Heading>
+        <Input
+          placeholder="Email"
+          value={account}
+          onChange={(e) => setAccount(e.target.value)}
+          bg="gray.700"
+          color="white"
+        />
+        <Input
+          placeholder="Password"
+          type="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          bg="gray.700"
+          color="white"
+        />
+        <Button colorScheme="blue" width="full" onClick={loginFunc}>
+          Login
+        </Button>
+        <Text>
+          <a href="/signup">Signup if you don't have an account</a>
+        </Text>
+      </VStack>
+    </Center>
+  )
+}
 
 export default LoginPage;
