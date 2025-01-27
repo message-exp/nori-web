@@ -6,6 +6,7 @@ import RoomList from '@/pages/room-list';
 import SignupPage from './pages/signup';
 import { Box, Card, Heading } from '@chakra-ui/react';
 import { Button } from '@/components/ui/button';
+import RoomChat from './pages/roomChat';
 
 function NavigationPage() {
   return (
@@ -30,6 +31,11 @@ function NavigationPage() {
           title="Room List"
           description="房間列表"
           path="/roomlist"
+        />
+        <PageCard
+          title="Room Chat"
+          description="聊天室"
+          path="/roomchat"
         />
         {/* 添加更多頁面卡片 */}
       </div>
@@ -72,6 +78,7 @@ function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/roomlist" element={<RoomList />} />
         <Route path="/signup" element = {<SignupPage />} />
+        <Route path="/roomchat" element={<RoomChat/>} />
         {/* 添加更多路由 */}
       </Routes>
     </Router>
