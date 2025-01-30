@@ -52,6 +52,8 @@ const Login = () => {
     const [isPasswordError, setIsPasswordError] = useState(false);
     const [passwordErrorMessage, setPasswordErrorMessage] = useState('');
 
+    const [textErrorMessage, setTextErrorMessage] = useState('');
+
     function isEmpty(str: string | null | undefined): boolean {
         return !str || str.trim() === "";
     }
@@ -60,11 +62,13 @@ const Login = () => {
         console.log('account: ' + account);
         console.log('password: ' + password);
         /* 串接API */
-        // below just for testing
+        setTextErrorMessage("");
+        let isInputEmpty = false;
         if (isEmpty(account))
         {
-            setEmailErrorMessage("account empty")
+            setEmailErrorMessage("account empty");
             setIsEmailError(true);
+            isInputEmpty = true;
         }
         else
         {
@@ -75,10 +79,26 @@ const Login = () => {
         if (isEmpty(password)) {
             setPasswordErrorMessage("password empty")
             setIsPasswordError(true);
+            isInputEmpty = true;
         }
         else {
             setPasswordErrorMessage("")
             setIsPasswordError(false);
+        }
+
+        if (isInputEmpty) {
+            return;
+        }
+
+        //below just for demo
+        if (account == "test" && password == "test")
+        {
+            setTextErrorMessage("");
+            navigate("/roomlist");
+        }
+        else
+        {
+            setTextErrorMessage("email or password error");
         }
         
     };
@@ -118,6 +138,9 @@ const Login = () => {
                 <Button colorScheme="blue" width="full" onClick={loginFunc}>
                     Login
                 </Button>
+
+                <Text color={'red.400'}>{ textErrorMessage }</Text>
+
 
                 <Button onClick={() => navigate('/signup')} textDecor={'underline'} variant={'plain'}>
                     Signup if you don't have an account
