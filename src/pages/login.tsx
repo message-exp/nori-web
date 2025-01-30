@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Box, Button, Input, Text, VStack, Center, Heading, Field } from '@chakra-ui/react';
 import { PasswordInput } from '@/components/ui/password-input';
+import { useNavigate } from 'react-router';
 
 const LoginPage = () => {
     const [flag, setFlag] = useState(1);
@@ -40,6 +41,8 @@ const Welcome = ({ setFlag }: { setFlag: (value: number) => void }) => {
 
 }
 const Login = () => {
+    const navigate = useNavigate();
+
     const [account, setAccount] = useState('');
     const [password, setPassword] = useState('');
 
@@ -115,9 +118,10 @@ const Login = () => {
                 <Button colorScheme="blue" width="full" onClick={loginFunc}>
                     Login
                 </Button>
-                <Text>
-                    <a href="/signup">Signup if you don't have an account</a>
-                </Text>
+
+                <Button onClick={() => navigate('/signup')} textDecor={'underline'} variant={'plain'}>
+                    Signup if you don't have an account
+                </Button>
             </VStack>
         </Center>
     )
