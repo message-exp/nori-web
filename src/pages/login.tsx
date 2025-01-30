@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Box, Button, Input, Text, VStack, Center, Heading, Field } from '@chakra-ui/react';
+import { PasswordInput } from '@/components/ui/password-input';
 
 const LoginPage = () => {
     const [flag, setFlag] = useState(1);
@@ -99,9 +100,9 @@ const Login = () => {
 
                 <Field.Root invalid={isPasswordError}>
                     <Field.Label>Password</Field.Label>
-                    <Input
+                    <PasswordInput
                         placeholder="Password"
-                        type="password"
+                        // type="password"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         bg="gray.700"
