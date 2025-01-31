@@ -44,9 +44,6 @@ importers:
       react-router-dom:
         specifier: ^7.1.1
         version: 7.1.1(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
-      ts-protoc-gen:
-        specifier: ^0.15.0
-        version: 0.15.0
     devDependencies:
       '@eslint/js':
         specifier: ^9.17.0
@@ -72,6 +69,12 @@ importers:
       globals:
         specifier: ^15.14.0
         version: 15.14.0
+      protoc-gen-js:
+        specifier: 3.21.4-4
+        version: 3.21.4-4
+      ts-protoc-gen:
+        specifier: ^0.15.0
+        version: 0.15.0
       typescript:
         specifier: ~5.6.3
         version: 5.6.3
@@ -957,6 +960,10 @@ packages:
     engines: {node: '>=0.4.0'}
     hasBin: true
 
+  adm-zip@0.5.10:
+    resolution: {integrity: sha512-x0HvcHqVJNTPk/Bw8JbLWlWoo6Wwnsug0fnYYro1HBrjxZ3G7/AZk7Ahv8JwDe1uIcz8eBqvu86FuF1POiG7vQ==}
+    engines: {node: '>=6.0'}
+
   agent-base@6.0.2:
     resolution: {integrity: sha512-RZNwNclF7+MS/8bDg70amg32dyeZGZxiDuQmZxKLAlQjr3jGyLx+4Kkk58UO7D2QdgFIQCovuSuZESne6RG6XQ==}
     engines: {node: '>= 6.0.0'}
@@ -1500,6 +1507,10 @@ packages:
   protobufjs@7.4.0:
     resolution: {integrity: sha512-mRUWCc3KUU4w1jU8sGxICXH/gNS94DvI1gxqDvBzhj1JpcsimQkYiOJfwsPUykUI5ZaspFbSgmBLER8IrQ3tqw==}
     engines: {node: '>=12.0.0'}
+
+  protoc-gen-js@3.21.4-4:
+    resolution: {integrity: sha512-BQUNVNm55pCiFl386SbAjM4D/S70N1jyZPKuTsb8RVibtn+FoiOdHlw4wG8DssvMRZTdI+DIL/WZYN3QBChurg==}
+    hasBin: true
 
   proxy-compare@3.0.0:
     resolution: {integrity: sha512-y44MCkgtZUCT9tZGuE278fB7PWVf7fRYy0vbRXAts2o5F0EfC4fIQrvQQGBJo1WJbFcVLXzApOscyJuZqHQc1w==}
@@ -2970,6 +2981,8 @@ snapshots:
 
   acorn@8.14.0: {}
 
+  adm-zip@0.5.10: {}
+
   agent-base@6.0.2:
     dependencies:
       debug: 4.4.0
@@ -3519,6 +3532,10 @@ snapshots:
       '@protobufjs/utf8': 1.1.0
       '@types/node': 22.10.7
       long: 5.2.4
+
+  protoc-gen-js@3.21.4-4:
+    dependencies:
+      adm-zip: 0.5.10
 
   proxy-compare@3.0.0: {}
 
