@@ -8,6 +8,6 @@ protoc \
     --proto_path="${PROTO_PATH}" \
     --plugin="protoc-gen-ts=${PROTOC_GEN_TS_PATH}" \
     --plugin="protoc-gen-js=${PROTOC_GEN_JS_PATH}" \
-    --js_out="import_style=commonjs,binary:${OUT_DIR}" \
+    --js_out="import_style=es6,binary:${OUT_DIR}" \
     --ts_out="service=grpc-web:${OUT_DIR}" \
     ${PROTO_TARGET}
