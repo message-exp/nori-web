@@ -48,3 +48,50 @@ export default tseslint.config({
   },
 })
 ```
+
+## Protos
+
+To generate TypeScript codes from the proto files, follow the instructions below.
+
+### Set up the environment
+
+1. Install Node.js and pnpm.
+
+2. Install dependencies.
+
+    ```sh
+    pnpm install
+    ```
+
+3. Install protoc.
+
+4. Download protoc-gen-grpc-web from [grpc-web releases](https://github.com/grpc/grpc-web/releases), and make it executable. For example:
+    
+    Download the protoc-gen-grpc-web file:
+
+    ```sh
+    wget https://github.com/grpc/grpc-web/releases/download/<version>/protoc-gen-grpc-web-<version>-<platform>
+    ```
+
+    Make it executable:
+
+    ```sh
+    chmod +x protoc-gen-grpc-web-<version>-<platform>
+    ```
+
+5. Open [scripts/generate.sh](scripts/generate.sh) in an editor, change the `PROTOC_GEN_GRPC_WEB_PATH` value to the path you save the downloaded file.
+    
+    For example:
+    
+    ```diff
+    - PROTOC_GEN_GRPC_WEB_PATH=path/to/protoc-gen-grpc-web
+    + PROTOC_GEN_GRPC_WEB_PATH=/home/user/Downloads/protoc-gen-grpc-web-<version>-<platform>
+    ```
+
+### Generate codes from proto files
+
+Run this command:
+
+```sh
+scripts/generate.sh
+```
