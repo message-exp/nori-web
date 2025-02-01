@@ -24,3 +24,7 @@ src/proto-generated/*
 *.njsproj
 *.sln
 *.sw?
+
+# Protobuffer generated code
+src/proto-generated/*
+!src/proto-generated/.gitkeep
