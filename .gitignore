@@ -12,8 +12,6 @@ dist
 dist-ssr
 *.local
 
-src/proto-generated/*
-!src/proto-generated/.gitkeep
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
@@ -24,3 +22,7 @@ src/proto-generated/*
 *.njsproj
 *.sln
 *.sw?
+
+# Protobuffer generated code
+src/proto-generated/*
+!src/proto-generated/.gitkeep
