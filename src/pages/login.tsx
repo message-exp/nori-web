@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Box, Button, Input, Text, VStack, Center, Heading, Field } from '@chakra-ui/react';
 import { PasswordInput } from '@/components/ui/password-input';
 import { useNavigate } from 'react-router';
+import { login } from '@/api/user/user-service';
 
 const LoginPage = () => {
     const [flag, setFlag] = useState(1);
@@ -58,7 +59,7 @@ const Login = () => {
         return !str || str.trim() === "";
     }
 
-    const loginFunc = () => {
+    const loginFunc = async() => {
         console.log('account: ' + account);
         console.log('password: ' + password);
         /* 串接API */
@@ -90,16 +91,18 @@ const Login = () => {
             return;
         }
 
+        await login(account, password);
+
         //below just for demo
-        if (account == "test" && password == "test")
-        {
-            setTextErrorMessage("");
-            navigate("/roomlist");
-        }
-        else
-        {
-            setTextErrorMessage("email or password error");
-        }
+        // if (account == "test" && password == "test")
+        // {
+        //     setTextErrorMessage("");
+        //     navigate("/roomlist");
+        // }
+        // else
+        // {
+        //     setTextErrorMessage("email or password error");
+        // }
         
     };
 

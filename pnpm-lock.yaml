@@ -8,9 +8,18 @@ importers:
 
   .:
     dependencies:
+      '@bufbuild/protobuf':
+        specifier: ^2.2.3
+        version: 2.2.3
       '@chakra-ui/react':
         specifier: ^3.2.4
         version: 3.2.4(@emotion/react@11.14.0(@types/react@18.3.18)(react@19.0.0))(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+      '@connectrpc/connect':
+        specifier: ^2.0.1
+        version: 2.0.1(@bufbuild/protobuf@2.2.3)
+      '@connectrpc/connect-web':
+        specifier: ^2.0.1
+        version: 2.0.1(@bufbuild/protobuf@2.2.3)(@connectrpc/connect@2.0.1(@bufbuild/protobuf@2.2.3))
       '@emotion/react':
         specifier: ^11.14.0
         version: 11.14.0(@types/react@18.3.18)(react@19.0.0)
@@ -20,6 +29,9 @@ importers:
       '@grpc/proto-loader':
         specifier: ^0.7.13
         version: 0.7.13
+      '@types/google-protobuf':
+        specifier: ^3.15.12
+        version: 3.15.12
       '@types/npm':
         specifier: ^7.19.3
         version: 7.19.3
@@ -48,6 +60,12 @@ importers:
         specifier: ^0.15.0
         version: 0.15.0
     devDependencies:
+      '@bufbuild/buf':
+        specifier: ^1.50.0
+        version: 1.50.0
+      '@bufbuild/protoc-gen-es':
+        specifier: ^2.2.3
+        version: 2.2.3(@bufbuild/protobuf@2.2.3)
       '@eslint/js':
         specifier: ^9.17.0
         version: 9.17.0
@@ -72,6 +90,9 @@ importers:
       globals:
         specifier: ^15.14.0
         version: 15.14.0
+      ts-proto:
+        specifier: ^2.6.1
+        version: 2.6.1
       typescript:
         specifier: ~5.6.3
         version: 5.6.3
@@ -134,12 +155,86 @@ packages:
     resolution: {integrity: sha512-vN5p+1kl59GVKMvTHt55NzzmYVxprfJD+ql7U9NFIfKCBkYE55LYtS+WtPlaYOyzydrKI8Nezd+aZextrd+FMA==}
     engines: {node: '>=6.9.0'}
 
+  '@bufbuild/buf-darwin-arm64@1.50.0':
+    resolution: {integrity: sha512-ldj1s0hMhZlz0N4+fqs9jGqC7jKAcsfLNp8kM+G+6XTPh8GWA/U1sYRdHhAlv1+3STfWhGxAhrNGRRVvvimALQ==}
+    engines: {node: '>=12'}
+    cpu: [arm64]
+    os: [darwin]
+
+  '@bufbuild/buf-darwin-x64@1.50.0':
+    resolution: {integrity: sha512-0ODFAnDVr0UOIUHGrI3vA3Cycec186BP5PFOuW6bALxBVN52Lqjjj+/+bVhvbBQlYo3rkxOtxEdoWGHZJrHhHA==}
+    engines: {node: '>=12'}
+    cpu: [x64]
+    os: [darwin]
+
+  '@bufbuild/buf-linux-aarch64@1.50.0':
+    resolution: {integrity: sha512-Dp0YzLOW7O+C8bAm6/Q2HSrTYpDs2SxQXx+dBNxUotMpzx+uaUvqXb3EGr7s07ro+FsT0sFjzKTBcuCwkj+guQ==}
+    engines: {node: '>=12'}
+    cpu: [arm64]
+    os: [linux]
+
+  '@bufbuild/buf-linux-armv7@1.50.0':
+    resolution: {integrity: sha512-EMYRKSJ4kZo+OiHvMTYM+O27lf/okaf+bk1agRUTmBccp+qoGEC0R3DB/powFf/FURkUF7vKUS4T0GC/4n8OVA==}
+    engines: {node: '>=12'}
+    cpu: [arm]
+    os: [linux]
+
+  '@bufbuild/buf-linux-x64@1.50.0':
+    resolution: {integrity: sha512-1G6ZQLXYoCXl8ZmCivUuknc6BiMz2bMtfpzYurFhj9wCIQTZsgepTBoiXHTcEdu2fjYAFxRGo4o+ZALU1umY0g==}
+    engines: {node: '>=12'}
+    cpu: [x64]
+    os: [linux]
+
+  '@bufbuild/buf-win32-arm64@1.50.0':
+    resolution: {integrity: sha512-KpbI+f0TnGaa4KlPQXCLx8ZWKfO2pMD1kvVjAaktmm9OUoP9HrvZJ11tDEiFEFbrKbapCIhCCC3XWaldEDJWcA==}
+    engines: {node: '>=12'}
+    cpu: [arm64]
+    os: [win32]
+
+  '@bufbuild/buf-win32-x64@1.50.0':
+    resolution: {integrity: sha512-gA9aVuZYfh3pmWNYxmnK6thlcqyu2ht8haFhdB0w14Rtj200FAsMmzF7CPWvXQrV5g0pqXPwoMjZigT4OJHOXg==}
+    engines: {node: '>=12'}
+    cpu: [x64]
+    os: [win32]
+
+  '@bufbuild/buf@1.50.0':
+    resolution: {integrity: sha512-XcdB5/Ls8k1eVcgNwUsRZEhCqiHgsnN+uEk/aDh0urGeiWc/dN6c89ZnAnI9/v0AZWzp6/rowoZhThlTl+D0bw==}
+    engines: {node: '>=12'}
+    hasBin: true
+
+  '@bufbuild/protobuf@2.2.3':
+    resolution: {integrity: sha512-tFQoXHJdkEOSwj5tRIZSPNUuXK3RaR7T1nUrPgbYX1pUbvqqaaZAsfo+NXBPsz5rZMSKVFrgK1WL8Q/MSLvprg==}
+
+  '@bufbuild/protoc-gen-es@2.2.3':
+    resolution: {integrity: sha512-hdhIV9NmwXXy24DcbnArauv6L5Dv2PjkO9gz2DUhiZ9HPRpP+rmpT8zo5LohjJiuA7YIQGGKKWSKpRg+xcdLSQ==}
+    engines: {node: '>=14'}
+    hasBin: true
+    peerDependencies:
+      '@bufbuild/protobuf': 2.2.3
+    peerDependenciesMeta:
+      '@bufbuild/protobuf':
+        optional: true
+
+  '@bufbuild/protoplugin@2.2.3':
+    resolution: {integrity: sha512-UsV7mj6NJTZrqIYJK+jNFnnj5tOS7wgNXKyMjebFEpf+OX6pfXE+nx+QPjumOfu4GxdVPfEDnKuwISgqlXSQqw==}
+
   '@chakra-ui/react@3.2.4':
     resolution: {integrity: sha512-nncttNqpsa49geYV+hvUm2Z7AmR16k1tx2Y0zTieDWBWFVNDba9mWUXFI0Jp3MWrIIL6ZeZFq2NYOdC8jwaAOQ==}
     peerDependencies:
       '@emotion/react': '>=11'
       react: '>=18'
       react-dom: '>=18'
+
+  '@connectrpc/connect-web@2.0.1':
+    resolution: {integrity: sha512-FmUR9TyuHu/3efr9cYZcqqAccgsswLSm3PQBXGuya5h57AjQWROW6ejL6Fg0d+A9EwsxRmJktefmFszXUMlU9Q==}
+    peerDependencies:
+      '@bufbuild/protobuf': ^2.2.0
+      '@connectrpc/connect': 2.0.1
+
+  '@connectrpc/connect@2.0.1':
+    resolution: {integrity: sha512-o+MauvcOnfN4vjpS8ngoX+ubhcCDvnexlLwtk/VnkCLjoRMUz2PKqi87Si58ViWq0vzmGYPRf2LNwhJk5kcCXA==}
+    peerDependencies:
+      '@bufbuild/protobuf': ^2.2.0
 
   '@emotion/babel-plugin@11.13.5':
     resolution: {integrity: sha512-pxHCpT2ex+0q+HH91/zsdHkw/lXd468DIN2zvfvLtPKLLMo6gQj7oLObq8PhkrxOZb/gGCq03S3Z7PDhS8pduQ==}
@@ -662,6 +757,9 @@ packages:
   '@types/estree@1.0.6':
     resolution: {integrity: sha512-AYnb1nQyY49te+VRAVgmzfcgjYS91mY5P0TKUDCLEM+gNnA+3T6rWITXRLYCpahpqSQbN5cE+gHpnPyXjHWxcw==}
 
+  '@types/google-protobuf@3.15.12':
+    resolution: {integrity: sha512-40um9QqwHjRS92qnOaDpL7RmDK15NuZYo9HihiJRbYkMQZlWnuH8AdvbMy8/o6lgLmKbDUKa+OALCltHdbOTpQ==}
+
   '@types/json-schema@7.0.15':
     resolution: {integrity: sha512-5+fP8P8MFNC+AyZCDxrB2pkZFPGzqQWUzpSeuuVLvm8VMcorNYavBqoFcxK8bQz4Qsbn4oUEEem4wDLfcysGHA==}
 
@@ -731,6 +829,11 @@ packages:
   '@typescript-eslint/visitor-keys@8.19.0':
     resolution: {integrity: sha512-mCFtBbFBJDCNCWUl5y6sZSCHXw1DEFEk3c/M3nRK2a4XUB8StGFtmcEMizdjKuBzB6e/smJAAWYug3VrdLMr1w==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
+
+  '@typescript/vfs@1.6.1':
+    resolution: {integrity: sha512-JwoxboBh7Oz1v38tPbkrZ62ZXNHAk9bJ7c9x0eI5zBfBnBYGhURdbnh7Z4smN/MV48Y5OCcZb58n972UtbazsA==}
+    peerDependencies:
+      typescript: '*'
 
   '@vitejs/plugin-react-swc@3.7.2':
     resolution: {integrity: sha512-y0byko2b2tSVVf5Gpng1eEhX1OvPC7x8yns1Fx8jDzlJp4LS6CMkCPfLw47cjyoMrshQDoQw4qcgjsU9VvlCew==}
@@ -1008,6 +1111,10 @@ packages:
     resolution: {integrity: sha512-P8BjAsXvZS+VIDUI11hHCQEv74YT67YUi5JJFNWIqL235sBmjX4+qx9Muvls5ivyNENctx46xQLQ3aTuE7ssaQ==}
     engines: {node: '>=6'}
 
+  case-anything@2.1.13:
+    resolution: {integrity: sha512-zlOQ80VrQ2Ue+ymH5OuM/DlDq64mEm+B9UTdHULv5osUMD6HalNTblf2b1u/m6QecjsnOkBpqVZ+XPwIVsy7Ng==}
+    engines: {node: '>=12.13'}
+
   chalk@4.1.2:
     resolution: {integrity: sha512-oKnbhFyRIXpUuez8iBMmyEa4nbj4IOQyuhc/wy9kY7/WVPcwIO9VA668Pu8RkO7+0G76SLROeyw9CpQ061i4mA==}
     engines: {node: '>=10'}
@@ -1070,9 +1177,17 @@ packages:
   delegates@1.0.0:
     resolution: {integrity: sha512-bd2L678uiWATM6m5Z1VzNCErI3jiGzt6HGY8OVICs40JQq/HALfbyNJmp0UDakEY4pMMaN0Ly5om/B1VI/+xfQ==}
 
+  detect-libc@1.0.3:
+    resolution: {integrity: sha512-pGjwhsmsp4kL2RTz08wcOlGN83otlqHeD/Z5T8GXZB+/YcpQ/dgo+lbU8ZsGxV0HIvqqxo9l7mqYwyYMD9bKDg==}
+    engines: {node: '>=0.10'}
+    hasBin: true
+
   detect-libc@2.0.3:
     resolution: {integrity: sha512-bwy0MGW55bG41VqxxypOsdSdGqLwXPI/focwgTYCFMbdUiBAxLg9CFzG08sz2aqzknwiX7Hkl0bQENjg8iLByw==}
     engines: {node: '>=8'}
+
+  dprint-node@1.0.8:
+    resolution: {integrity: sha512-iVKnUtYfGrYcW1ZAlfR/F59cUVL8QIhWoBJoSjkkdua/dkWIgjZfiLMeTjiB06X0ZLkQ0M2C1VbUj/CxkIf1zg==}
 
   emoji-regex@8.0.0:
     resolution: {integrity: sha512-MSjYzcWNOA0ewAHpz0MxpYFvwg6yjy1NG3xteoqz644VCo/RPgnr1/GGt+ic3iJTzQ8Eu3TdM14SawnVUmGE6A==}
@@ -1674,6 +1789,16 @@ packages:
     peerDependencies:
       typescript: '>=4.2.0'
 
+  ts-poet@6.10.0:
+    resolution: {integrity: sha512-+Wp7d2ROwRNkSVWLsPaZQ0SJVGI2t83QpgN19xMZjX6hS7HLxJ7wS319oeFacFYB1M/xW3sifnTpm/a88VRS5A==}
+
+  ts-proto-descriptors@2.0.0:
+    resolution: {integrity: sha512-wHcTH3xIv11jxgkX5OyCSFfw27agpInAd6yh89hKG6zqIXnjW9SYqSER2CVQxdPj4czeOhGagNvZBEbJPy7qkw==}
+
+  ts-proto@2.6.1:
+    resolution: {integrity: sha512-4LTT99MkwkF1+fIA0b2mZu/58Qlpq3Q1g53TwEMZZgR1w/uX00PoVT4Z8aKJxMw0LeKQD4s9NrJYsF27Clckrg==}
+    hasBin: true
+
   ts-protoc-gen@0.15.0:
     resolution: {integrity: sha512-TycnzEyrdVDlATJ3bWFTtra3SCiEP0W0vySXReAuEygXCUr1j2uaVyL0DhzjwuUdQoW5oXPwk6oZWeA0955V+g==}
     hasBin: true
@@ -1704,6 +1829,11 @@ packages:
     peerDependencies:
       eslint: ^8.57.0 || ^9.0.0
       typescript: '>=4.8.4 <5.8.0'
+
+  typescript@5.4.5:
+    resolution: {integrity: sha512-vcI4UpRgg81oIRUFwR0WSIHKt11nJ7SAVlYNIu+QpqeyXP+gpQJy/Z4+F0aGxSE4MqwjyXvW/TzgkLAx2AGHwQ==}
+    engines: {node: '>=14.17'}
+    hasBin: true
 
   typescript@5.6.3:
     resolution: {integrity: sha512-hjcS1mhfuyi4WW8IWtjP7brDrG2cuDZukyrYrSauoXGNgx0S7zceP07adYkJycEr56BOUTNPzbInooiN3fn1qw==}
@@ -1931,6 +2061,55 @@ snapshots:
       '@babel/helper-string-parser': 7.25.9
       '@babel/helper-validator-identifier': 7.25.9
 
+  '@bufbuild/buf-darwin-arm64@1.50.0':
+    optional: true
+
+  '@bufbuild/buf-darwin-x64@1.50.0':
+    optional: true
+
+  '@bufbuild/buf-linux-aarch64@1.50.0':
+    optional: true
+
+  '@bufbuild/buf-linux-armv7@1.50.0':
+    optional: true
+
+  '@bufbuild/buf-linux-x64@1.50.0':
+    optional: true
+
+  '@bufbuild/buf-win32-arm64@1.50.0':
+    optional: true
+
+  '@bufbuild/buf-win32-x64@1.50.0':
+    optional: true
+
+  '@bufbuild/buf@1.50.0':
+    optionalDependencies:
+      '@bufbuild/buf-darwin-arm64': 1.50.0
+      '@bufbuild/buf-darwin-x64': 1.50.0
+      '@bufbuild/buf-linux-aarch64': 1.50.0
+      '@bufbuild/buf-linux-armv7': 1.50.0
+      '@bufbuild/buf-linux-x64': 1.50.0
+      '@bufbuild/buf-win32-arm64': 1.50.0
+      '@bufbuild/buf-win32-x64': 1.50.0
+
+  '@bufbuild/protobuf@2.2.3': {}
+
+  '@bufbuild/protoc-gen-es@2.2.3(@bufbuild/protobuf@2.2.3)':
+    dependencies:
+      '@bufbuild/protoplugin': 2.2.3
+    optionalDependencies:
+      '@bufbuild/protobuf': 2.2.3
+    transitivePeerDependencies:
+      - supports-color
+
+  '@bufbuild/protoplugin@2.2.3':
+    dependencies:
+      '@bufbuild/protobuf': 2.2.3
+      '@typescript/vfs': 1.6.1(typescript@5.4.5)
+      typescript: 5.4.5
+    transitivePeerDependencies:
+      - supports-color
+
   '@chakra-ui/react@3.2.4(@emotion/react@11.14.0(@types/react@18.3.18)(react@19.0.0))(react-dom@19.0.0(react@19.0.0))(react@19.0.0)':
     dependencies:
       '@ark-ui/react': 4.4.4(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
@@ -1943,6 +2122,15 @@ snapshots:
       csstype: 3.1.3
       react: 19.0.0
       react-dom: 19.0.0(react@19.0.0)
+
+  '@connectrpc/connect-web@2.0.1(@bufbuild/protobuf@2.2.3)(@connectrpc/connect@2.0.1(@bufbuild/protobuf@2.2.3))':
+    dependencies:
+      '@bufbuild/protobuf': 2.2.3
+      '@connectrpc/connect': 2.0.1(@bufbuild/protobuf@2.2.3)
+
+  '@connectrpc/connect@2.0.1(@bufbuild/protobuf@2.2.3)':
+    dependencies:
+      '@bufbuild/protobuf': 2.2.3
 
   '@emotion/babel-plugin@11.13.5':
     dependencies:
@@ -2361,6 +2549,8 @@ snapshots:
 
   '@types/estree@1.0.6': {}
 
+  '@types/google-protobuf@3.15.12': {}
+
   '@types/json-schema@7.0.15': {}
 
   '@types/node@22.10.7':
@@ -2460,6 +2650,13 @@ snapshots:
     dependencies:
       '@typescript-eslint/types': 8.19.0
       eslint-visitor-keys: 4.2.0
+
+  '@typescript/vfs@1.6.1(typescript@5.4.5)':
+    dependencies:
+      debug: 4.4.0
+      typescript: 5.4.5
+    transitivePeerDependencies:
+      - supports-color
 
   '@vitejs/plugin-react-swc@3.7.2(@swc/helpers@0.5.15)(vite@6.0.6(@types/node@22.10.7))':
     dependencies:
@@ -3025,6 +3222,8 @@ snapshots:
 
   callsites@3.1.0: {}
 
+  case-anything@2.1.13: {}
+
   chalk@4.1.2:
     dependencies:
       ansi-styles: 4.3.0
@@ -3078,7 +3277,13 @@ snapshots:
 
   delegates@1.0.0: {}
 
+  detect-libc@1.0.3: {}
+
   detect-libc@2.0.3: {}
+
+  dprint-node@1.0.8:
+    dependencies:
+      detect-libc: 1.0.3
 
   emoji-regex@8.0.0: {}
 
@@ -3683,6 +3888,21 @@ snapshots:
     dependencies:
       typescript: 5.6.3
 
+  ts-poet@6.10.0:
+    dependencies:
+      dprint-node: 1.0.8
+
+  ts-proto-descriptors@2.0.0:
+    dependencies:
+      '@bufbuild/protobuf': 2.2.3
+
+  ts-proto@2.6.1:
+    dependencies:
+      '@bufbuild/protobuf': 2.2.3
+      case-anything: 2.1.13
+      ts-poet: 6.10.0
+      ts-proto-descriptors: 2.0.0
+
   ts-protoc-gen@0.15.0:
     dependencies:
       google-protobuf: 3.21.4
@@ -3708,6 +3928,8 @@ snapshots:
       typescript: 5.6.3
     transitivePeerDependencies:
       - supports-color
+
+  typescript@5.4.5: {}
 
   typescript@5.6.3: {}
 
