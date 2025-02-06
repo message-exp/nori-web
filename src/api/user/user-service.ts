@@ -25,7 +25,8 @@ export const login = async (input_email: string, input_password: string): Promis
 
     // 執行登入請求
     try {
-        const response = await client.login(loginRequest);
+        // const response = await client.login(loginRequest);
+        const response = "test_OK[if you see this, it just a test]";
         console.log("登入成功", response);
         return response;
     } catch (error) {

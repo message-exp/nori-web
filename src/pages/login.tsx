@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Box, Button, Input, Text, VStack, Center, Heading, Field } from '@chakra-ui/react';
+import { Box, Button, Input, Text, VStack, Center, Heading, Field, Image } from '@chakra-ui/react';
 import { PasswordInput } from '@/components/ui/password-input';
 import { useNavigate } from 'react-router';
 import { login } from '@/api/user/user-service';
@@ -20,11 +20,12 @@ const Welcome = ({ setFlag }: { setFlag: (value: number) => void }) => {
     return (
         <Center height="100vh" bg="#1e1e1e" color="white">
             <VStack>
-                <Box
-                    width="96px"
-                    height="96px"
-                    bg="gray.600"
+                <Image
+                    src="main.jpg"
+                    boxSize="96px"
                     borderRadius="full"
+                    fit="cover"
+                    alt="main"
                 />
                 <Heading as="h1" size="lg">
                     Welcome to Nori
@@ -55,6 +56,8 @@ const Login = () => {
 
     const [textErrorMessage, setTextErrorMessage] = useState('');
 
+    const [isLoginLoading, setIsLoginLoading] = useState(false);
+
     function isEmpty(str: string | null | undefined): boolean {
         return !str || str.trim() === "";
     }
@@ -64,6 +67,7 @@ const Login = () => {
         console.log('password: ' + password);
         /* 串接API */
         setTextErrorMessage("");
+        setIsLoginLoading(true);
         let isInputEmpty = false;
         if (isEmpty(account))
         {
@@ -94,10 +98,12 @@ const Login = () => {
         try {
             const response = await login(account, password);
             setTextErrorMessage("");
+            setIsLoginLoading(false);
             navigate("/roomlist");
         } catch (error) {
             console.log("get error: ", error);
             setTextErrorMessage("email or password error");
+            setIsLoginLoading(false);
         }
         
 
@@ -149,6 +155,7 @@ const Login = () => {
                 <Button
                     width="full"
                     onClick={loginFunc}
+                    loading={isLoginLoading}
                 >
                     Login
                 </Button>
