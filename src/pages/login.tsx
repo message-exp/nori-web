@@ -91,7 +91,15 @@ const Login = () => {
             return;
         }
 
-        await login(account, password);
+        try {
+            const response = await login(account, password);
+            setTextErrorMessage("");
+            navigate("/roomlist");
+        } catch (error) {
+            console.log("get error: ", error);
+            setTextErrorMessage("email or password error");
+        }
+        
 
         //below just for demo
         // if (account == "test" && password == "test")
@@ -138,7 +146,10 @@ const Login = () => {
                 </Field.Root>
                 
                 
-                <Button colorScheme="blue" width="full" onClick={loginFunc}>
+                <Button
+                    width="full"
+                    onClick={loginFunc}
+                >
                     Login
                 </Button>
 

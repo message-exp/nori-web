@@ -27,8 +27,10 @@ export const login = async (input_email: string, input_password: string): Promis
     try {
         const response = await client.login(loginRequest);
         console.log("登入成功", response);
+        return response;
     } catch (error) {
         console.error("登入失敗", error);
+        throw error;
     }
 }
 
