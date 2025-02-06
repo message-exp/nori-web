@@ -1,1 +1,1 @@
-npx buf generate
+pnpm exec buf generate
