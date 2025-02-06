@@ -11,7 +11,7 @@
   },
   "dependencies": {
     "@bufbuild/protobuf": "^2.2.3",
-    "@chakra-ui/react": "^3.2.4",
+    "@chakra-ui/react": "^3.7.0",
     "@connectrpc/connect": "^2.0.1",
     "@connectrpc/connect-web": "^2.0.1",
     "@emotion/react": "^11.14.0",
