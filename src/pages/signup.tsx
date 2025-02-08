@@ -7,11 +7,33 @@ const SignupPage = () => {
     const [name, setName] = useState('');
     const [account, setAccount] = useState('');
     const [password, setPassword] = useState('');
+    
+    const [confirmPassword, setconfirmPassword] = useState('');
+    const [isConfirmPasswordValid, setIsConfirmPasswordValid] = useState(true);
+    const [confirmPasswordErrorMessage, setConfirmPasswordErrorMessage] = useState("");
+
+    const handlePasswordConfirm = (inputConfirm: string) => {
+        if (password !== inputConfirm) {
+            console.log("not same");
+            console.log("password: ", password);
+            console.log("confirm: ", inputConfirm);
+            setIsConfirmPasswordValid(false);
+            setConfirmPasswordErrorMessage("it's not same as password");
+
+        }
+        else
+        {
+            console.log("is same");
+            setIsConfirmPasswordValid(true);
+            setConfirmPasswordErrorMessage("");
+        }
+    }
 
     const signupFunc = () => {
-        console.log('name ' + name);
-        console.log('account ' + account);
-        console.log('password ' + password);
+        console.log('name: ' + name);
+        console.log('account: ' + account);
+        console.log('password: ' + password);
+        console.log('confirm password: ' + confirmPassword);
         /* 串接API */
     };
 
@@ -34,10 +56,20 @@ const SignupPage = () => {
                 <TextInput
                     title="Password"
                     placeholder="Password"
-                    // type="password"
                     password
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
+                />
+                <TextInput
+                    placeholder="Confirm Password"
+                    invalid={!isConfirmPasswordValid}
+                    password
+                    value={confirmPassword}
+                    onChange={(e) => {
+                        setconfirmPassword(e.target.value);
+                        handlePasswordConfirm(e.target.value);
+                    }}
+                    errorMessage={confirmPasswordErrorMessage}
                 />
                 <Button colorScheme="blue" width="full" onClick={signupFunc}>
                     Sign Up
