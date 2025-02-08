@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Box, Button, Input, Text, VStack, Center, Heading, Field, Image } from '@chakra-ui/react';
+import { Button, Input, Text, VStack, Center, Heading, Field, Image } from '@chakra-ui/react';
 import { PasswordInput } from '@/components/ui/password-input';
 import { useNavigate } from 'react-router';
 import { login } from '@/api/user/user-service';

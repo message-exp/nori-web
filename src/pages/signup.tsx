@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Button, Input, Text, VStack, Center, Heading } from "@chakra-ui/react";
+import { Button, Text, VStack, Center, Heading } from "@chakra-ui/react";
 import TextInput from "@/components/auth/TextInput";
 
 
@@ -11,6 +11,9 @@ const SignupPage = () => {
     const [confirmPassword, setconfirmPassword] = useState('');
     const [isConfirmPasswordValid, setIsConfirmPasswordValid] = useState(true);
     const [confirmPasswordErrorMessage, setConfirmPasswordErrorMessage] = useState("");
+
+    const [isSignupLoading, setIsSignupLoading] = useState(false);
+    const [textErrorMessage, setTextErrorMessage] = useState("");
 
     const handlePasswordConfirm = (inputConfirm: string) => {
         if (password !== inputConfirm) {
@@ -29,12 +32,26 @@ const SignupPage = () => {
         }
     }
 
-    const signupFunc = () => {
+    const signupFunc = async () => {
+
+        const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
+
+        setIsSignupLoading(true);
+        setTextErrorMessage("");
         console.log('name: ' + name);
         console.log('account: ' + account);
         console.log('password: ' + password);
         console.log('confirm password: ' + confirmPassword);
         /* 串接API */
+
+        // below just for testing
+        await delay(3000);
+        setTextErrorMessage("have error");
+
+        
+
+        setIsSignupLoading(false);
     };
 
     return (
@@ -71,9 +88,17 @@ const SignupPage = () => {
                     }}
                     errorMessage={confirmPasswordErrorMessage}
                 />
-                <Button colorScheme="blue" width="full" onClick={signupFunc}>
+                <Button
+                    colorScheme="blue"
+                    width="full"
+                    onClick={signupFunc}
+                    loading={isSignupLoading}
+                >
                     Sign Up
                 </Button>
+
+                <Text color={'red.400'}>{textErrorMessage}</Text>
+
                 <Text>
                     <a href="/login" style={{ color: 'white' }}>Login if you have an account</a>
                 </Text>
