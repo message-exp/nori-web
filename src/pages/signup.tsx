@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Button, Input, Text, VStack, Center, Heading } from "@chakra-ui/react";
+import TextInput from "@/components/auth/TextInput";
 
 
 const SignupPage = () => {
@@ -18,27 +19,25 @@ const SignupPage = () => {
         <Center height="100vh" bg="#1e1e1e" color="white">
             <VStack width="320px">
                 <Heading as="h1" size="lg">Signup</Heading>
-                <Input
+                <TextInput
+                    title="Name"
                     placeholder="Name"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
-                    bg="gray.700"
-                    color="white"
                 />
-                <Input
+                <TextInput
+                    title="Email"
                     placeholder="Email"
                     value={account}
                     onChange={(e) => setAccount(e.target.value)}
-                    bg="gray.700"
-                    color="white"
                 />
-                <Input
+                <TextInput
+                    title="Password"
                     placeholder="Password"
-                    type="password"
+                    // type="password"
+                    password
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    bg="gray.700"
-                    color="white"
                 />
                 <Button colorScheme="blue" width="full" onClick={signupFunc}>
                     Sign Up
