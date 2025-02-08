@@ -100,6 +100,7 @@ const Login = () => {
             setTextErrorMessage("");
             setIsLoginLoading(false);
             navigate("/roomlist");
+            console.log("response: ", response);
         } catch (error) {
             console.log("get error: ", error);
             setTextErrorMessage("email or password error");

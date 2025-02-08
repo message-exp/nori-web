@@ -13,7 +13,7 @@ import {
 import { Field } from "@/components/ui/field"
 
 const RoomList = () => {
-    const [username, setUsername] = useState('test username');
+    const [username, _] = useState('test username');
 
     const roomListStyle = {
         borderRadius: 'lg',
