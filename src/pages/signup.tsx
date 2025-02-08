@@ -1,9 +1,13 @@
 import { useState } from "react";
 import { Button, Text, VStack, Center, Heading } from "@chakra-ui/react";
 import TextInput from "@/components/auth/TextInput";
+import { useNavigate } from "react-router";
 
 
 const SignupPage = () => {
+
+    const navigate = useNavigate();
+
     const [name, setName] = useState('');
     const [account, setAccount] = useState('');
     const [password, setPassword] = useState('');
@@ -99,9 +103,9 @@ const SignupPage = () => {
 
                 <Text color={'red.400'}>{textErrorMessage}</Text>
 
-                <Text>
-                    <a href="/login" style={{ color: 'white' }}>Login if you have an account</a>
-                </Text>
+                <Button onClick={() => navigate('/login')} textDecor={'underline'} variant={'plain'}>
+                    Login if you have an account
+                </Button>
             </VStack>
         </Center>
     );
