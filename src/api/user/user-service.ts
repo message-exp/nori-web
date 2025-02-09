@@ -6,17 +6,33 @@ import { create } from "@bufbuild/protobuf";
 
 
 const transport = createConnectTransport({
-    baseUrl: "http://192.168.1.200:50051",
+    baseUrl: import.meta.env.VITE_SERVER_HOST ?? "",
 });
 
-// Here we make the client itself, combining the service
-// definition with the transport.
+
 const client = createClient(UserService, transport);
+
+const api_mode = import.meta.env.VITE_API_MODE;
 
 export const login = async (input_email: string, input_password: string): Promise<any> => {
     console.info("get login info");
     console.info("email: ", input_email);
     console.info("password: ", input_password);
+
+    if (api_mode === "MOCK") {
+        if (input_email === "test" && input_password === "test123")
+        {
+            const response = "test_OK[if you see this, it just a test]";
+            console.debug("登入成功", response);
+            return response;
+        }
+        else
+        {
+            console.error("登入失敗: Email or Password not right");
+            throw new Error("Email or Password not right");
+        }
+    }
+
     // 準備登入請求
     const loginRequest = create(UserEmailPasswordLoginSchema, {
         email: input_email,
@@ -25,8 +41,7 @@ export const login = async (input_email: string, input_password: string): Promis
 
     // 執行登入請求
     try {
-        // const response = await client.login(loginRequest);
-        const response = "test_OK[if you see this, it just a test]";
+        const response = await client.login(loginRequest);
         console.log("登入成功", response);
         return response;
     } catch (error) {
