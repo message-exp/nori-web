@@ -3,7 +3,6 @@ import { createConnectTransport } from "@connectrpc/connect-web";
 import { UserService } from "@/proto-generated/nori/v0/user/user_service_pb";
 import { UserEmailPasswordLoginSchema } from "@/proto-generated/nori/v0/user/user_login_pb";
 import { create } from "@bufbuild/protobuf";
-import { UserSchema } from "@/proto-generated/nori/v0/user/user_pb";
 
 
 const transport = createConnectTransport({
