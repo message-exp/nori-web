@@ -3,6 +3,7 @@ import { createConnectTransport } from "@connectrpc/connect-web";
 import { UserService } from "@/proto-generated/nori/v0/user/user_service_pb";
 import { UserEmailPasswordLoginSchema } from "@/proto-generated/nori/v0/user/user_login_pb";
 import { create } from "@bufbuild/protobuf";
+import { UserSchema } from "@/proto-generated/nori/v0/user/user_pb";
 
 
 const transport = createConnectTransport({
@@ -48,6 +49,48 @@ export const login = async (input_email: string, input_password: string): Promis
         console.error("登入失敗", error);
         throw error;
     }
+}
+
+export const signup = async (input_name: string, input_email: string, input_password: string): Promise<any> => {
+    console.log("get signup info");
+    console.info("name: ", input_name);
+    console.info("email: ", input_email);
+    console.info("password: ", input_password);
+
+    // verify is input valid
+    // name
+    if (!input_name || input_name.trim() === ''){
+        throw new Error("name is empty")
+    }
+
+    //email
+    if (!input_email) {
+        throw new Error("Email is empty")
+    }
+    else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(input_email)) {
+        throw new Error('Invalid email address');
+    }
+
+    //password
+    if (!input_password || input_password.trim() === '') {
+        throw new Error("password is empty")
+    }
+
+
+    if (api_mode === "MOCK") {
+        if (Math.random() < 0.5){
+            const response = "test_OK[if you see this, it just a test]";
+            console.debug("signup successful", response);
+            return response;
+        }
+        else {
+            console.error("signup fail: just not good luck");
+            throw new Error("just not good luck");
+        }
+    }
+
+    // TODO: wait proto v0.3
+    
 }
 
 

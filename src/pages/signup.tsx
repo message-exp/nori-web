@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Button, Text, VStack, Center, Heading } from "@chakra-ui/react";
 import TextInput from "@/components/auth/TextInput";
 import { useNavigate } from "react-router";
+import { signup } from "@/api/user/user-service";
 
 
 const SignupPage = () => {
@@ -9,7 +10,7 @@ const SignupPage = () => {
     const navigate = useNavigate();
 
     const [name, setName] = useState('');
-    const [account, setAccount] = useState('');
+    const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     
     const [confirmPassword, setconfirmPassword] = useState('');
@@ -38,22 +39,21 @@ const SignupPage = () => {
 
     const signupFunc = async () => {
 
-        const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
-
-
         setIsSignupLoading(true);
         setTextErrorMessage("");
         console.log('name: ' + name);
-        console.log('account: ' + account);
+        console.log('email: ' + email);
         console.log('password: ' + password);
         console.log('confirm password: ' + confirmPassword);
         /* 串接API */
 
-        // below just for testing
-        await delay(3000);
-        setTextErrorMessage("have error");
-
-        
+        try {
+            const response = await signup(name, email, password);
+            console.log("response: ", response);
+        } catch (error) {
+            console.log("error: ", error)
+            setTextErrorMessage("have error");
+        }
 
         setIsSignupLoading(false);
     };
@@ -71,8 +71,8 @@ const SignupPage = () => {
                 <TextInput
                     title="Email"
                     placeholder="Email"
-                    value={account}
-                    onChange={(e) => setAccount(e.target.value)}
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                 />
                 <TextInput
                     title="Password"
