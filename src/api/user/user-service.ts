@@ -4,10 +4,10 @@ import { create } from "@bufbuild/protobuf";
 import { Empty } from "@bufbuild/protobuf/wkt";
 import { UserService } from "@/proto-generated/nori/v0/user/user_service_pb";
 import { UserEmailPasswordLoginSchema } from "@/proto-generated/nori/v0/user/user_login_pb";
-
+import config from "@/utils/config";
 
 const transport = createConnectTransport({
-    baseUrl: "http://192.168.1.200:50051",
+    baseUrl: config.backendUrl,
 });
 
 // Here we make the client itself, combining the service
