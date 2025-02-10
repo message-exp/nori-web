@@ -13,6 +13,7 @@ import {
 import { Field } from "@/components/ui/field";
 
 const RoomList = () => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [username, setUsername] = useState("test username");
 
     const roomListStyle = {

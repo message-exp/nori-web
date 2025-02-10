@@ -16,7 +16,9 @@ import {
 import { Field } from "@/components/ui/field";
 
 const RoomChat = () => {
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [roomName, setRoomName] = useState("taki");
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [roomAvatarSrc, setRoomAvatarSrc] = useState("https://i.imgur.com/LtR2mmT.png");
 
     const mockChatData = [
@@ -196,6 +198,7 @@ const RoomChat = () => {
                         </Flex>
                         <Box>
                             <For each={messageContent}>
+                                {/* eslint-disable-next-line @typescript-eslint/no-unused-vars */}
                                 {(item, _) => <Text>{item}</Text>}
                             </For>
                         </Box>
@@ -212,6 +215,7 @@ const RoomChat = () => {
             <Box height={"100%"} >
                 <Flex direction={"column"} maxHeight={"100%"}>
                     <For each={mockChatData}>
+                        {/* eslint-disable-next-line @typescript-eslint/no-unused-vars */}
                         {(item, _) =>
                             <MessageUnit
                                 userAvatar={item.userAvatar}
