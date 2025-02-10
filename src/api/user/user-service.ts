@@ -1,12 +1,12 @@
 import { createClient } from "@connectrpc/connect";
 import { createConnectTransport } from "@connectrpc/connect-web";
+import { create } from "@bufbuild/protobuf";
 import { UserService } from "@/proto-generated/nori/v0/user/user_service_pb";
 import { UserEmailPasswordLoginSchema } from "@/proto-generated/nori/v0/user/user_login_pb";
-import { create } from "@bufbuild/protobuf";
-
+import config from "@/utils/config";
 
 const transport = createConnectTransport({
-    baseUrl: "http://192.168.1.200:50051",
+    baseUrl: config.backendUrl,
 });
 
 // Here we make the client itself, combining the service
