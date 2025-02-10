@@ -1,5 +1,5 @@
 class Config {
-    backendUrl: string = process.env.BACKEND_URL || "http://localhost:3000";
+    backendUrl: string = import.meta.env.VITE_BACKEND_URL || "http://localhost:3000";
 }
 
 const config = new Config();
