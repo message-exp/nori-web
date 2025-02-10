@@ -1,18 +1,18 @@
 import { createClient } from "@connectrpc/connect";
 import { createConnectTransport } from "@connectrpc/connect-web";
+import { create } from "@bufbuild/protobuf";
 import { UserService } from "@/proto-generated/nori/v0/user/user_service_pb";
 import { UserEmailPasswordLoginSchema } from "@/proto-generated/nori/v0/user/user_login_pb";
-import { create } from "@bufbuild/protobuf";
-
+import config from "@/utils/config";
 
 const transport = createConnectTransport({
-    baseUrl: import.meta.env.VITE_SERVER_HOST ?? "",
+    baseUrl: config.backendUrl,
 });
 
 
 const client = createClient(UserService, transport);
 
-const api_mode = import.meta.env.VITE_API_MODE;
+const api_mode = config.api_mode;
 
 export const login = async (input_email: string, input_password: string): Promise<any> => {
     console.info("get login info");
