@@ -1,6 +1,7 @@
 import { createClient } from "@connectrpc/connect";
 import { createConnectTransport } from "@connectrpc/connect-web";
 import { create } from "@bufbuild/protobuf";
+import { Empty } from "@bufbuild/protobuf/wkt";
 import { UserService } from "@/proto-generated/nori/v0/user/user_service_pb";
 import { UserEmailPasswordLoginSchema } from "@/proto-generated/nori/v0/user/user_login_pb";
 import config from "@/utils/config";
@@ -14,7 +15,7 @@ const client = createClient(UserService, transport);
 
 const api_mode = config.api_mode;
 
-export const login = async (input_email: string, input_password: string): Promise<any> => {
+export const login = async (input_email: string, input_password: string): Promise<Empty> => {
     console.info("get login info");
     console.info("email: ", input_email);
     console.info("password: ", input_password);
@@ -24,7 +25,6 @@ export const login = async (input_email: string, input_password: string): Promis
         {
             const response = "test_OK[if you see this, it just a test]";
             console.debug("登入成功", response);
-            return response;
         }
         else
         {
@@ -37,7 +37,7 @@ export const login = async (input_email: string, input_password: string): Promis
     const loginRequest = create(UserEmailPasswordLoginSchema, {
         email: input_email,
         password: input_password
-    })
+    });
 
     // 執行登入請求
     try {

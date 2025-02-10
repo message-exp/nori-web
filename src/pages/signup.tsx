@@ -64,10 +64,10 @@ const SignupPage = () => {
 
 
 
-        console.log('name: ' + name);
-        console.log('email: ' + email);
-        console.log('password: ' + password);
-        console.log('confirm password: ' + confirmPassword);
+        console.log("name: " + name);
+        console.log("email: " + email);
+        console.log("password: " + password);
+        console.log("confirm password: " + confirmPassword);
 
         let verify_checked = true;
 
@@ -88,7 +88,7 @@ const SignupPage = () => {
         }
 
         // password
-        if (!password || password.trim() === '') {
+        if (!password || password.trim() === "") {
             setPasswordValid(false);
             setPasswordErrorMessage("email not valid");
             verify_checked = false;
@@ -106,7 +106,7 @@ const SignupPage = () => {
             try {
                 const response = await signup(name, email, password);
                 console.log("response: ", response);
-                navigate('/roomlist');
+                navigate("/roomlist");
             } catch (error) {
                 console.log("error: ", error)
                 setTextErrorMessage("have error");
@@ -167,9 +167,9 @@ const SignupPage = () => {
                     Sign Up
                 </Button>
 
-                <Text color={'red.400'}>{textErrorMessage}</Text>
+                <Text color={"red.400"}>{textErrorMessage}</Text>
 
-                <Button onClick={() => navigate('/login')} textDecor={'underline'} variant={'plain'}>
+                <Button onClick={() => navigate("/login")} textDecor={"underline"} variant={"plain"}>
                     Login if you have an account
                 </Button>
             </VStack>

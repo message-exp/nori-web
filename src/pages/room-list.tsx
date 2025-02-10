@@ -9,32 +9,33 @@ import {
     DialogRoot,
     DialogTitle,
     DialogTrigger,
-} from "@/components/ui/dialog"
-import { Field } from "@/components/ui/field"
+} from "@/components/ui/dialog";
+import { Field } from "@/components/ui/field";
 
 const RoomList = () => {
-    const [username, _] = useState('test username');
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const [username, _] = useState("test username");
 
     const roomListStyle = {
-        borderRadius: 'lg',
-        padding: '20px',
-        borderWidth: '2px',
+        borderRadius: "lg",
+        padding: "20px",
+        borderWidth: "2px",
         borderColor: "border.disabled",
         color: "fg.disabled"
-    }
+    };
 
     const scroolStyle = {
-        '&::-webkit-scrollbar': {
-            width: '8px',
+        "&::-webkit-scrollbar": {
+            width: "8px",
         },
-        '&::-webkit-scrollbar-thumb': {
-            backgroundColor: 'rgba(255, 255, 255, 0.5)',
-            borderRadius: '4px',
+        "&::-webkit-scrollbar-thumb": {
+            backgroundColor: "rgba(255, 255, 255, 0.5)",
+            borderRadius: "4px",
         },
-        '&::-webkit-scrollbar-thumb:hover': {
-            backgroundColor: 'rgba(255, 255, 255, 0.85)',
+        "&::-webkit-scrollbar-thumb:hover": {
+            backgroundColor: "rgba(255, 255, 255, 0.85)",
         }
-    }
+    };
 
     const roomList = [
         { roomName: "Travel Buddies", roomId: "travel2023group" },
@@ -66,8 +67,8 @@ const RoomList = () => {
 
 
     const addRoomClick = () => {
-        console.log("clicked")
-    }
+        console.log("clicked");
+    };
 
     interface roomListDataProps {
         name: string;
@@ -76,10 +77,10 @@ const RoomList = () => {
 
     const RoomListCard: React.FC<roomListDataProps> = ({ name, id }) => {
         return (
-            <Button radioGroup="xl" height={'100px'} width={'100%'} variant={'ghost'} >
-                <HStack direction={'row'}>
-                    <Heading size={'2xl'}>{name}</Heading>
-                    <Heading size={'md'}>({id})</Heading>
+            <Button radioGroup="xl" height={"100px"} width={"100%"} variant={"ghost"} >
+                <HStack direction={"row"}>
+                    <Heading size={"2xl"}>{name}</Heading>
+                    <Heading size={"md"}>({id})</Heading>
                 </HStack>
             </Button>
         );
@@ -88,11 +89,11 @@ const RoomList = () => {
     const AddRoomButton = () => {
         return (
             <Button onClick={addRoomClick} variant={"surface"}>
-                <Center inline gap={'2'}>
-                    <Icon size={'xl'}>
+                <Center inline gap={"2"}>
+                    <Icon size={"xl"}>
                         <IoMdAddCircleOutline />
                     </Icon>
-                    <Heading size={'2xl'}>ADD ROOM</Heading>
+                    <Heading size={"2xl"}>ADD ROOM</Heading>
 
                 </Center>
             </Button>
@@ -109,7 +110,7 @@ const RoomList = () => {
                 <DialogContent>
                     <DialogHeader>
                         <DialogTitle >
-                            <Heading size={'2xl'}>Add Room</Heading>
+                            <Heading size={"2xl"}>Add Room</Heading>
                         </DialogTitle>
                             
                     </DialogHeader>
@@ -130,16 +131,16 @@ const RoomList = () => {
     };
 
     return (
-        <Box height="100vh" padding={'10px'}>
-            <Flex direction={'column'} gap={2} height={'100%'} >
+        <Box height="100vh" padding={"10px"}>
+            <Flex direction={"column"} gap={2} height={"100%"} >
                 <Box height={"100px"} {...roomListStyle}>
-                    <Flex align={'center'} height={'100%'} width={'100%'} justify={'space-between'}>
-                        <Heading size={'3xl'}>{username}</Heading>
+                    <Flex align={"center"} height={"100%"} width={"100%"} justify={"space-between"}>
+                        <Heading size={"3xl"}>{username}</Heading>
                         <AddRoomDialog></AddRoomDialog>
                     </Flex>
                 </Box>
-                <Box flex={'1'} {...roomListStyle} overflow={'hidden'}>
-                    <Stack gap={'2'} height={'100%'} overflowY={'auto'} {...scroolStyle}>
+                <Box flex={"1"} {...roomListStyle} overflow={"hidden"}>
+                    <Stack gap={"2"} height={"100%"} overflowY={"auto"} {...scroolStyle}>
                         <For
                             each={roomList}
                         >
