@@ -1,8 +1,8 @@
-import { useState } from 'react';
-import { Box, Button, Input, Text, VStack, Center, Heading, Field, Image } from '@chakra-ui/react';
-import { PasswordInput } from '@/components/ui/password-input';
-import { useNavigate } from 'react-router';
-import { login } from '@/api/user/user-service';
+import { useState } from "react";
+import { Button, Input, Text, VStack, Center, Heading, Field, Image } from "@chakra-ui/react";
+import { PasswordInput } from "@/components/ui/password-input";
+import { useNavigate } from "react-router";
+import { login } from "@/api/user/user-service";
 
 const LoginPage = () => {
     const [flag, setFlag] = useState(1);
@@ -39,22 +39,22 @@ const Welcome = ({ setFlag }: { setFlag: (value: number) => void }) => {
             </VStack>
         </Center>
 
-    )
+    );
 
-}
+};
 const Login = () => {
     const navigate = useNavigate();
 
-    const [account, setAccount] = useState('');
-    const [password, setPassword] = useState('');
+    const [account, setAccount] = useState("");
+    const [password, setPassword] = useState("");
 
     const [isEmailError, setIsEmailError] = useState(false);
-    const [emailErrorMessage, setEmailErrorMessage] = useState('');
+    const [emailErrorMessage, setEmailErrorMessage] = useState("");
 
     const [isPasswordError, setIsPasswordError] = useState(false);
-    const [passwordErrorMessage, setPasswordErrorMessage] = useState('');
+    const [passwordErrorMessage, setPasswordErrorMessage] = useState("");
 
-    const [textErrorMessage, setTextErrorMessage] = useState('');
+    const [textErrorMessage, setTextErrorMessage] = useState("");
 
     const [isLoginLoading, setIsLoginLoading] = useState(false);
 
@@ -63,8 +63,8 @@ const Login = () => {
     }
 
     const loginFunc = async() => {
-        console.log('account: ' + account);
-        console.log('password: ' + password);
+        console.log("account: " + account);
+        console.log("password: " + password);
         /* 串接API */
         setTextErrorMessage("");
         setIsLoginLoading(true);
@@ -77,17 +77,17 @@ const Login = () => {
         }
         else
         {
-            setEmailErrorMessage("")
+            setEmailErrorMessage("");
             setIsEmailError(false);
         }
 
         if (isEmpty(password)) {
-            setPasswordErrorMessage("password empty")
+            setPasswordErrorMessage("password empty");
             setIsPasswordError(true);
             isInputEmpty = true;
         }
         else {
-            setPasswordErrorMessage("")
+            setPasswordErrorMessage("");
             setIsPasswordError(false);
         }
 
@@ -97,6 +97,7 @@ const Login = () => {
 
         try {
             const response = await login(account, password);
+            console.log("login response: ", response);
             setTextErrorMessage("");
             setIsLoginLoading(false);
             navigate("/roomlist");
@@ -160,15 +161,15 @@ const Login = () => {
                     Login
                 </Button>
 
-                <Text color={'red.400'}>{ textErrorMessage }</Text>
+                <Text color={"red.400"}>{ textErrorMessage }</Text>
 
 
-                <Button onClick={() => navigate('/signup')} textDecor={'underline'} variant={'plain'}>
+                <Button onClick={() => navigate("/signup")} textDecor={"underline"} variant={"plain"}>
                     Signup if you don't have an account
                 </Button>
             </VStack>
         </Center>
-    )
-}
+    );
+};
 
 export default LoginPage;

@@ -11,13 +11,15 @@ import {
     DialogRoot,
     DialogTitle,
     DialogTrigger,
-} from "@/components/ui/dialog"
+} from "@/components/ui/dialog";
 
-import { Field } from "@/components/ui/field"
+import { Field } from "@/components/ui/field";
 
 const RoomChat = () => {
-    const [roomName, setRoomName] = useState('taki');
-    const [roomAvatarSrc, setRoomAvatarSrc] = useState('https://i.imgur.com/LtR2mmT.png');
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const [roomName, setRoomName] = useState("taki");
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const [roomAvatarSrc, setRoomAvatarSrc] = useState("https://i.imgur.com/LtR2mmT.png");
 
     const mockChatData = [
         {
@@ -90,66 +92,66 @@ const RoomChat = () => {
     ];
 
     const InviteButton = () => {
-            return (
-                <Button variant={"surface"}>
-                    <Center inline gap={'2'}>
-                        <Icon size={'xl'}>
-                            <RiUserAddFill />
-                        </Icon>
-                        <Heading size={'2xl'}>Invite</Heading>
+        return (
+            <Button variant={"surface"}>
+                <Center inline gap={"2"}>
+                    <Icon size={"xl"}>
+                        <RiUserAddFill />
+                    </Icon>
+                    <Heading size={"2xl"}>Invite</Heading>
     
-                    </Center>
-                </Button>
-            );
-        };
+                </Center>
+            </Button>
+        );
+    };
 
     const InviteDialog = () => {
-            return (
-                <DialogRoot>
-                    <DialogTrigger>
-                        <InviteButton></InviteButton>
-                    </DialogTrigger>
+        return (
+            <DialogRoot>
+                <DialogTrigger>
+                    <InviteButton></InviteButton>
+                </DialogTrigger>
     
-                    <DialogContent>
-                        <DialogHeader>
-                            <DialogTitle >
-                                <Heading size={'2xl'}>Invite User</Heading>
-                            </DialogTitle>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle >
+                            <Heading size={"2xl"}>Invite User</Heading>
+                        </DialogTitle>
                                 
-                        </DialogHeader>
-                        <DialogBody>
-                            <Field label="User name">
-                                <Input placeholder="username" />
-                            </Field>
-                        </DialogBody>
-                        <DialogFooter>
-                            <DialogActionTrigger asChild>
-                                <Button variant="outline">Cancel</Button>
-                            </DialogActionTrigger>
-                            <Button>Save</Button>
-                        </DialogFooter>
-                    </DialogContent>
-                </DialogRoot>
-            );
-        };
+                    </DialogHeader>
+                    <DialogBody>
+                        <Field label="User name">
+                            <Input placeholder="username" />
+                        </Field>
+                    </DialogBody>
+                    <DialogFooter>
+                        <DialogActionTrigger asChild>
+                            <Button variant="outline">Cancel</Button>
+                        </DialogActionTrigger>
+                        <Button>Save</Button>
+                    </DialogFooter>
+                </DialogContent>
+            </DialogRoot>
+        );
+    };
 
     const ChatHeader = () => {
         return (
             <Box
-                height={'70px'}
-                backgroundColor={'gray.900'}
-                padding={'15px'}
+                height={"70px"}
+                backgroundColor={"gray.900"}
+                padding={"15px"}
             >
-                <Flex direction={'column'} justify={'center'} height={'100%'}>
-                    <Flex justify={'space-between'} direction={'row'}>
-                        <Flex justify={'flex-start'} gap={'4'}>
+                <Flex direction={"column"} justify={"center"} height={"100%"}>
+                    <Flex justify={"space-between"} direction={"row"}>
+                        <Flex justify={"flex-start"} gap={"4"}>
                             <Center>
-                                <IconButton rounded={'full'} variant={'subtle'} size={'xl'}>
+                                <IconButton rounded={"full"} variant={"subtle"} size={"xl"}>
                                     <RiArrowLeftLine />
                                 </IconButton>
                             </Center>
 
-                            <Avatar name={roomName} src={roomAvatarSrc} size={'lg'}></Avatar>
+                            <Avatar name={roomName} src={roomAvatarSrc} size={"lg"}></Avatar>
                             <Center>
                                 <Heading>{roomName}</Heading>
                             </Center>
@@ -169,33 +171,34 @@ const RoomChat = () => {
         messageContent: string[]; 
     }
 
-    const colorPaletteForRandom = ["red", "blue", "green", "yellow", "purple", "orange"]
+    const colorPaletteForRandom = ["red", "blue", "green", "yellow", "purple", "orange"];
     const pickPalette = (name: string) => {
-        const index = name.charCodeAt(0) % colorPaletteForRandom.length
-        return colorPaletteForRandom[index]
-    }
+        const index = name.charCodeAt(0) % colorPaletteForRandom.length;
+        return colorPaletteForRandom[index];
+    };
 
     const MessageUnit: React.FC<MessageUnitProps> = (
         { userAvatar, username, time, messageContent }) =>
     {
         return (
             <Box
-                padding={'10px'}
+                padding={"10px"}
             >
-                <Flex gap={'4'}> 
+                <Flex gap={"4"}> 
                     <Avatar
                         src={userAvatar}
                         name={username}
                         colorPalette={pickPalette(username)}
                     />
-                    <Flex direction={'column'} gap={'2'}>
-                        <Flex gap={'2'} alignItems={'baseline'}>
-                            <Text textStyle={'2xl'}>{username}</Text>
+                    <Flex direction={"column"} gap={"2"}>
+                        <Flex gap={"2"} alignItems={"baseline"}>
+                            <Text textStyle={"2xl"}>{username}</Text>
 
-                            <Text textStyle={'xs'}>{time}</Text>
+                            <Text textStyle={"xs"}>{time}</Text>
                         </Flex>
                         <Box>
                             <For each={messageContent}>
+                                {/* eslint-disable-next-line @typescript-eslint/no-unused-vars */}
                                 {(item, _) => <Text>{item}</Text>}
                             </For>
                         </Box>
@@ -204,14 +207,15 @@ const RoomChat = () => {
                     </Flex>
                 </Flex>
             </Box>
-        )
-    }
+        );
+    };
 
     const ChatBody = () => {
         return (
-            <Box height={'100%'} >
-                <Flex direction={'column'} maxHeight={'100%'}>
+            <Box height={"100%"} >
+                <Flex direction={"column"} maxHeight={"100%"}>
                     <For each={mockChatData}>
+                        {/* eslint-disable-next-line @typescript-eslint/no-unused-vars */}
                         {(item, _) =>
                             <MessageUnit
                                 userAvatar={item.userAvatar}
@@ -224,47 +228,47 @@ const RoomChat = () => {
                 </Flex>
                 
             </Box> 
-        )
-    }
+        );
+    };
 
     const ChatFooter = () => {
         return (
-            <Box background={'gray.900'} height={'80px'} padding={'20px'}>
-                <Flex direction={'column'} height={'100%'} justifyContent={'center'}>
+            <Box background={"gray.900"} height={"80px"} padding={"20px"}>
+                <Flex direction={"column"} height={"100%"} justifyContent={"center"}>
                     <Flex>
                         <Textarea
                             placeholder="Comment..."
-                            variant={'outline'}
-                            resize={'none'}
+                            variant={"outline"}
+                            resize={"none"}
 
                         />
-                        <IconButton rounded={'full'} variant={'subtle'}>
+                        <IconButton rounded={"full"} variant={"subtle"}>
                             <RiFunctionAddFill />
                         </IconButton>
-                        <IconButton rounded={'full'} variant={'subtle'}>
+                        <IconButton rounded={"full"} variant={"subtle"}>
                             <RiMenuFill />
                         </IconButton>
-                        <IconButton rounded={'full'} variant={'subtle'}>
+                        <IconButton rounded={"full"} variant={"subtle"}>
                             <RiSendPlane2Fill />
                         </IconButton>
                     </Flex>
                     
                 </Flex>
             </Box>
-        )
-    }
+        );
+    };
 
 
 
     return (
-        <Flex direction={'column'} height={'100vh'}>
+        <Flex direction={"column"} height={"100vh"}>
             <ChatHeader />
-            <Box flex={'1'} overflowY={'auto'} >
+            <Box flex={"1"} overflowY={"auto"} >
                 <ChatBody></ChatBody>
             </Box>
             <ChatFooter/>
         </Flex>
         
-    )
-}
-export default RoomChat
+    );
+};
+export default RoomChat;
