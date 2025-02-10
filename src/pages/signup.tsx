@@ -3,14 +3,14 @@ import { Button, Input, Text, VStack, Center, Heading } from "@chakra-ui/react";
 
 
 const SignupPage = () => {
-    const [name, setName] = useState('');
-    const [account, setAccount] = useState('');
-    const [password, setPassword] = useState('');
+    const [name, setName] = useState("");
+    const [account, setAccount] = useState("");
+    const [password, setPassword] = useState("");
 
     const signupFunc = () => {
-        console.log('name ' + name);
-        console.log('account ' + account);
-        console.log('password ' + password);
+        console.log("name " + name);
+        console.log("account " + account);
+        console.log("password " + password);
         /* 串接API */
     };
 
@@ -44,7 +44,7 @@ const SignupPage = () => {
                     Sign Up
                 </Button>
                 <Text>
-                    <a href="/login" style={{ color: 'white' }}>Login if you have an account</a>
+                    <a href="/login" style={{ color: "white" }}>Login if you have an account</a>
                 </Text>
             </VStack>
         </Center>
