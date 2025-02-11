@@ -4,6 +4,7 @@ import { create } from "@bufbuild/protobuf";
 // import { Empty } from "@bufbuild/protobuf/wkt";
 import { RoomList } from "@/proto-generated/nori/v0/room/room_list_pb";
 import { TokenPair } from "@/proto-generated/nori/v0/user/token_pair_pb";
+import { User } from "@/proto-generated/nori/v0/user/user_pb";
 import { UserIdSchema } from "@/proto-generated/nori/v0/user/user_id_pb";
 import { UserEmailPasswordLoginSchema } from "@/proto-generated/nori/v0/user/user_login_pb";
 import { UserService } from "@/proto-generated/nori/v0/user/user_service_pb";
@@ -16,6 +17,22 @@ const transport = createConnectTransport({
 // Here we make the client itself, combining the service
 // definition with the transport.
 const client = createClient(UserService, transport);
+
+export const GetUser = async (userId: bigint): Promise<User> => {
+    // prepare request
+    const request = create(UserIdSchema, {
+        id: userId
+    });
+    // send request
+    try {
+        const response = await client.getUser(request);
+        console.log("User retrieved successfully", response);
+        return response;
+    } catch (error) {
+        console.error("Failed to retrieve user", error);
+        throw error;
+    }
+};
 
 export const GetUserRoomList = async (userId: bigint): Promise<RoomList> => {
     // prepare request
