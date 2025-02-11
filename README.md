@@ -1,3 +1,31 @@
+# nori-web
+
+## How to run
+
+1. Install Node.js
+
+2. Install pnpm
+
+3. Get files in the git submodule
+
+    ```sh
+    git submodule update --init --recursive
+    ```
+
+4. Generate TypeScript code from protos
+
+    ```sh
+    script/generate.sh
+    ```
+
+5. Start the client
+
+    ```sh
+    pnpm run dev
+    ```
+
+---
+
 # React + TypeScript + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
