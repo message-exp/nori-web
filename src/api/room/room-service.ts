@@ -9,6 +9,7 @@ import { RoomUserRequestSchema } from "@/proto-generated/nori/v0/room/room_user_
 import { RoomIdSchema } from "@/proto-generated/nori/v0/room/room_id_pb";
 import { UserIdSchema } from "@/proto-generated/nori/v0/user/user_id_pb";
 import { transport } from "@/api/client";
+import { RoomBasicInfoRequestSchema } from "@/proto-generated/nori/v0/room/room_basic_info_request_pb";
 
 
 export const client = createClient(RoomService, transport);
@@ -17,9 +18,9 @@ export const client = createClient(RoomService, transport);
 /**
  * Create a new room
  * @param roomName The name of the new room
- * @param creator The creator's user id
- * @param invitees An array of user ids to invite
- * @returns The id of the created room
+ * @param creator The creator's user ID
+ * @param invitees An array of user IDs to invite
+ * @returns The ID of the created room
  */
 export const CreateRoom = async (roomName: string, creator: bigint, invitees: bigint[]): Promise<bigint> => {
     // prepare the request
@@ -61,6 +62,12 @@ export const CreateRoom = async (roomName: string, creator: bigint, invitees: bi
 };
 
 
+/**
+ * Get room data
+ * @param roomId The ID of the room to retrieve
+ * @param userId The ID of the user requesting the room
+ * @returns The room data
+ */
 export const GetRoom = async (roomId: bigint, userId: bigint): Promise<Room> => {
     // prepare the request
     const accessToken = "";  // TODO: get access token
@@ -93,4 +100,44 @@ export const GetRoom = async (roomId: bigint, userId: bigint): Promise<Room> => 
 
     // process the response and return
     return response;
+};
+
+
+/**
+ * Update the basic information of a room
+ * @param roomId The ID of the room to update
+ * @param sharedName The shared name for the room
+ * @param customName The custom name for the room
+ * @returns `null`. Throws an error if the request fails.
+ */
+export const UpdateRoomBasic = async (roomId: bigint, sharedName?: string, customName?: string): Promise<null> => {
+    // prepare the request
+    const accessToken = "";  // TODO: get access token
+    const request = create(RoomBasicInfoRequestSchema, {
+        roomId: create(RoomIdSchema, {
+            id: roomId
+        }),
+        sharedName: sharedName,
+        customName: customName,
+    });
+
+    // send the request
+    try {
+        await client.updateRoomBasic(request, { headers: { authorization: accessToken } });
+    } catch (error) {
+        if (error instanceof ConnectError) {
+            const errorCode = error.code;
+            if (errorCode === Code.Unauthenticated) {
+                // TODO: get a new access token and retry
+            } else if (errorCode === Code.PermissionDenied) {
+                // TODO: handle permission denied case
+            }
+        }
+        // other error
+        console.error("Unexpected error when trying to retrieve room list", error);
+        throw error;
+    }
+
+    // process the response and return
+    return null;
 };
