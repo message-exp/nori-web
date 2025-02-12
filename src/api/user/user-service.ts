@@ -72,13 +72,11 @@ export const login = async (input_email: string, input_password: string): Promis
 
     if (api_mode === "MOCK") {
         console.debug("MOCK mode");
-        if (input_email === "test" && input_password === "test123")
-        {
+        if (input_email === "test" && input_password === "test123") {
             console.debug("登入成功", mockTokenPair);
             return mockTokenPair;
         }
-        else
-        {
+        else {
             console.error("登入失敗: Email or Password not right");
             throw new Error("Email or Password not right");
         }
@@ -99,7 +97,7 @@ export const login = async (input_email: string, input_password: string): Promis
         console.error("登入失敗", error);
         throw error;
     }
-}
+};
 
 export const signup = async (input_name: string, input_email: string, input_password: string): Promise<TokenPair> => {
     console.log("get signup info");
@@ -109,27 +107,27 @@ export const signup = async (input_name: string, input_email: string, input_pass
 
     // verify is input valid
     // name
-    if (!input_name || input_name.trim() === ''){
-        throw new Error("name is empty")
+    if (!input_name || input_name.trim() === "") {
+        throw new Error("name is empty");
     }
 
     //email
     if (!input_email) {
-        throw new Error("Email is empty")
+        throw new Error("Email is empty");
     }
     else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(input_email)) {
-        throw new Error('Invalid email address');
+        throw new Error("Invalid email address");
     }
 
     //password
-    if (!input_password || input_password.trim() === '') {
-        throw new Error("password is empty")
+    if (!input_password || input_password.trim() === "") {
+        throw new Error("password is empty");
     }
 
 
     if (api_mode === "MOCK") {
         console.debug("MOCK mode");
-        if (Math.random() < 0.5){
+        if (Math.random() < 0.5) {
             console.debug("signup successful", mockTokenPair);
             return mockTokenPair;
         }
@@ -143,10 +141,10 @@ export const signup = async (input_name: string, input_email: string, input_pass
         username: input_name,
         email: input_email,
         displayName: input_name
-    })
+    });
 
     try {
-        const response = await client.signup(signupRequest)
+        const response = await client.signup(signupRequest);
         console.log("登入成功", response);
         return response;
     } catch (error) {
@@ -154,6 +152,6 @@ export const signup = async (input_name: string, input_email: string, input_pass
         throw error;
     }
     
-}
+};
 
 
