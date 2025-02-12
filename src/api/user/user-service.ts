@@ -1,5 +1,4 @@
 import { createClient } from "@connectrpc/connect";
-import { createConnectTransport } from "@connectrpc/connect-web";
 import { create } from "@bufbuild/protobuf";
 // import { Empty } from "@bufbuild/protobuf/wkt";
 import { RoomList } from "@/proto-generated/nori/v0/room/room_list_pb";
@@ -7,7 +6,6 @@ import { TokenPair } from "@/proto-generated/nori/v0/user/token_pair_pb";
 import { UserIdSchema } from "@/proto-generated/nori/v0/user/user_id_pb";
 import { UserEmailPasswordLoginSchema } from "@/proto-generated/nori/v0/user/user_login_pb";
 import { UserService } from "@/proto-generated/nori/v0/user/user_service_pb";
-import config from "@/utils/config";
 
 
 import { transport } from "@/api/client";
