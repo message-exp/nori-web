@@ -12,6 +12,7 @@ import { transport } from "@/api/client";
 import { RoomBasicInfoRequestSchema } from "@/proto-generated/nori/v0/room/room_basic_info_request_pb";
 import { InviteUserToRoomRequestSchema } from "@/proto-generated/nori/v0/room/invite_user_to_room_request_pb";
 import { RoomJoinInviteReplySchema } from "@/proto-generated/nori/v0/room/room_join_invite_reply_pb";
+import { RoomJoinRequestReplySchema } from "@/proto-generated/nori/v0/room/room_join_request_reply_pb";
 
 
 export const client = createClient(RoomService, transport);
@@ -223,7 +224,12 @@ export const InviteRoomReply = async (roomId: bigint, accept: boolean): Promise<
 };
 
 
-
+/**
+ * Request to join a room
+ * @param roomId The ID of the room
+ * @param userId The ID of the user joining the room
+ * @returns `null`. Throws an error if the request fails.
+ */
 export const JoinRoom = async (roomId: bigint, userId: bigint): Promise<null> => {
     // prepare the request
     const accessToken = "";  // TODO: get access token
@@ -239,6 +245,52 @@ export const JoinRoom = async (roomId: bigint, userId: bigint): Promise<null> =>
     // send the request
     try {
         await client.joinRoom(request, { headers: { authorization: accessToken } });
+    } catch (error) {
+        if (error instanceof ConnectError) {
+            const errorCode = error.code;
+            if (errorCode === Code.Unauthenticated) {
+                // TODO: get a new access token and retry
+            } else if (errorCode === Code.PermissionDenied) {
+                // TODO: handle permission denied case
+            }
+        }
+        // other error
+        console.error("Unexpected error when trying to retrieve room list", error);
+        throw error;
+    }
+
+    // process the response and return
+    return null;
+};
+
+
+/**
+ * Reply to a room join request
+ * @param roomId The ID of the room
+ * @param joiner The ID of the user joining the room
+ * @param accept Whether to accept or decline the request
+ * @param approver The ID of the user approving the request
+ * @returns `null`. Throws an error if the request fails.
+ */
+export const JoinRoomReply = async (roomId: bigint, joiner: bigint, accept: boolean, approver: bigint): Promise<null> => {
+    // prepare the request
+    const accessToken = "";  // TODO: get access token
+    const request = create(RoomJoinRequestReplySchema, {
+        roomId: create(RoomIdSchema, {
+            id: roomId
+        }),
+        joiner: create(UserIdSchema, {
+            id: joiner
+        }),
+        accept: accept,
+        approver: create(UserIdSchema, {
+            id: approver
+        }),
+    });
+
+    // send the request
+    try {
+        await client.joinRoomReply(request, { headers: { authorization: accessToken } });
     } catch (error) {
         if (error instanceof ConnectError) {
             const errorCode = error.code;
