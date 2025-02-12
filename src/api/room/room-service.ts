@@ -14,7 +14,7 @@ import { UserIdSchema } from "@/proto-generated/nori/v0/user/user_id_pb";
 import { transport } from "@/api/client";
 
 
-export const client = createClient(RoomService, transport);
+const client = createClient(RoomService, transport);
 
 
 /**

@@ -9,9 +9,8 @@ import { UserEmailPasswordLoginSchema } from "@/proto-generated/nori/v0/user/use
 import { UserService } from "@/proto-generated/nori/v0/user/user_service_pb";
 import config from "@/utils/config";
 
-const transport = createConnectTransport({
-    baseUrl: config.backendUrl,
-});
+
+import { transport } from "@/api/client";
 
 // Here we make the client itself, combining the service
 // definition with the transport.
