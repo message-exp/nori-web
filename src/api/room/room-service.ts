@@ -11,6 +11,7 @@ import { UserIdSchema } from "@/proto-generated/nori/v0/user/user_id_pb";
 import { transport } from "@/api/client";
 import { RoomBasicInfoRequestSchema } from "@/proto-generated/nori/v0/room/room_basic_info_request_pb";
 import { InviteUserToRoomRequestSchema } from "@/proto-generated/nori/v0/room/invite_user_to_room_request_pb";
+import { RoomJoinInviteReplySchema } from "@/proto-generated/nori/v0/room/room_join_invite_reply_pb";
 
 
 export const client = createClient(RoomService, transport);
@@ -165,6 +166,44 @@ export const InviteToRoom = async (roomId: bigint, inviter: bigint, invitees: bi
     // send the request
     try {
         await client.inviteToRoom(request, { headers: { authorization: accessToken } });
+    } catch (error) {
+        if (error instanceof ConnectError) {
+            const errorCode = error.code;
+            if (errorCode === Code.Unauthenticated) {
+                // TODO: get a new access token and retry
+            } else if (errorCode === Code.PermissionDenied) {
+                // TODO: handle permission denied case
+            }
+        }
+        // other error
+        console.error("Unexpected error when trying to retrieve room list", error);
+        throw error;
+    }
+
+    // process the response and return
+    return null;
+};
+
+
+/**
+ * Reply to a room join invitation
+ * @param roomId The ID of the room
+ * @param accept Whether to accept or decline the invitation
+ * @returns `null`. Throws an error if the request fails.
+ */
+export const InviteRoomReply = async (roomId: bigint, accept: boolean): Promise<null> => {
+    // prepare the request
+    const accessToken = "";  // TODO: get access token
+    const request = create(RoomJoinInviteReplySchema, {
+        roomId: create(RoomIdSchema, {
+            id: roomId
+        }),
+        accept: accept,
+    });
+
+    // send the request
+    try {
+        await client.inviteRoomReply(request, { headers: { authorization: accessToken } });
     } catch (error) {
         if (error instanceof ConnectError) {
             const errorCode = error.code;
