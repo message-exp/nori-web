@@ -10,6 +10,7 @@ import { RoomIdSchema } from "@/proto-generated/nori/v0/room/room_id_pb";
 import { UserIdSchema } from "@/proto-generated/nori/v0/user/user_id_pb";
 import { transport } from "@/api/client";
 import { RoomBasicInfoRequestSchema } from "@/proto-generated/nori/v0/room/room_basic_info_request_pb";
+import { InviteUserToRoomRequestSchema } from "@/proto-generated/nori/v0/room/invite_user_to_room_request_pb";
 
 
 export const client = createClient(RoomService, transport);
@@ -30,9 +31,7 @@ export const CreateRoom = async (roomName: string, creator: bigint, invitees: bi
         creator: create(UserIdSchema, {
             id: creator
         }),
-        invitees: invitees.map(user => create(UserIdSchema, {
-            id: user
-        })),
+        invitees: invitees.map(id => create(UserIdSchema, { id })),
     });
     let response;
 
@@ -124,6 +123,48 @@ export const UpdateRoomBasic = async (roomId: bigint, sharedName?: string, custo
     // send the request
     try {
         await client.updateRoomBasic(request, { headers: { authorization: accessToken } });
+    } catch (error) {
+        if (error instanceof ConnectError) {
+            const errorCode = error.code;
+            if (errorCode === Code.Unauthenticated) {
+                // TODO: get a new access token and retry
+            } else if (errorCode === Code.PermissionDenied) {
+                // TODO: handle permission denied case
+            }
+        }
+        // other error
+        console.error("Unexpected error when trying to retrieve room list", error);
+        throw error;
+    }
+
+    // process the response and return
+    return null;
+};
+
+
+/**
+ * Invite users to a room
+ * @param roomId The ID of the room to invite users to
+ * @param inviter The ID of the user inviting
+ * @param invitees The IDs of the users to be invited
+ * @returns `null`. Throws an error if the request fails.
+ */
+export const InviteToRoom = async (roomId: bigint, inviter: bigint, invitees: bigint[]): Promise<null> => {
+    // prepare the request
+    const accessToken = "";  // TODO: get access token
+    const request = create(InviteUserToRoomRequestSchema, {
+        roomId: create(RoomIdSchema, {
+            id: roomId
+        }),
+        inviter: create(UserIdSchema, {
+            id: inviter
+        }),
+        invitees: invitees.map(id => create(UserIdSchema, { id })),
+    });
+
+    // send the request
+    try {
+        await client.inviteToRoom(request, { headers: { authorization: accessToken } });
     } catch (error) {
         if (error instanceof ConnectError) {
             const errorCode = error.code;
