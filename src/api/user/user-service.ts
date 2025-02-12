@@ -3,20 +3,34 @@ import { createConnectTransport } from "@connectrpc/connect-web";
 import { create } from "@bufbuild/protobuf";
 // import { Empty } from "@bufbuild/protobuf/wkt";
 import { RoomList } from "@/proto-generated/nori/v0/room/room_list_pb";
-import { TokenPair } from "@/proto-generated/nori/v0/user/token_pair_pb";
+import { TokenPair, TokenPairSchema } from "@/proto-generated/nori/v0/user/token_pair_pb";
 import { UserIdSchema } from "@/proto-generated/nori/v0/user/user_id_pb";
 import { UserEmailPasswordLoginSchema } from "@/proto-generated/nori/v0/user/user_login_pb";
 import { UserService } from "@/proto-generated/nori/v0/user/user_service_pb";
 import config from "@/utils/config";
+import { AccessTokenSchema } from "@/proto-generated/nori/v0/user/access_token_pb";
+import { RefreshTokenSchema } from "@/proto-generated/nori/v0/user/refresh_token_pb";
 
 const transport = createConnectTransport({
     baseUrl: config.backendUrl,
 });
 
-
 const client = createClient(UserService, transport);
 
 const api_mode = config.api_mode;
+
+const mockTokenPair = create(TokenPairSchema, {
+    accessToken: create(AccessTokenSchema, {
+        accessToken: new Uint8Array([
+            109, 111, 99, 107, 95, 97, 99, 99, 101, 115, 115, 95, 116, 111, 107, 101, 110
+        ])
+    }), // "mock_access_token" in ASCII
+    refreshToken: create(RefreshTokenSchema, {
+        refreshToken: new Uint8Array([
+            109, 111, 99, 107, 95, 114, 101, 102, 114, 101, 115, 104, 95, 116, 111, 107, 101, 110
+        ])
+    }) // "mock_refresh_token" in ASCII
+});
 
 export const GetUserRoomList = async (userId: bigint): Promise<RoomList> => {
     // prepare request
@@ -40,10 +54,11 @@ export const login = async (input_email: string, input_password: string): Promis
     console.info("password: ", input_password);
 
     if (api_mode === "MOCK") {
+        console.debug("MOCK mode");
         if (input_email === "test" && input_password === "test123")
         {
-            const response = "test_OK[if you see this, it just a test]";
-            console.debug("登入成功", response);
+            console.debug("登入成功", mockTokenPair);
+            return mockTokenPair;
         }
         else
         {
@@ -69,7 +84,7 @@ export const login = async (input_email: string, input_password: string): Promis
     }
 }
 
-export const signup = async (input_name: string, input_email: string, input_password: string): Promise<any> => {
+export const signup = async (input_name: string, input_email: string, input_password: string): Promise<TokenPair> => {
     console.log("get signup info");
     console.info("name: ", input_name);
     console.info("email: ", input_email);
@@ -96,16 +111,18 @@ export const signup = async (input_name: string, input_email: string, input_pass
 
 
     if (api_mode === "MOCK") {
+        console.debug("MOCK mode");
         if (Math.random() < 0.5){
-            const response = "test_OK[if you see this, it just a test]";
-            console.debug("signup successful", response);
-            return response;
+            console.debug("signup successful", mockTokenPair);
+            return mockTokenPair;
         }
         else {
             console.error("signup fail: just not good luck");
             throw new Error("just not good luck");
         }
     }
+
+    return mockTokenPair;
 
     // TODO: wait proto v0.3
     
