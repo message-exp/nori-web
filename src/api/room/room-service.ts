@@ -221,3 +221,38 @@ export const InviteRoomReply = async (roomId: bigint, accept: boolean): Promise<
     // process the response and return
     return null;
 };
+
+
+
+export const JoinRoom = async (roomId: bigint, userId: bigint): Promise<null> => {
+    // prepare the request
+    const accessToken = "";  // TODO: get access token
+    const request = create(RoomUserRequestSchema, {
+        roomId: create(RoomIdSchema, {
+            id: roomId
+        }),
+        userId: create(UserIdSchema, {
+            id: userId
+        }),
+    });
+
+    // send the request
+    try {
+        await client.joinRoom(request, { headers: { authorization: accessToken } });
+    } catch (error) {
+        if (error instanceof ConnectError) {
+            const errorCode = error.code;
+            if (errorCode === Code.Unauthenticated) {
+                // TODO: get a new access token and retry
+            } else if (errorCode === Code.PermissionDenied) {
+                // TODO: handle permission denied case
+            }
+        }
+        // other error
+        console.error("Unexpected error when trying to retrieve room list", error);
+        throw error;
+    }
+
+    // process the response and return
+    return null;
+};
