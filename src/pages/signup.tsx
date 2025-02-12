@@ -35,19 +35,18 @@ const SignupPage = () => {
             console.log("not same----");
             console.log("password: ", password);
             console.log("confirm: ", inputConfirm);
-            console.log("----")
+            console.log("----");
             setIsConfirmPasswordValid(false);
             setConfirmPasswordErrorMessage("it's not same as password");
             return false;
         }
-        else
-        {
+        else {
             console.log("is same");
             setIsConfirmPasswordValid(true);
             setConfirmPasswordErrorMessage("");
             return true;
         }
-    }
+    };
 
     const signupFunc = async () => {
 
@@ -108,7 +107,7 @@ const SignupPage = () => {
                 console.log("response: ", response);
                 navigate("/roomlist");
             } catch (error) {
-                console.log("error: ", error)
+                console.log("error: ", error);
                 setTextErrorMessage("have error");
             }
         }

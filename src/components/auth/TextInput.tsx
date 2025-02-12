@@ -1,6 +1,6 @@
-import { Field, Input, InputProps as ChakraInputProps } from '@chakra-ui/react';
-import React from 'react';
-import { PasswordInput } from '../ui/password-input';
+import { Field, Input, InputProps as ChakraInputProps } from "@chakra-ui/react";
+import React from "react";
+import { PasswordInput } from "../ui/password-input";
 
 interface TextInputProps extends ChakraInputProps {
     
