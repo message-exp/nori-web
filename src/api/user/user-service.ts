@@ -11,6 +11,7 @@ import { UserService } from "@/proto-generated/nori/v0/user/user_service_pb";
 import config from "@/utils/config";
 import { AccessTokenSchema } from "@/proto-generated/nori/v0/user/access_token_pb";
 import { RefreshTokenSchema } from "@/proto-generated/nori/v0/user/refresh_token_pb";
+import { SignUpRequestSchema } from "@/proto-generated/nori/v0/user/signup_request_pb";
 
 const transport = createConnectTransport({
     baseUrl: config.backendUrl,
@@ -138,9 +139,20 @@ export const signup = async (input_name: string, input_email: string, input_pass
         }
     }
 
-    return mockTokenPair;
+    const signupRequest = create(SignUpRequestSchema, {
+        username: input_name,
+        email: input_email,
+        displayName: input_name
+    })
 
-    // TODO: wait proto v0.3
+    try {
+        const response = await client.signup(signupRequest)
+        console.log("登入成功", response);
+        return response;
+    } catch (error) {
+        console.error("登入失敗", error);
+        throw error;
+    }
     
 }
 
