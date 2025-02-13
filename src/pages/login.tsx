@@ -62,21 +62,19 @@ const Login = () => {
         return !str || str.trim() === "";
     }
 
-    const loginFunc = async() => {
+    const loginFunc = async () => {
         console.log("account: " + account);
         console.log("password: " + password);
         /* 串接API */
         setTextErrorMessage("");
         setIsLoginLoading(true);
         let isInputEmpty = false;
-        if (isEmpty(account))
-        {
+        if (isEmpty(account)) {
             setEmailErrorMessage("account empty");
             setIsEmailError(true);
             isInputEmpty = true;
         }
-        else
-        {
+        else {
             setEmailErrorMessage("");
             setIsEmailError(false);
         }
