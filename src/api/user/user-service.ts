@@ -1,22 +1,34 @@
 import { createClient } from "@connectrpc/connect";
-import { createConnectTransport } from "@connectrpc/connect-web";
 import { create } from "@bufbuild/protobuf";
 // import { Empty } from "@bufbuild/protobuf/wkt";
 import { RoomList } from "@/proto-generated/nori/v0/room/room_list_pb";
-import { TokenPair } from "@/proto-generated/nori/v0/user/token_pair_pb";
+import { TokenPair, TokenPairSchema } from "@/proto-generated/nori/v0/user/token_pair_pb";
 import { User } from "@/proto-generated/nori/v0/user/user_pb";
 import { UserIdSchema } from "@/proto-generated/nori/v0/user/user_id_pb";
 import { UserEmailPasswordLoginSchema } from "@/proto-generated/nori/v0/user/user_login_pb";
 import { UserService } from "@/proto-generated/nori/v0/user/user_service_pb";
 import config from "@/utils/config";
+import { AccessTokenSchema } from "@/proto-generated/nori/v0/user/access_token_pb";
+import { RefreshTokenSchema } from "@/proto-generated/nori/v0/user/refresh_token_pb";
+import { SignUpRequestSchema } from "@/proto-generated/nori/v0/user/signup_request_pb";
 
-const transport = createConnectTransport({
-    baseUrl: config.backendUrl,
-});
+import { transport } from "@/api/client";
 
-// Here we make the client itself, combining the service
-// definition with the transport.
 const client = createClient(UserService, transport);
+const api_mode = config.api_mode;
+
+const mockTokenPair = create(TokenPairSchema, {
+    accessToken: create(AccessTokenSchema, {
+        accessToken: new Uint8Array([
+            109, 111, 99, 107, 95, 97, 99, 99, 101, 115, 115, 95, 116, 111, 107, 101, 110
+        ])
+    }), // "mock_access_token" in ASCII
+    refreshToken: create(RefreshTokenSchema, {
+        refreshToken: new Uint8Array([
+            109, 111, 99, 107, 95, 114, 101, 102, 114, 101, 115, 104, 95, 116, 111, 107, 101, 110
+        ])
+    }) // "mock_refresh_token" in ASCII
+});
 
 export const GetUser = async (userId: bigint): Promise<User> => {
     // prepare request
@@ -54,6 +66,19 @@ export const login = async (input_email: string, input_password: string): Promis
     console.info("get login info");
     console.info("email: ", input_email);
     console.info("password: ", input_password);
+
+    if (api_mode === "MOCK") {
+        console.debug("MOCK mode");
+        if (input_email === "test" && input_password === "test123") {
+            console.debug("登入成功", mockTokenPair);
+            return mockTokenPair;
+        }
+        else {
+            console.error("登入失敗: Email or Password not right");
+            throw new Error("Email or Password not right");
+        }
+    }
+
     // 準備登入請求
     const loginRequest = create(UserEmailPasswordLoginSchema, {
         email: input_email,
@@ -63,13 +88,67 @@ export const login = async (input_email: string, input_password: string): Promis
     // 執行登入請求
     try {
         const response = await client.login(loginRequest);
-        // const response = "test_OK[if you see this, it just a test]";
         console.log("登入成功", response);
         return response;
     } catch (error) {
         console.error("登入失敗", error);
         throw error;
     }
+};
+
+export const signup = async (input_name: string, input_email: string, input_password: string): Promise<TokenPair> => {
+    console.log("get signup info");
+    console.info("name: ", input_name);
+    console.info("email: ", input_email);
+    console.info("password: ", input_password);
+
+    // verify is input valid
+    // name
+    if (!input_name || input_name.trim() === "") {
+        throw new Error("name is empty");
+    }
+
+    //email
+    if (!input_email) {
+        throw new Error("Email is empty");
+    }
+    else if (!/^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i.test(input_email)) {
+        throw new Error("Invalid email address");
+    }
+
+    //password
+    if (!input_password || input_password.trim() === "") {
+        throw new Error("password is empty");
+    }
+
+
+    if (api_mode === "MOCK") {
+        console.debug("MOCK mode");
+        if (Math.random() < 0.5) {
+            console.debug("signup successful", mockTokenPair);
+            return mockTokenPair;
+        }
+        else {
+            console.error("signup fail: just not good luck");
+            throw new Error("just not good luck");
+        }
+    }
+
+    const signupRequest = create(SignUpRequestSchema, {
+        username: input_name,
+        email: input_email,
+        displayName: input_name
+    });
+
+    try {
+        const response = await client.signup(signupRequest);
+        console.log("登入成功", response);
+        return response;
+    } catch (error) {
+        console.error("登入失敗", error);
+        throw error;
+    }
+    
 };
 
 
