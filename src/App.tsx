@@ -28,6 +28,11 @@ function NavigationPage() {
                     path="/login"
                 />
                 <PageCard
+                    title="Sign up"
+                    description="註冊"
+                    path="/signup"
+                />
+                <PageCard
                     title="Room List"
                     description="房間列表"
                     path="/roomlist"
@@ -37,6 +42,7 @@ function NavigationPage() {
                     description="聊天室"
                     path="/roomchat"
                 />
+                
                 {/* 添加更多頁面卡片 */}
             </div>
         </Box>
