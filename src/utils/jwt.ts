@@ -8,7 +8,7 @@ interface JWTPayload {
 
 export const getUserIdFromAccessToken = (token?: AccessToken): UserId => {
     if (!token?.accessToken) {
-        throw new Error('Access token is missing or invalid');
+        throw new Error("Access token is missing or invalid");
     }
 
     try {
@@ -17,7 +17,7 @@ export const getUserIdFromAccessToken = (token?: AccessToken): UserId => {
         console.log(decoded);
         return decoded.userId;
     } catch (error) {
-        console.error('Error decoding JWT:', error);
+        console.error("Error decoding JWT:", error);
         throw error;
     }
 };

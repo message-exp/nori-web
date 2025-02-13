@@ -8,15 +8,15 @@ interface UserAuth {
 
 export const storage = {
     setUserAuth: (data: UserAuth) => {
-        localStorage.setItem('userAuth', JSON.stringify(data));
+        localStorage.setItem("userAuth", JSON.stringify(data));
     },
 
     getUserAuth: (): UserAuth | null => {
-        const data = localStorage.getItem('userAuth');
+        const data = localStorage.getItem("userAuth");
         return data ? JSON.parse(data) : null;
     },
 
     clearUserAuth: () => {
-        localStorage.removeItem('userAuth');
+        localStorage.removeItem("userAuth");
     }
 };

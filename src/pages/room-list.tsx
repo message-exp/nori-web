@@ -1,5 +1,5 @@
-import { Box, Button, Center, DialogActionTrigger, DialogCloseTrigger, Flex, For, Heading, HStack, Icon, Input, Spinner, Stack, Text } from "@chakra-ui/react";
-import React, { useEffect, useRef, useState } from "react";
+import { Box, Button, Center, DialogActionTrigger, DialogCloseTrigger, Flex, For, Heading, HStack, Icon, Input, Stack } from "@chakra-ui/react";
+import React, { useEffect, useState } from "react";
 import { IoMdAddCircleOutline } from "react-icons/io";
 import {
     DialogBody,
@@ -15,9 +15,9 @@ import { GetUser, GetUserRoomList } from "@/api/user/user-service";
 import { storage } from "@/utils/storage/user-storage";
 import { RoomBasicInfoResponse } from "@/proto-generated/nori/v0/room/room_basic_info_response_pb";
 import { CreateRoom } from "@/api/room/room-service";
+import { useNavigate } from "react-router";
 
 const RoomList = () => {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [username, setUsername] = useState("");
 
     const roomListStyle = {
@@ -41,6 +41,8 @@ const RoomList = () => {
         }
     };
     const [roomListArray, setRoomListArray] = useState<RoomBasicInfoResponse[]>();
+
+    const navigate = useNavigate();
 
 
     // const [roomList, setRoomList] = useState([
@@ -74,7 +76,7 @@ const RoomList = () => {
     useEffect(() => {
         const userAuth = storage.getUserAuth();
         if (!userAuth?.userId) {
-            console.error('User ID is not available');
+            console.error("User ID is not available");
             return;
         }
         
@@ -83,9 +85,9 @@ const RoomList = () => {
                 const user = await GetUser(userAuth.userId.id);
                 setUsername(user.username);
             } catch (error) {
-                console.error('Failed to fetch username:', error);
+                console.error("Failed to fetch username:", error);
             }
-        }
+        };
 
         fetchUsername();
 
@@ -95,7 +97,7 @@ const RoomList = () => {
                 
                 setRoomListArray(roomlist.rooms);
             } catch (error) {
-                console.error('Failed to fetch room list:', error);
+                console.error("Failed to fetch room list:", error);
             }
         };
 
@@ -107,8 +109,11 @@ const RoomList = () => {
             room.name.case === "customName" ? room.name.value : "";
     };
 
-    const getRoomId = (room: RoomBasicInfoResponse): string => {
-        return room.roomId?.id?.toString() || "";
+    const getRoomId = (room: RoomBasicInfoResponse): bigint => {
+        if (!room.roomId) {
+            throw new Error("Room ID is undefined");
+        }
+        return room.roomId.id;
     };
 
     
@@ -157,7 +162,7 @@ const RoomList = () => {
     //     const target = e.target as HTMLDivElement;
     //     const presentage = calculateScrollPercentage(target.scrollTop, target.scrollHeight, target.clientHeight)
     //     console.log("---");
-    //     console.log('Scroll position top:', target.scrollTop);
+    //     console.log("Scroll position top:", target.scrollTop);
     //     console.log("scroll position height: ", target.scrollHeight);
     //     console.log("scroll position client height: ", target.clientHeight);
     //     console.log("scroll precentage: ", presentage)
@@ -171,15 +176,23 @@ const RoomList = () => {
 
     interface roomListDataProps {
         name: string;
-        id: string;
+        id: bigint;
     }
+
+    const handleIntoRoom = (id: bigint) => {
+        navigate("/roomchat", {
+            state: {
+                roomid: id
+            }
+        });
+    };
 
     const RoomListCard: React.FC<roomListDataProps> = ({ name, id }) => {
         return (
-            <Button radioGroup="xl" height={"100px"} width={"100%"} variant={"ghost"} >
+            <Button radioGroup="xl" height={"100px"} width={"100%"} variant={"ghost"} onClick={() => handleIntoRoom(id)} >
                 <HStack direction={"row"}>
                     <Heading size={"2xl"}>{name}</Heading>
-                    <Heading size={"md"}>({id})</Heading>
+                    <Heading size={"md"}>({id.toString()})</Heading>
                 </HStack>
             </Button>
         );
@@ -234,8 +247,8 @@ const RoomList = () => {
                 throw new Error("User ID is not available");
             }
             const newRoomId = await CreateRoom(addRoomName, userAuth?.userId.id, []);
-
-        }
+            console.log("new room id: ", newRoomId);
+        }; 
         return (
             <DialogRoot>
                 <DialogTrigger>
