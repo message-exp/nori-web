@@ -11,13 +11,13 @@ import {
     DialogTrigger,
 } from "@/components/ui/dialog";
 import { Field } from "@/components/ui/field";
-import { GetUserRoomList } from "@/api/user/user-service";
+import { GetUser, GetUserRoomList } from "@/api/user/user-service";
 import { storage } from "@/utils/storage/user-storage";
 import { RoomBasicInfoResponse } from "@/proto-generated/nori/v0/room/room_basic_info_response_pb";
 
 const RoomList = () => {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const [username, _] = useState("test username");
+    const [username, setUsername] = useState("");
 
     const roomListStyle = {
         borderRadius: "lg",
@@ -71,14 +71,24 @@ const RoomList = () => {
     // ]);
 
     useEffect(() => {
-        const fetchRoomList = async () => {
-            const userAuth = storage.getUserAuth();
-
-            if (!userAuth?.userId) {
-                console.error('User ID is not available');
-                return;
+        const userAuth = storage.getUserAuth();
+        if (!userAuth?.userId) {
+            console.error('User ID is not available');
+            return;
+        }
+        
+        const fetchUsername = async () => {
+            try {
+                const user = await GetUser(userAuth.userId.id);
+                setUsername(user.username);
+            } catch (error) {
+                console.error('Failed to fetch username:', error);
             }
+        }
 
+        fetchUsername();
+
+        const fetchRoomList = async () => {
             try {
                 const roomlist = await GetUserRoomList(userAuth.userId.id);
                 
