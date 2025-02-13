@@ -11,6 +11,9 @@ import {
     DialogTrigger,
 } from "@/components/ui/dialog";
 import { Field } from "@/components/ui/field";
+import { GetUserRoomList } from "@/api/user/user-service";
+import { storage } from "@/utils/storage/user-storage";
+import { RoomBasicInfoResponse } from "@/proto-generated/nori/v0/room/room_basic_info_response_pb";
 
 const RoomList = () => {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -36,89 +39,124 @@ const RoomList = () => {
             backgroundColor: "rgba(255, 255, 255, 0.85)",
         }
     };
+    const [roomListArray, setRoomListArray] = useState<RoomBasicInfoResponse[]>();
 
-    const [roomList, setRoomList] = useState([
-        { roomName: "Travel Buddies", roomId: "travel2023group" },
-        { roomName: "Gaming Squad", roomId: "gamersunite123" },
-        { roomName: "Book Club", roomId: "bookworms2023" },
-        { roomName: "Foodies United", roomId: "foodlovers456" },
-        { roomName: "Tech Talk", roomId: "techgeeks789" },
-        { roomName: "Music Lovers", roomId: "musicclub2023" },
-        { roomName: "Fitness Friends", roomId: "fitfam345" },
-        { roomName: "Movie Night", roomId: "moviebuffs567" },
-        { roomName: "Coffee Chat", roomId: "coffeetime123" },
-        { roomName: "Pet Parents", roomId: "petlovers999" },
-        { roomName: "Study Group", roomId: "studybuddies777" },
-        { roomName: "Art Gallery", roomId: "artists2023" },
-        { roomName: "Sports Fan", roomId: "sportsclub444" },
-        { roomName: "Photography Club", roomId: "photoclub555" },
-        { roomName: "Language Exchange", roomId: "langexchange666" },
-        { roomName: "Cooking Club", roomId: "chefclub888" },
-        { roomName: "Travel Planning", roomId: "travelplan234" },
-        { roomName: "Anime Club", roomId: "animelovers111" },
-        { roomName: "Gardening Group", roomId: "gardeners222" },
-        { roomName: "DIY Projects", roomId: "diycrafts333" },
-        { roomName: "Board Games", roomId: "boardgames444" },
-        { roomName: "Crypto Talk", roomId: "crypto555666" },
-        { roomName: "Fashion Chat", roomId: "fashionista777" },
-        { roomName: "Science Club", roomId: "sciencegeek888" },
-        { roomName: "Meditation Group", roomId: "zentime999" }
-    ]);
 
-    const [isLoading, setIsloading] = useState(false);
+    // const [roomList, setRoomList] = useState([
+    //     { roomName: "Travel Buddies", roomId: "travel2023group" },
+    //     { roomName: "Gaming Squad", roomId: "gamersunite123" },
+    //     { roomName: "Book Club", roomId: "bookworms2023" },
+    //     { roomName: "Foodies United", roomId: "foodlovers456" },
+    //     { roomName: "Tech Talk", roomId: "techgeeks789" },
+    //     { roomName: "Music Lovers", roomId: "musicclub2023" },
+    //     { roomName: "Fitness Friends", roomId: "fitfam345" },
+    //     { roomName: "Movie Night", roomId: "moviebuffs567" },
+    //     { roomName: "Coffee Chat", roomId: "coffeetime123" },
+    //     { roomName: "Pet Parents", roomId: "petlovers999" },
+    //     { roomName: "Study Group", roomId: "studybuddies777" },
+    //     { roomName: "Art Gallery", roomId: "artists2023" },
+    //     { roomName: "Sports Fan", roomId: "sportsclub444" },
+    //     { roomName: "Photography Club", roomId: "photoclub555" },
+    //     { roomName: "Language Exchange", roomId: "langexchange666" },
+    //     { roomName: "Cooking Club", roomId: "chefclub888" },
+    //     { roomName: "Travel Planning", roomId: "travelplan234" },
+    //     { roomName: "Anime Club", roomId: "animelovers111" },
+    //     { roomName: "Gardening Group", roomId: "gardeners222" },
+    //     { roomName: "DIY Projects", roomId: "diycrafts333" },
+    //     { roomName: "Board Games", roomId: "boardgames444" },
+    //     { roomName: "Crypto Talk", roomId: "crypto555666" },
+    //     { roomName: "Fashion Chat", roomId: "fashionista777" },
+    //     { roomName: "Science Club", roomId: "sciencegeek888" },
+    //     { roomName: "Meditation Group", roomId: "zentime999" }
+    // ]);
+
+    useEffect(() => {
+        const fetchRoomList = async () => {
+            const userAuth = storage.getUserAuth();
+
+            if (!userAuth?.userId) {
+                console.error('User ID is not available');
+                return;
+            }
+
+            try {
+                const roomlist = await GetUserRoomList(userAuth.userId.id);
+                
+                setRoomListArray(roomlist.rooms);
+            } catch (error) {
+                console.error('Failed to fetch room list:', error);
+            }
+        };
+
+        fetchRoomList();
+    }, []);
+
+    const getRoomName = (room: RoomBasicInfoResponse): string => {
+        return room.name.case === "sharedName" ? room.name.value :
+            room.name.case === "customName" ? room.name.value : "";
+    };
+
+    const getRoomId = (room: RoomBasicInfoResponse): string => {
+        return room.roomId?.id?.toString() || "";
+    };
+
+    
+
+
+    // const [isLoading, setIsloading] = useState(false);
 
 
     const addRoomClick = () => {
         console.log("clicked");
     };
 
-    const roomListTooAdd = [
-        { roomName: "Below is add room", roomId: "addroom" },
-        { roomName: "1. one", roomId: "gamersunite123" },
-        { roomName: "2. two", roomId: "bookworms2023" },
-        { roomName: "3. three", roomId: "foodlovers456" },
-        { roomName: "4. four", roomId: "techgeeks789" },
-        { roomName: "5. five", roomId: "musicclub2023" },
-        { roomName: "6. six", roomId: "fitfam345" }
-    ];
+    // const roomListTooAdd = [
+    //     { roomName: "Below is add room", roomId: "addroom" },
+    //     { roomName: "1. one", roomId: "gamersunite123" },
+    //     { roomName: "2. two", roomId: "bookworms2023" },
+    //     { roomName: "3. three", roomId: "foodlovers456" },
+    //     { roomName: "4. four", roomId: "techgeeks789" },
+    //     { roomName: "5. five", roomId: "musicclub2023" },
+    //     { roomName: "6. six", roomId: "fitfam345" }
+    // ];
 
-    const calculateScrollPercentage = (
-        scrollTop: number,
-        scrollHeight: number,
-        clientHeight: number
-    ): number => {
-        const maxScroll = scrollHeight - clientHeight;
-        if (maxScroll <= 0) return 0;
+    // const calculateScrollPercentage = (
+    //     scrollTop: number,
+    //     scrollHeight: number,
+    //     clientHeight: number
+    // ): number => {
+    //     const maxScroll = scrollHeight - clientHeight;
+    //     if (maxScroll <= 0) return 0;
 
-        const percentage = scrollTop / maxScroll;
-        return Math.max(0, Math.min(1, percentage));
-    };
+    //     const percentage = scrollTop / maxScroll;
+    //     return Math.max(0, Math.min(1, percentage));
+    // };
 
-    const loadMoreRoomlist = async () => {
-        console.log("start loading");
-        setIsloading(true);
-        const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
-        await delay(3000);
-        setRoomList([...roomList, ...roomListTooAdd]);
-        setIsloading(false);
-        console.log("finished loading");
-    }
+    // const loadMoreRoomlist = async () => {
+    //     console.log("start loading");
+    //     setIsloading(true);
+    //     const delay = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+    //     await delay(3000);
+    //     setRoomList([...roomList, ...roomListTooAdd]);
+    //     setIsloading(false);
+    //     console.log("finished loading");
+    // }
 
-    const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
-        const target = e.target as HTMLDivElement;
-        const presentage = calculateScrollPercentage(target.scrollTop, target.scrollHeight, target.clientHeight)
-        console.log("---");
-        console.log('Scroll position top:', target.scrollTop);
-        console.log("scroll position height: ", target.scrollHeight);
-        console.log("scroll position client height: ", target.clientHeight);
-        console.log("scroll precentage: ", presentage)
-        console.log("---");
-        if (!isLoading) {
-            if (presentage > 0.9) {
-                // loadMoreRoomlist();
-            }
-        }
-    };
+    // const handleScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    //     const target = e.target as HTMLDivElement;
+    //     const presentage = calculateScrollPercentage(target.scrollTop, target.scrollHeight, target.clientHeight)
+    //     console.log("---");
+    //     console.log('Scroll position top:', target.scrollTop);
+    //     console.log("scroll position height: ", target.scrollHeight);
+    //     console.log("scroll position client height: ", target.clientHeight);
+    //     console.log("scroll precentage: ", presentage)
+    //     console.log("---");
+    //     if (!isLoading) {
+    //         if (presentage > 0.9) {
+    //             // loadMoreRoomlist();
+    //         }
+    //     }
+    // };
 
     interface roomListDataProps {
         name: string;
@@ -136,28 +174,31 @@ const RoomList = () => {
         );
     };
 
-    const LoadingCard = () => {
-        return (
-            <Box height="100px" width={"100%"}>
-                <Center height={"100%"}>
-                    <HStack>
-                        <Spinner></Spinner>
-                        <Text fontSize={"lg"}>loading</Text>
-                    </HStack>
-                </Center>
+    // const LoadingCard = () => {
+    //     return (
+    //         <Box height="100px" width={"100%"}>
+    //             <Center height={"100%"}>
+    //                 <HStack>
+    //                     <Spinner></Spinner>
+    //                     <Text fontSize={"lg"}>loading</Text>
+    //                 </HStack>
+    //             </Center>
                 
-            </Box>
-        )
+    //         </Box>
+    //     )
         
-    }
+    // }
 
-    const containerRef = useRef<HTMLDivElement>(null);
+    // const containerRef = useRef<HTMLDivElement>(null);
 
-    useEffect(() => {
-        if (containerRef.current) {
-            containerRef.current.scrollTop = containerRef.current.scrollHeight;
-        }
-    }, []); // 只在組件掛載時執行一次
+    // useEffect(() => {
+    //     if (containerRef.current) {
+    //         containerRef.current.scrollTop = containerRef.current.scrollHeight;
+    //     }
+    // }, []); // 只在組件掛載時執行一次
+
+
+
 
     const AddRoomButton = () => {
         return (
@@ -214,18 +255,18 @@ const RoomList = () => {
                 </Box>
                 <Box flex={"1"} {...roomListStyle} overflow={"hidden"}>
                     <Stack
-                        ref={containerRef}
+                        // ref={containerRef}
                         gap={"2"}
                         height={"100%"}
                         overflowY={"auto"}
-                        onScroll={handleScroll}
+                        // onScroll={handleScroll}
                         {...scroolStyle}
                     >
                         <For
-                            each={roomList}
+                            each={roomListArray}
                         >
-                            {(item, ) => (
-                                <RoomListCard name={item.roomName} id={item.roomId} />
+                            {(roomBasicInfo, ) => (
+                                <RoomListCard name={getRoomName(roomBasicInfo)} id={getRoomId(roomBasicInfo)} />
                             )}
                         </For>
                         {/* {isLoading && <LoadingCard/>} */}
