@@ -1,5 +1,4 @@
 import { createClient } from "@connectrpc/connect";
-import { createConnectTransport } from "@connectrpc/connect-web";
 import { create } from "@bufbuild/protobuf";
 // import { Empty } from "@bufbuild/protobuf/wkt";
 import { RoomList } from "@/proto-generated/nori/v0/room/room_list_pb";
@@ -13,9 +12,7 @@ import { AccessTokenSchema } from "@/proto-generated/nori/v0/user/access_token_p
 import { RefreshTokenSchema } from "@/proto-generated/nori/v0/user/refresh_token_pb";
 import { SignUpRequestSchema } from "@/proto-generated/nori/v0/user/signup_request_pb";
 
-const transport = createConnectTransport({
-    baseUrl: config.backendUrl,
-});
+import { transport } from "@/api/client";
 
 const client = createClient(UserService, transport);
 const api_mode = config.api_mode;
