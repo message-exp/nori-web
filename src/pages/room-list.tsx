@@ -1,4 +1,4 @@
-import { Box, Button, Center, DialogActionTrigger, Flex, For, Heading, HStack, Icon, Input, Spinner, Stack, Text } from "@chakra-ui/react";
+import { Box, Button, Center, DialogActionTrigger, DialogCloseTrigger, Flex, For, Heading, HStack, Icon, Input, Spinner, Stack, Text } from "@chakra-ui/react";
 import React, { useEffect, useRef, useState } from "react";
 import { IoMdAddCircleOutline } from "react-icons/io";
 import {
@@ -14,6 +14,7 @@ import { Field } from "@/components/ui/field";
 import { GetUser, GetUserRoomList } from "@/api/user/user-service";
 import { storage } from "@/utils/storage/user-storage";
 import { RoomBasicInfoResponse } from "@/proto-generated/nori/v0/room/room_basic_info_response_pb";
+import { CreateRoom } from "@/api/room/room-service";
 
 const RoomList = () => {
     // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -207,7 +208,7 @@ const RoomList = () => {
     //     }
     // }, []); // 只在組件掛載時執行一次
 
-
+    
 
 
     const AddRoomButton = () => {
@@ -225,6 +226,16 @@ const RoomList = () => {
     };
 
     const AddRoomDialog = () => {
+        const [addRoomName, setAddRoomName] = useState("");
+
+        const addRoom = async () => {
+            const userAuth = storage.getUserAuth();
+            if (!userAuth?.userId) {
+                throw new Error("User ID is not available");
+            }
+            const newRoomId = await CreateRoom(addRoomName, userAuth?.userId.id, []);
+
+        }
         return (
             <DialogRoot>
                 <DialogTrigger>
@@ -240,15 +251,30 @@ const RoomList = () => {
                     </DialogHeader>
                     <DialogBody>
                         <Field label="Room name">
-                            <Input placeholder="room name" />
+                            <Input
+                                placeholder="room name"
+                                value={addRoomName}
+                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                                    console.log("change");
+                                    setAddRoomName(e.target.value);
+                                }}
+                            />
                         </Field>
                     </DialogBody>
                     <DialogFooter>
                         <DialogActionTrigger asChild>
-                            <Button variant="outline">Cancel</Button>
+                            <Button
+                                variant="outline" onClick={() => {
+                                    console.log("cancel");
+                                    setAddRoomName("");
+                                }}
+                            >Cancel</Button>
                         </DialogActionTrigger>
-                        <Button>Save</Button>
+                        <DialogActionTrigger asChild>
+                            <Button onClick={() => addRoom()}>Save</Button>
+                        </DialogActionTrigger>
                     </DialogFooter>
+                    <DialogCloseTrigger />
                 </DialogContent>
             </DialogRoot>
         );
