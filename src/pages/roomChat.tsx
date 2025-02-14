@@ -1,6 +1,6 @@
 import { Avatar } from "@/components/ui/avatar";
 import { Box, Button, Center, DialogActionTrigger, Flex, For, Heading, Icon, IconButton, Input, Text, Textarea } from "@chakra-ui/react";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { RiArrowLeftLine, RiFunctionAddFill, RiMenuFill, RiSendPlane2Fill, RiUserAddFill } from "react-icons/ri";
 
 import {
@@ -16,7 +16,7 @@ import {
 import { Field } from "@/components/ui/field";
 import { useLocation } from "react-router";
 import { storage } from "@/utils/storage/user-storage";
-import { GetRoom } from "@/api/room/room-service";
+import { GetRoom, InviteToRoom } from "@/api/room/room-service";
 import { Room } from "@/proto-generated/nori/v0/room/room_pb";
 import { Message } from "@/proto-generated/nori/v0/message/message_pb";
 import { GetMessage, SendMessage } from "@/api/message/message-service";
@@ -29,9 +29,7 @@ interface LocationState {
 }
 
 const RoomChat = () => {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [roomName, setRoomName] = useState("taki");
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [roomAvatarSrc, setRoomAvatarSrc] = useState("https://i.imgur.com/LtR2mmT.png");
 
     const [currentUser, setCurrentUser] = useState<User>();
@@ -43,22 +41,23 @@ const RoomChat = () => {
     const location = useLocation();
     const state = location.state as LocationState;
 
-    const handleLoadMessage = async () => {
-
-        // TODO: find how to solve it
+    const handleLoadMessage = useCallback(async () => {
         if (!currentRoom?.roomId?.id) {
-            throw new Error("roomid undifined");
+            throw new Error("roomid undefined");
         }
-        const messages = GetMessage(currentRoom?.roomId?.id);
-        for await (const message of messages) {
-            const isDuplicate = chatMessages.some(existingMsg => existingMsg.messageId === message.messageId);
+        const messages = GetMessage(currentRoom.roomId.id);
 
-            // 如果不是重複的，才加入到 chatMessages
-            if (!isDuplicate) {
-                setChatMessages([...chatMessages, message]);
-            }
+        // 使用函數式更新來避免依賴 chatMessages
+        for await (const message of messages) {
+            setChatMessages(prevMessages => {
+                const isDuplicate = prevMessages.some(
+                    existingMsg => existingMsg.messageId === message.messageId
+                );
+                // 如果不是重複的，才加入新消息
+                return isDuplicate ? prevMessages : [...prevMessages, message];
+            });
         }
-    }
+    }, [currentRoom?.roomId?.id]); 
 
     useEffect(() => {
         const handleLoadUser = async () => {
@@ -68,14 +67,14 @@ const RoomChat = () => {
             }
             const user = await GetUser(userid.id);
             setCurrentUser(user);
-        }
+        };
 
         handleLoadUser();
 
         const handleLoadRoom = async () => {
             if (state?.roomid) {
                 // 在這裡使用 roomid 做你想要的操作
-                console.log('Room ID:', state.roomid);
+                console.log("Room ID:", state.roomid);
 
                 if (!currentUser?.userId) {
                     throw new Error("currentUser undifinded");
@@ -93,14 +92,15 @@ const RoomChat = () => {
                 // fetchRoomData(state.roomid);
                 // connectToRoom(state.roomid);
             }
-        }
+        };
+
         handleLoadRoom();
 
         handleLoadMessage();
 
         
         
-    }, [state?.roomid]);
+    }, [state?.roomid, currentUser?.userId, handleLoadMessage]);
 
 
     const InviteButton = () => {
@@ -117,7 +117,33 @@ const RoomChat = () => {
         );
     };
 
+    
+
     const InviteDialog = () => {
+        const [inviteUsername, setInviteUsername] = useState("");
+
+        const handleInvite = async () => {
+            try {
+                if (!currentRoom?.roomId) {
+                    throw new Error("current room id undifinded");
+                }
+
+                if (!currentUser?.userId) {
+                    throw new Error("current user id undifinded");
+                }
+
+                // TODO: it need to use username to get userid
+                // for now, just input userid
+                const inviteUserId = BigInt(inviteUsername);
+
+                await InviteToRoom(currentRoom.roomId.id, currentUser.userId.id, [inviteUserId]);
+
+            } catch (error) {
+                console.error(error);
+            }
+            
+        };
+
         return (
             <DialogRoot>
                 <DialogTrigger>
@@ -133,14 +159,20 @@ const RoomChat = () => {
                     </DialogHeader>
                     <DialogBody>
                         <Field label="User name">
-                            <Input placeholder="username" />
+                            <Input
+                                placeholder="username"
+                                value={inviteUsername}
+                                onChange={(e) => { setInviteUsername(e.target.value); }}
+                            />
                         </Field>
                     </DialogBody>
                     <DialogFooter>
                         <DialogActionTrigger asChild>
                             <Button variant="outline">Cancel</Button>
                         </DialogActionTrigger>
-                        <Button>Save</Button>
+                        <DialogActionTrigger asChild>
+                            <Button onClick={() => { handleInvite(); }}>Save</Button>
+                        </DialogActionTrigger>
                     </DialogFooter>
                 </DialogContent>
             </DialogRoot>
@@ -191,20 +223,20 @@ const RoomChat = () => {
     const MessageUnit: React.FC<MessageUnitProps> = (
         { author, time, messageContent }) =>
     {
-        let userAvatar;
-        let username;
+        const [userAvatar, setUserAvatar] = useState<string>("");
+        const [username, setUsername] = useState<string>("");
+
         useEffect(() => {
             const loadAuthor = async () => {
                 if (!author) {
-                    throw new Error("author undifinded");
+                    throw new Error("author undefined");
                 }
                 const authorUser = await GetUser(author.id);
-                userAvatar = authorUser.avatarUrl;
-                username = authorUser.username;
+                setUserAvatar(authorUser.avatarUrl);
+                setUsername(authorUser.username);
             };
             loadAuthor();
-
-        }, []);
+        }, [author]);
         
 
 
@@ -273,7 +305,7 @@ const RoomChat = () => {
         } catch (error) {
             console.error(error);
         }
-    }
+    };
 
     const ChatFooter = () => {
         return (
@@ -285,7 +317,7 @@ const RoomChat = () => {
                             variant={"outline"}
                             resize={"none"}
                             value={inputMessage}
-                            onChange={(e) => {setInputMessage(e.target.value)}}
+                            onChange={(e) => { setInputMessage(e.target.value); }}
                         />
                         <IconButton rounded={"full"} variant={"subtle"}>
                             <RiFunctionAddFill />
@@ -293,7 +325,7 @@ const RoomChat = () => {
                         <IconButton rounded={"full"} variant={"subtle"}>
                             <RiMenuFill />
                         </IconButton>
-                        <IconButton rounded={"full"} variant={"subtle"} onClick={() => { handleSendMessage() }}>
+                        <IconButton rounded={"full"} variant={"subtle"} onClick={() => { handleSendMessage(); }}>
                             <RiSendPlane2Fill />
                         </IconButton>
                     </Flex>
