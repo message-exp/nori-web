@@ -3,6 +3,8 @@ import { Button, Input, Text, VStack, Center, Heading, Field, Image } from "@cha
 import { PasswordInput } from "@/components/ui/password-input";
 import { useNavigate } from "react-router";
 import { login } from "@/api/user/user-service";
+import { storage } from "@/utils/storage/user-storage";
+import { getUserIdFromAccessToken } from "@/utils/jwt";
 
 const LoginPage = () => {
     const [flag, setFlag] = useState(1);
@@ -94,12 +96,17 @@ const Login = () => {
         }
 
         try {
-            const response = await login(account, password);
-            console.log("login response: ", response);
+            const tokenpair = await login(account, password);
+            console.log("get token pair: ", tokenpair);
+            const userid = getUserIdFromAccessToken(tokenpair.accessToken); 
+            console.log("get userid: ", userid);
+
+            storage.setUserAuth({ userId: userid, tokenpair: tokenpair });
+
             setTextErrorMessage("");
             setIsLoginLoading(false);
+
             navigate("/roomlist");
-            console.log("response: ", response);
         } catch (error) {
             console.log("get error: ", error);
             setTextErrorMessage("email or password error");

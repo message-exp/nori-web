@@ -1,5 +1,5 @@
-import { Box, Button, Center, DialogActionTrigger, Flex, For, Heading, HStack, Icon, Input, Stack } from "@chakra-ui/react";
-import React, { useState } from "react";
+import { Box, Button, Center, DialogActionTrigger, DialogCloseTrigger, Flex, For, Heading, HStack, Icon, Input, Stack } from "@chakra-ui/react";
+import React, { useEffect, useState } from "react";
 import { IoMdAddCircleOutline } from "react-icons/io";
 import {
     DialogBody,
@@ -11,10 +11,14 @@ import {
     DialogTrigger,
 } from "@/components/ui/dialog";
 import { Field } from "@/components/ui/field";
+import { GetUser, GetUserRoomList } from "@/api/user/user-service";
+import { storage } from "@/utils/storage/user-storage";
+import { RoomBasicInfoResponse } from "@/proto-generated/nori/v0/room/room_basic_info_response_pb";
+import { CreateRoom } from "@/api/room/room-service";
+import { useNavigate } from "react-router";
 
 const RoomList = () => {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const [username, _] = useState("test username");
+    const [username, setUsername] = useState("");
 
     const roomListStyle = {
         borderRadius: "lg",
@@ -36,35 +40,52 @@ const RoomList = () => {
             backgroundColor: "rgba(255, 255, 255, 0.85)",
         }
     };
+    const [roomListArray, setRoomListArray] = useState<RoomBasicInfoResponse[]>();
 
-    const roomList = [
-        { roomName: "Travel Buddies", roomId: "travel2023group" },
-        { roomName: "Gaming Squad", roomId: "gamersunite123" },
-        { roomName: "Book Club", roomId: "bookworms2023" },
-        { roomName: "Foodies United", roomId: "foodlovers456" },
-        { roomName: "Tech Talk", roomId: "techgeeks789" },
-        { roomName: "Music Lovers", roomId: "musicclub2023" },
-        { roomName: "Fitness Friends", roomId: "fitfam345" },
-        { roomName: "Movie Night", roomId: "moviebuffs567" },
-        { roomName: "Coffee Chat", roomId: "coffeetime123" },
-        { roomName: "Pet Parents", roomId: "petlovers999" },
-        { roomName: "Study Group", roomId: "studybuddies777" },
-        { roomName: "Art Gallery", roomId: "artists2023" },
-        { roomName: "Sports Fan", roomId: "sportsclub444" },
-        { roomName: "Photography Club", roomId: "photoclub555" },
-        { roomName: "Language Exchange", roomId: "langexchange666" },
-        { roomName: "Cooking Club", roomId: "chefclub888" },
-        { roomName: "Travel Planning", roomId: "travelplan234" },
-        { roomName: "Anime Club", roomId: "animelovers111" },
-        { roomName: "Gardening Group", roomId: "gardeners222" },
-        { roomName: "DIY Projects", roomId: "diycrafts333" },
-        { roomName: "Board Games", roomId: "boardgames444" },
-        { roomName: "Crypto Talk", roomId: "crypto555666" },
-        { roomName: "Fashion Chat", roomId: "fashionista777" },
-        { roomName: "Science Club", roomId: "sciencegeek888" },
-        { roomName: "Meditation Group", roomId: "zentime999" }
-    ];
+    const navigate = useNavigate();
 
+    useEffect(() => {
+        const userAuth = storage.getUserAuth();
+        if (!userAuth?.userId) {
+            console.error("User ID is not available");
+            return;
+        }
+        
+        const fetchUsername = async () => {
+            try {
+                const user = await GetUser(userAuth.userId.id);
+                setUsername(user.username);
+            } catch (error) {
+                console.error("Failed to fetch username:", error);
+            }
+        };
+
+        fetchUsername();
+
+        const fetchRoomList = async () => {
+            try {
+                const roomlist = await GetUserRoomList(userAuth.userId.id);
+                
+                setRoomListArray(roomlist.rooms);
+            } catch (error) {
+                console.error("Failed to fetch room list:", error);
+            }
+        };
+
+        fetchRoomList();
+    }, []);
+
+    const getRoomName = (room: RoomBasicInfoResponse): string => {
+        return room.name.case === "sharedName" ? room.name.value :
+            room.name.case === "customName" ? room.name.value : "";
+    };
+
+    const getRoomId = (room: RoomBasicInfoResponse): bigint => {
+        if (!room.roomId) {
+            throw new Error("Room ID is undefined");
+        }
+        return room.roomId.id;
+    };
 
     const addRoomClick = () => {
         console.log("clicked");
@@ -72,15 +93,23 @@ const RoomList = () => {
 
     interface roomListDataProps {
         name: string;
-        id: string;
+        id: bigint;
     }
+
+    const handleIntoRoom = (id: bigint) => {
+        navigate("/roomchat", {
+            state: {
+                roomid: id
+            }
+        });
+    };
 
     const RoomListCard: React.FC<roomListDataProps> = ({ name, id }) => {
         return (
-            <Button radioGroup="xl" height={"100px"} width={"100%"} variant={"ghost"} >
+            <Button radioGroup="xl" height={"100px"} width={"100%"} variant={"ghost"} onClick={() => handleIntoRoom(id)} >
                 <HStack direction={"row"}>
                     <Heading size={"2xl"}>{name}</Heading>
-                    <Heading size={"md"}>({id})</Heading>
+                    <Heading size={"md"}>({id.toString()})</Heading>
                 </HStack>
             </Button>
         );
@@ -101,6 +130,16 @@ const RoomList = () => {
     };
 
     const AddRoomDialog = () => {
+        const [addRoomName, setAddRoomName] = useState("");
+
+        const addRoom = async () => {
+            const userAuth = storage.getUserAuth();
+            if (!userAuth?.userId) {
+                throw new Error("User ID is not available");
+            }
+            const newRoomId = await CreateRoom(addRoomName, userAuth?.userId.id, []);
+            console.log("new room id: ", newRoomId);
+        }; 
         return (
             <DialogRoot>
                 <DialogTrigger>
@@ -116,15 +155,30 @@ const RoomList = () => {
                     </DialogHeader>
                     <DialogBody>
                         <Field label="Room name">
-                            <Input placeholder="room name" />
+                            <Input
+                                placeholder="room name"
+                                value={addRoomName}
+                                onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                                    console.log("change");
+                                    setAddRoomName(e.target.value);
+                                }}
+                            />
                         </Field>
                     </DialogBody>
                     <DialogFooter>
                         <DialogActionTrigger asChild>
-                            <Button variant="outline">Cancel</Button>
+                            <Button
+                                variant="outline" onClick={() => {
+                                    console.log("cancel");
+                                    setAddRoomName("");
+                                }}
+                            >Cancel</Button>
                         </DialogActionTrigger>
-                        <Button>Save</Button>
+                        <DialogActionTrigger asChild>
+                            <Button onClick={() => addRoom()}>Save</Button>
+                        </DialogActionTrigger>
                     </DialogFooter>
+                    <DialogCloseTrigger />
                 </DialogContent>
             </DialogRoot>
         );
@@ -140,14 +194,23 @@ const RoomList = () => {
                     </Flex>
                 </Box>
                 <Box flex={"1"} {...roomListStyle} overflow={"hidden"}>
-                    <Stack gap={"2"} height={"100%"} overflowY={"auto"} {...scroolStyle}>
+                    <Stack
+                        // ref={containerRef}
+                        gap={"2"}
+                        height={"100%"}
+                        overflowY={"auto"}
+                        // onScroll={handleScroll}
+                        {...scroolStyle}
+                    >
                         <For
-                            each={roomList}
+                            each={roomListArray}
                         >
-                            {(item, ) => (
-                                <RoomListCard name={item.roomName} id={item.roomId} />
+                            {(roomBasicInfo, ) => (
+                                <RoomListCard name={getRoomName(roomBasicInfo)} id={getRoomId(roomBasicInfo)} />
                             )}
                         </For>
+                        {/* {isLoading && <LoadingCard/>} */}
+
                     </Stack>
                     
                 </Box>
