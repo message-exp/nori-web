@@ -1,6 +1,6 @@
 import { Avatar } from "@/components/ui/avatar";
 import { Box, Button, Center, DialogActionTrigger, Flex, For, Heading, Icon, IconButton, Input, Text, Textarea } from "@chakra-ui/react";
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { RiArrowLeftLine, RiFunctionAddFill, RiMenuFill, RiSendPlane2Fill, RiUserAddFill } from "react-icons/ri";
 
 import {
@@ -14,82 +14,94 @@ import {
 } from "@/components/ui/dialog";
 
 import { Field } from "@/components/ui/field";
+import { useLocation } from "react-router";
+import { storage } from "@/utils/storage/user-storage";
+import { GetRoom, InviteToRoom } from "@/api/room/room-service";
+import { Room } from "@/proto-generated/nori/v0/room/room_pb";
+import { Message } from "@/proto-generated/nori/v0/message/message_pb";
+import { GetMessage, SendMessage } from "@/api/message/message-service";
+import { UserId } from "@/proto-generated/nori/v0/user/user_id_pb";
+import { GetUser } from "@/api/user/user-service";
+import { User } from "@/proto-generated/nori/v0/user/user_pb";
+
+interface LocationState {
+    roomid: bigint;
+}
 
 const RoomChat = () => {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [roomName, setRoomName] = useState("taki");
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const [roomAvatarSrc, setRoomAvatarSrc] = useState("https://i.imgur.com/LtR2mmT.png");
 
-    const mockChatData = [
-        {
-            username: "Alice Chen",
-            userAvatar: "https://i.imgur.com/qnKbkZn.png",
-            time: "2024-01-15 09:15:23",
-            messageContent: ["早安啊！今天天氣真不錯 ☀️"],
-        },
-        {
-            username: "Bob Wang",
-            userAvatar: "https://i.imgur.com/fkaFmHl.png",
-            time: "2024-01-15 09:15:45",
-            messageContent: ["早安～", "準備去上班了嗎？"],
-        },
-        {
-            username: "Carol Lin",
-            time: "2024-01-15 09:16:30",
-            messageContent: ["各位早安！", "今天公司有團隊會議，別忘記了！"],
-        },
-        {
-            username: "David Lee",
-            userAvatar: "https://i.imgur.com/sG9qKLW.png",
-            time: "2024-01-15 09:17:15",
-            messageContent: ["謝謝提醒！", "差點忘記要開會了 😅"],
-        },
-        {
-            username: "Eva Wu",
-            userAvatar: "https://i.imgur.com/k3Lsk5c.png",
-            time: "2024-01-15 09:18:00",
-            messageContent: ["我已經在公司了", "順便幫大家買了早餐"],
-        },
-        {
-            username: "Frank Chang",
-            time: "2024-01-15 09:19:25",
-            messageContent: ["Eva 你最好了！", "我等等到了請你喝咖啡 ☕"],
-        },
-        {
-            username: "Grace Liu",
-            userAvatar: "https://i.imgur.com/ozYTQkY.png",
-            time: "2024-01-15 09:20:10",
-            messageContent: ["我可能會晚到一點", "路上塞車了..."],
-        },
-        {
-            username: "Henry Kao",
-            userAvatar: "https://i.pravatar.cc/150?img=6",
-            time: "2024-01-15 09:21:00",
-            messageContent: ["我也遇到塞車", "建議大家改搭捷運"],
-        },
-        {
-            username: "Iris Chen",
-            time: "2024-01-15 09:22:15",
-            messageContent: ["會議資料我已經準備好了", "等等直接在會議室見吧！"],
-        },
-        {
-            username: "Jack Wu",
-            userAvatar: "https://i.pravatar.cc/150?img=7",
-            time: "2024-01-15 09:23:30",
-            messageContent: [
-                "等等會議要討論新專案",
-                "我已經把提案文件整理好了",
-                "大家可以先預覽一下"
-            ],
-        },
-        {
-            username: "Kelly Wang",
-            userAvatar: "https://i.pravatar.cc/150?img=8",
-            time: "2024-01-15 09:24:45",
-            messageContent: ["收到！", "我已經看完文件了，待會討論 👍"],
-        },
-    ];
+    const [currentUser, setCurrentUser] = useState<User>();
+
+    const [currentRoom, setCurrentRoom] = useState<Room>();
+
+    const [chatMessages, setChatMessages] = useState<Message[]>([]);
+
+    const location = useLocation();
+    const state = location.state as LocationState;
+
+    const handleLoadMessage = useCallback(async () => {
+        if (!currentRoom?.roomId?.id) {
+            throw new Error("roomid undefined");
+        }
+        const messages = GetMessage(currentRoom.roomId.id);
+
+        // 使用函數式更新來避免依賴 chatMessages
+        for await (const message of messages) {
+            setChatMessages(prevMessages => {
+                const isDuplicate = prevMessages.some(
+                    existingMsg => existingMsg.messageId === message.messageId
+                );
+                // 如果不是重複的，才加入新消息
+                return isDuplicate ? prevMessages : [...prevMessages, message];
+            });
+        }
+    }, [currentRoom?.roomId?.id]); 
+
+    useEffect(() => {
+        const handleLoadUser = async () => {
+            const userid = storage.getUserAuth()?.userId;
+            if (!userid) {
+                throw new Error("userid undifinded");
+            }
+            const user = await GetUser(userid.id);
+            setCurrentUser(user);
+        };
+
+        handleLoadUser();
+
+        const handleLoadRoom = async () => {
+            if (state?.roomid) {
+                // 在這裡使用 roomid 做你想要的操作
+                console.log("Room ID:", state.roomid);
+
+                if (!currentUser?.userId) {
+                    throw new Error("currentUser undifinded");
+                }
+                
+                const room = await GetRoom(state.roomid, currentUser?.userId.id);
+                setCurrentRoom(room);
+
+                setRoomName(room.customName || room.sharedName);
+
+                setRoomAvatarSrc(room.customAvatarUrl || room.sharedAvatarUrl);
+                
+
+                // 例如：
+                // fetchRoomData(state.roomid);
+                // connectToRoom(state.roomid);
+            }
+        };
+
+        handleLoadRoom();
+
+        handleLoadMessage();
+
+        
+        
+    }, [state?.roomid, currentUser?.userId, handleLoadMessage]);
+
 
     const InviteButton = () => {
         return (
@@ -105,7 +117,33 @@ const RoomChat = () => {
         );
     };
 
+    
+
     const InviteDialog = () => {
+        const [inviteUsername, setInviteUsername] = useState("");
+
+        const handleInvite = async () => {
+            try {
+                if (!currentRoom?.roomId) {
+                    throw new Error("current room id undifinded");
+                }
+
+                if (!currentUser?.userId) {
+                    throw new Error("current user id undifinded");
+                }
+
+                // TODO: it need to use username to get userid
+                // for now, just input userid
+                const inviteUserId = BigInt(inviteUsername);
+
+                await InviteToRoom(currentRoom.roomId.id, currentUser.userId.id, [inviteUserId]);
+
+            } catch (error) {
+                console.error(error);
+            }
+            
+        };
+
         return (
             <DialogRoot>
                 <DialogTrigger>
@@ -121,14 +159,20 @@ const RoomChat = () => {
                     </DialogHeader>
                     <DialogBody>
                         <Field label="User name">
-                            <Input placeholder="username" />
+                            <Input
+                                placeholder="username"
+                                value={inviteUsername}
+                                onChange={(e) => { setInviteUsername(e.target.value); }}
+                            />
                         </Field>
                     </DialogBody>
                     <DialogFooter>
                         <DialogActionTrigger asChild>
                             <Button variant="outline">Cancel</Button>
                         </DialogActionTrigger>
-                        <Button>Save</Button>
+                        <DialogActionTrigger asChild>
+                            <Button onClick={() => { handleInvite(); }}>Save</Button>
+                        </DialogActionTrigger>
                     </DialogFooter>
                 </DialogContent>
             </DialogRoot>
@@ -165,10 +209,9 @@ const RoomChat = () => {
     };
 
     interface MessageUnitProps {
-        userAvatar?: string;
-        username: string;
-        time: string;
-        messageContent: string[]; 
+        author?: UserId;
+        time?: string;
+        messageContent: string; 
     }
 
     const colorPaletteForRandom = ["red", "blue", "green", "yellow", "purple", "orange"];
@@ -178,8 +221,25 @@ const RoomChat = () => {
     };
 
     const MessageUnit: React.FC<MessageUnitProps> = (
-        { userAvatar, username, time, messageContent }) =>
+        { author, time, messageContent }) =>
     {
+        const [userAvatar, setUserAvatar] = useState<string>("");
+        const [username, setUsername] = useState<string>("");
+
+        useEffect(() => {
+            const loadAuthor = async () => {
+                if (!author) {
+                    throw new Error("author undefined");
+                }
+                const authorUser = await GetUser(author.id);
+                setUserAvatar(authorUser.avatarUrl);
+                setUsername(authorUser.username);
+            };
+            loadAuthor();
+        }, [author]);
+        
+
+
         return (
             <Box
                 padding={"10px"}
@@ -188,7 +248,7 @@ const RoomChat = () => {
                     <Avatar
                         src={userAvatar}
                         name={username}
-                        colorPalette={pickPalette(username)}
+                        colorPalette={pickPalette(username ?? "")}
                     />
                     <Flex direction={"column"} gap={"2"}>
                         <Flex gap={"2"} alignItems={"baseline"}>
@@ -197,10 +257,8 @@ const RoomChat = () => {
                             <Text textStyle={"xs"}>{time}</Text>
                         </Flex>
                         <Box>
-                            <For each={messageContent}>
-                                {/* eslint-disable-next-line @typescript-eslint/no-unused-vars */}
-                                {(item, _) => <Text>{item}</Text>}
-                            </For>
+                            <Text>{ messageContent }</Text>
+                        
                         </Box>
                         
 
@@ -214,14 +272,16 @@ const RoomChat = () => {
         return (
             <Box height={"100%"} >
                 <Flex direction={"column"} maxHeight={"100%"}>
-                    <For each={mockChatData}>
+                    <For each={chatMessages}>
                         {/* eslint-disable-next-line @typescript-eslint/no-unused-vars */}
-                        {(item, _) =>
+                        {(message, _) =>
                             <MessageUnit
-                                userAvatar={item.userAvatar}
-                                username={item.username}
-                                time={item.time}
-                                messageContent={item.messageContent}
+                                // userAvatar={message.}
+                                author={message.author}
+                                time={message.createdAt?.seconds
+                                    ? new Date(Number(message.createdAt.seconds) * 1000).toISOString()
+                                    : new Date().toISOString()}
+                                messageContent={message.text}
                             />
                         }
                     </For>
@@ -229,6 +289,22 @@ const RoomChat = () => {
                 
             </Box> 
         );
+    };
+
+    const [inputMessage, setInputMessage] = useState("");
+
+    const handleSendMessage = async () => {
+        try {
+            if (!currentRoom?.roomId) {
+                throw new Error("current room id undifinded");
+            }
+            if (!currentUser?.userId) {
+                throw new Error("current user id undifinded");
+            }
+            await SendMessage(currentRoom?.roomId.id, currentUser.userId.id, inputMessage);
+        } catch (error) {
+            console.error(error);
+        }
     };
 
     const ChatFooter = () => {
@@ -240,7 +316,8 @@ const RoomChat = () => {
                             placeholder="Comment..."
                             variant={"outline"}
                             resize={"none"}
-
+                            value={inputMessage}
+                            onChange={(e) => { setInputMessage(e.target.value); }}
                         />
                         <IconButton rounded={"full"} variant={"subtle"}>
                             <RiFunctionAddFill />
@@ -248,7 +325,7 @@ const RoomChat = () => {
                         <IconButton rounded={"full"} variant={"subtle"}>
                             <RiMenuFill />
                         </IconButton>
-                        <IconButton rounded={"full"} variant={"subtle"}>
+                        <IconButton rounded={"full"} variant={"subtle"} onClick={() => { handleSendMessage(); }}>
                             <RiSendPlane2Fill />
                         </IconButton>
                     </Flex>
@@ -258,12 +335,20 @@ const RoomChat = () => {
         );
     };
 
+    const containerRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        if (containerRef.current) {
+            containerRef.current.scrollTop = containerRef.current.scrollHeight;
+        }
+    }, []); // 只在組件掛載時執行一次
+
 
 
     return (
         <Flex direction={"column"} height={"100vh"}>
             <ChatHeader />
-            <Box flex={"1"} overflowY={"auto"} >
+            <Box flex={"1"} overflowY={"auto"} ref={containerRef} >
                 <ChatBody></ChatBody>
             </Box>
             <ChatFooter/>
