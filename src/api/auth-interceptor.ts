@@ -8,11 +8,11 @@ export const authInterceptor: Interceptor = (next) => async (req) => {
         return await next(req);
     }
     const token = storageUtil?.tokenpair.accessToken?.accessToken;
+    // console.log(token);
     
     // set token in request header
     if (token) {
-        const tokenString = new TextDecoder().decode(token); // convert bytes to string
-        req.header.set("authorization", tokenString);
+        req.header.set("authorization", token);
     }
 
     // continue with request
