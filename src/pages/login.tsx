@@ -92,6 +92,8 @@ const Login = () => {
         }
 
         if (isInputEmpty) {
+            setTextErrorMessage("");
+            setIsLoginLoading(false);
             return;
         }
 
@@ -101,7 +103,7 @@ const Login = () => {
             const userid = getUserIdFromAccessToken(tokenpair.accessToken); 
             console.log("get userid: ", userid);
 
-            storage.setUserAuth({ userId: userid, tokenpair: tokenpair });
+            storage.setUserAuth({ userId: Number(userid.id), tokenpair: tokenpair });
 
             setTextErrorMessage("");
             setIsLoginLoading(false);

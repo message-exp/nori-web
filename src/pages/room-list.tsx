@@ -1,7 +1,8 @@
-import { Box, Button, Center, DialogActionTrigger, DialogCloseTrigger, Flex, For, Heading, HStack, Icon, Input, Stack } from "@chakra-ui/react";
+import { Box, Button, Center, DialogCloseTrigger, Flex, For, Heading, HStack, Icon, Input, Stack } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
 import { IoMdAddCircleOutline } from "react-icons/io";
 import {
+    DialogActionTrigger,
     DialogBody,
     DialogContent,
     DialogFooter,
@@ -87,10 +88,6 @@ const RoomList = () => {
         return room.roomId.id;
     };
 
-    const addRoomClick = () => {
-        console.log("clicked");
-    };
-
     interface roomListDataProps {
         name: string;
         id: bigint;
@@ -115,19 +112,24 @@ const RoomList = () => {
         );
     };
 
-    const AddRoomButton = () => {
+    interface AddRoomButtonProps {
+        onClick?: () => void;
+        className?: string;
+        children?: React.ReactNode;
+    }
+
+    const AddRoomButton = React.forwardRef<HTMLButtonElement, AddRoomButtonProps>((props, ref) => {
         return (
-            <Button onClick={addRoomClick} variant={"surface"}>
+            <Button variant={"surface"} {...props} ref={ref}>
                 <Center inline gap={"2"}>
                     <Icon size={"xl"}>
                         <IoMdAddCircleOutline />
                     </Icon>
                     <Heading size={"2xl"}>ADD ROOM</Heading>
-
                 </Center>
             </Button>
         );
-    };
+    });
 
     const AddRoomDialog = () => {
         const [addRoomName, setAddRoomName] = useState("");
@@ -142,10 +144,11 @@ const RoomList = () => {
         }; 
         return (
             <DialogRoot>
-                <DialogTrigger>
-                    <AddRoomButton></AddRoomButton>
+                <DialogTrigger asChild>
+                    <AddRoomButton />
+                    {/* <Button>test</Button> */}
                 </DialogTrigger>
-
+                
                 <DialogContent>
                     <DialogHeader>
                         <DialogTitle >
