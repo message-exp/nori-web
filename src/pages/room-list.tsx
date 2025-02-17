@@ -88,10 +88,6 @@ const RoomList = () => {
         return room.roomId.id;
     };
 
-    const addRoomClick = () => {
-        console.log("clicked");
-    };
-
     interface roomListDataProps {
         name: string;
         id: bigint;
@@ -116,7 +112,13 @@ const RoomList = () => {
         );
     };
 
-    const AddRoomButton = React.forwardRef<HTMLButtonElement, any>((props, ref) => {
+    interface AddRoomButtonProps {
+        onClick?: () => void;
+        className?: string;
+        children?: React.ReactNode;
+    }
+
+    const AddRoomButton = React.forwardRef<HTMLButtonElement, AddRoomButtonProps>((props, ref) => {
         return (
             <Button variant={"surface"} {...props} ref={ref}>
                 <Center inline gap={"2"}>
