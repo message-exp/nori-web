@@ -1,7 +1,6 @@
-import { createConnectTransport } from "@connectrpc/connect-web";
+import { createGrpcWebTransport } from "@connectrpc/connect-web";
 import config from "@/utils/config";
 
-
-export const transport = createConnectTransport({
+export const transport = createGrpcWebTransport({
     baseUrl: config.backendUrl,
 });
