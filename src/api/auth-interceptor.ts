@@ -5,7 +5,7 @@ export const authInterceptor: Interceptor = (next) => async (req) => {
     // get token from storage
     const storageUtil = storage.getUserAuth();
     if (!storageUtil) {
-        throw new Error("User is not authenticated");
+        return await next(req);
     }
     const token = storageUtil?.tokenpair.accessToken?.accessToken;
     
