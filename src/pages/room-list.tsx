@@ -142,10 +142,10 @@ const RoomList = () => {
         }; 
         return (
             <DialogRoot>
-                <DialogTrigger>
+                <DialogTrigger asChild>
                     <AddRoomButton></AddRoomButton>
                 </DialogTrigger>
-
+                
                 <DialogContent>
                     <DialogHeader>
                         <DialogTitle >

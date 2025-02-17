@@ -2,7 +2,7 @@ import { TokenPair } from "@/proto-generated/nori/v0/user/token_pair_pb";
 import { UserId } from "@/proto-generated/nori/v0/user/user_id_pb";
 
 interface UserAuth {
-    userId: UserId;
+    userId: number;
     tokenpair: TokenPair;
 }
 
