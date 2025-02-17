@@ -8,14 +8,14 @@ import type { ThemeProviderProps } from "next-themes";
 import * as React from "react";
 import { LuMoon, LuSun } from "react-icons/lu";
 
-// 移除空介面，直接使用 ThemeProviderProps
-export function ColorModeProvider(props: ThemeProviderProps) {
+export type ColorModeProviderProps = ThemeProviderProps;
+
+export function ColorModeProvider(props: ColorModeProviderProps) {
     return (
         <ThemeProvider attribute="class" disableTransitionOnChange {...props} />
     );
 }
 
-export type ColorModeProviderProps = ThemeProviderProps;
 
 // 將 hooks 和 utility functions 移至單獨的文件 color-mode.hooks.ts
 type ColorModeButtonProps = Omit<IconButtonProps, "aria-label">;
