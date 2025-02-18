@@ -15,7 +15,7 @@ export const getUserIdFromAccessToken = (token?: AccessToken): UserId => {
     }
 
     try {
-        const tokenString = new TextDecoder().decode(token.accessToken);
+        const tokenString = token.accessToken;
         const decoded = jwtDecode<JWTPayload>(tokenString);
         console.log(decoded);
         const userIdString = decoded.sub;

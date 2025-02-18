@@ -19,15 +19,11 @@ const api_mode = config.api_mode;
 
 const mockTokenPair = create(TokenPairSchema, {
     accessToken: create(AccessTokenSchema, {
-        accessToken: new Uint8Array([
-            109, 111, 99, 107, 95, 97, 99, 99, 101, 115, 115, 95, 116, 111, 107, 101, 110
-        ])
-    }), // "mock_access_token" in ASCII
+        accessToken: "mock_access_token"
+    }),
     refreshToken: create(RefreshTokenSchema, {
-        refreshToken: new Uint8Array([
-            109, 111, 99, 107, 95, 114, 101, 102, 114, 101, 115, 104, 95, 116, 111, 107, 101, 110
-        ])
-    }) // "mock_refresh_token" in ASCII
+        refreshToken: "mock_refresh_token"
+    }),
 });
 
 export const GetUser = async (userId: bigint): Promise<User> => {
