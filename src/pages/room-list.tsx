@@ -40,7 +40,7 @@ const AddRoomDialog = () => {
     if (!userAuth?.userId) {
       throw new Error("User ID is not available");
     }
-    const newRoomId = await CreateRoom(addRoomName, userAuth?.userId.id, []);
+    const newRoomId = await CreateRoom(addRoomName, userAuth?.userId, []);
     console.log("new room id: ", newRoomId);
   };
 

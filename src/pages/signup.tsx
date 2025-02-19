@@ -107,7 +107,7 @@ const SignupPage = () => {
         console.log("response: ", response);
         navigate("/roomlist");
       } catch (error) {
-        console.log("error: ", error);
+        console.log("signup error: ", error);
         setTextErrorMessage("have error");
       }
     }
