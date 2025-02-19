@@ -10,19 +10,19 @@ interface JWTPayload {
 }
 
 export const getUserIdFromAccessToken = (token?: AccessToken): UserId => {
-    if (!token?.accessToken) {
-        throw new Error("Access token is missing or invalid");
-    }
+  if (!token?.accessToken) {
+    throw new Error("Access token is missing or invalid");
+  }
 
-    try {
-        const tokenString = token.accessToken;
-        const decoded = jwtDecode<JWTPayload>(tokenString);
-        console.log(decoded);
-        const userIdString = decoded.sub;
-        const userId = create(UserIdSchema, { id: BigInt(userIdString) });
-        return userId;
-    } catch (error) {
-        console.error("Error decoding JWT:", error);
-        throw error;
-    }
+  try {
+    const tokenString = token.accessToken;
+    const decoded = jwtDecode<JWTPayload>(tokenString);
+    console.log(decoded);
+    const userIdString = decoded.sub;
+    const userId = create(UserIdSchema, { id: BigInt(userIdString) });
+    return userId;
+  } catch (error) {
+    console.error("Error decoding JWT:", error);
+    throw error;
+  }
 };
