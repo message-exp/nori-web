@@ -1,7 +1,26 @@
 import { Avatar } from "@/components/ui/avatar";
-import { Box, Button, Center, DialogActionTrigger, Flex, For, Heading, Icon, IconButton, Input, Text, Textarea } from "@chakra-ui/react";
+import {
+  Box,
+  Button,
+  Center,
+  DialogActionTrigger,
+  Flex,
+  For,
+  Heading,
+  Icon,
+  IconButton,
+  Input,
+  Text,
+  Textarea,
+} from "@chakra-ui/react";
 import React, { useCallback, useEffect, useRef, useState } from "react";
-import { RiArrowLeftLine, RiFunctionAddFill, RiMenuFill, RiSendPlane2Fill, RiUserAddFill } from "react-icons/ri";
+import {
+  RiArrowLeftLine,
+  RiFunctionAddFill,
+  RiMenuFill,
+  RiSendPlane2Fill,
+  RiUserAddFill,
+} from "react-icons/ri";
 
 import {
   DialogBody,
@@ -25,12 +44,14 @@ import { GetUser } from "@/api/user/user-service";
 import { User } from "@/proto-generated/nori/v0/user/user_pb";
 
 interface LocationState {
-    roomid: bigint;
+  roomid: bigint;
 }
 
 const RoomChat = () => {
   const [roomName, setRoomName] = useState("taki");
-  const [roomAvatarSrc, setRoomAvatarSrc] = useState("https://i.imgur.com/LtR2mmT.png");
+  const [roomAvatarSrc, setRoomAvatarSrc] = useState(
+    "https://i.imgur.com/LtR2mmT.png"
+  );
 
   const [currentUser, setCurrentUser] = useState<User>();
 
@@ -49,23 +70,24 @@ const RoomChat = () => {
 
     // 使用函數式更新來避免依賴 chatMessages
     for await (const message of messages) {
-      setChatMessages(prevMessages => {
+      setChatMessages((prevMessages) => {
         const isDuplicate = prevMessages.some(
-          existingMsg => existingMsg.messageId === message.messageId
+          (existingMsg) => existingMsg.messageId === message.messageId
         );
         // 如果不是重複的，才加入新消息
         return isDuplicate ? prevMessages : [...prevMessages, message];
       });
     }
-  }, [currentRoom?.roomId?.id]); 
+  }, [currentRoom?.roomId?.id]);
 
   useEffect(() => {
     const handleLoadUser = async () => {
-      const userid = storage.getUserAuth()?.userId;
-      if (!userid) {
-        throw new Error("userid undifinded");
+      const userAuth = storage.getUserAuth();
+      if (!userAuth?.userId) {
+        console.error("User ID is not available");
+        return;
       }
-      const user = await GetUser(userid.id);
+      const user = await GetUser(userAuth.userId.valueOf());
       setCurrentUser(user);
     };
 
@@ -79,14 +101,13 @@ const RoomChat = () => {
         if (!currentUser?.userId) {
           throw new Error("currentUser undifinded");
         }
-                
+
         const room = await GetRoom(state.roomid, currentUser?.userId.id);
         setCurrentRoom(room);
 
         setRoomName(room.customName || room.sharedName);
 
         setRoomAvatarSrc(room.customAvatarUrl || room.sharedAvatarUrl);
-                
 
         // 例如：
         // fetchRoomData(state.roomid);
@@ -97,11 +118,7 @@ const RoomChat = () => {
     handleLoadRoom();
 
     handleLoadMessage();
-
-        
-        
   }, [state?.roomid, currentUser?.userId, handleLoadMessage]);
-
 
   const InviteButton = () => {
     return (
@@ -111,13 +128,10 @@ const RoomChat = () => {
             <RiUserAddFill />
           </Icon>
           <Heading size={"2xl"}>Invite</Heading>
-    
         </Center>
       </Button>
     );
   };
-
-    
 
   const InviteDialog = () => {
     const [inviteUsername, setInviteUsername] = useState("");
@@ -136,12 +150,12 @@ const RoomChat = () => {
         // for now, just input userid
         const inviteUserId = BigInt(inviteUsername);
 
-        await InviteToRoom(currentRoom.roomId.id, currentUser.userId.id, [inviteUserId]);
-
+        await InviteToRoom(currentRoom.roomId.id, currentUser.userId.id, [
+          inviteUserId,
+        ]);
       } catch (error) {
         console.error(error);
       }
-            
     };
 
     return (
@@ -149,20 +163,21 @@ const RoomChat = () => {
         <DialogTrigger>
           <InviteButton></InviteButton>
         </DialogTrigger>
-    
+
         <DialogContent>
           <DialogHeader>
-            <DialogTitle >
+            <DialogTitle>
               <Heading size={"2xl"}>Invite User</Heading>
             </DialogTitle>
-                                
           </DialogHeader>
           <DialogBody>
             <Field label="User name">
               <Input
                 placeholder="username"
                 value={inviteUsername}
-                onChange={(e) => { setInviteUsername(e.target.value); }}
+                onChange={(e) => {
+                  setInviteUsername(e.target.value);
+                }}
               />
             </Field>
           </DialogBody>
@@ -171,7 +186,13 @@ const RoomChat = () => {
               <Button variant="outline">Cancel</Button>
             </DialogActionTrigger>
             <DialogActionTrigger asChild>
-              <Button onClick={() => { handleInvite(); }}>Save</Button>
+              <Button
+                onClick={() => {
+                  handleInvite();
+                }}
+              >
+                Save
+              </Button>
             </DialogActionTrigger>
           </DialogFooter>
         </DialogContent>
@@ -181,11 +202,7 @@ const RoomChat = () => {
 
   const ChatHeader = () => {
     return (
-      <Box
-        height={"70px"}
-        backgroundColor={"gray.900"}
-        padding={"15px"}
-      >
+      <Box height={"70px"} backgroundColor={"gray.900"} padding={"15px"}>
         <Flex direction={"column"} justify={"center"} height={"100%"}>
           <Flex justify={"space-between"} direction={"row"}>
             <Flex justify={"flex-start"} gap={"4"}>
@@ -204,156 +221,168 @@ const RoomChat = () => {
           </Flex>
         </Flex>
       </Box>
-            
     );
   };
 
-    interface MessageUnitProps {
-        author?: UserId;
-        time?: string;
-        messageContent: string; 
-    }
+  interface MessageUnitProps {
+    author?: UserId;
+    time?: string;
+    messageContent: string;
+  }
 
-    const colorPaletteForRandom = ["red", "blue", "green", "yellow", "purple", "orange"];
-    const pickPalette = (name: string) => {
-      const index = name.charCodeAt(0) % colorPaletteForRandom.length;
-      return colorPaletteForRandom[index];
-    };
+  const colorPaletteForRandom = [
+    "red",
+    "blue",
+    "green",
+    "yellow",
+    "purple",
+    "orange",
+  ];
+  const pickPalette = (name: string) => {
+    const index = name.charCodeAt(0) % colorPaletteForRandom.length;
+    return colorPaletteForRandom[index];
+  };
 
-    const MessageUnit: React.FC<MessageUnitProps> = (
-      { author, time, messageContent }) =>
-    {
-      const [userAvatar, setUserAvatar] = useState<string>("");
-      const [username, setUsername] = useState<string>("");
-
-      useEffect(() => {
-        const loadAuthor = async () => {
-          if (!author) {
-            throw new Error("author undefined");
-          }
-          const authorUser = await GetUser(author.id);
-          setUserAvatar(authorUser.avatarUrl);
-          setUsername(authorUser.username);
-        };
-        loadAuthor();
-      }, [author]);
-        
-
-
-      return (
-        <Box
-          padding={"10px"}
-        >
-          <Flex gap={"4"}> 
-            <Avatar
-              src={userAvatar}
-              name={username}
-              colorPalette={pickPalette(username ?? "")}
-            />
-            <Flex direction={"column"} gap={"2"}>
-              <Flex gap={"2"} alignItems={"baseline"}>
-                <Text textStyle={"2xl"}>{username}</Text>
-
-                <Text textStyle={"xs"}>{time}</Text>
-              </Flex>
-              <Box>
-                <Text>{ messageContent }</Text>
-                        
-              </Box>
-                        
-
-            </Flex>
-          </Flex>
-        </Box>
-      );
-    };
-
-    const ChatBody = () => {
-      return (
-        <Box height={"100%"} >
-          <Flex direction={"column"} maxHeight={"100%"}>
-            <For each={chatMessages}>
-              {/* eslint-disable-next-line @typescript-eslint/no-unused-vars */}
-              {(message, _) =>
-                <MessageUnit
-                  // userAvatar={message.}
-                  author={message.author}
-                  time={message.createdAt?.seconds
-                    ? new Date(Number(message.createdAt.seconds) * 1000).toISOString()
-                    : new Date().toISOString()}
-                  messageContent={message.text}
-                />
-              }
-            </For>
-          </Flex>
-                
-        </Box> 
-      );
-    };
-
-    const [inputMessage, setInputMessage] = useState("");
-
-    const handleSendMessage = async () => {
-      try {
-        if (!currentRoom?.roomId) {
-          throw new Error("current room id undifinded");
-        }
-        if (!currentUser?.userId) {
-          throw new Error("current user id undifinded");
-        }
-        await SendMessage(currentRoom?.roomId.id, currentUser.userId.id, inputMessage);
-      } catch (error) {
-        console.error(error);
-      }
-    };
-
-    const ChatFooter = () => {
-      return (
-        <Box background={"gray.900"} height={"80px"} padding={"20px"}>
-          <Flex direction={"column"} height={"100%"} justifyContent={"center"}>
-            <Flex>
-              <Textarea
-                placeholder="Comment..."
-                variant={"outline"}
-                resize={"none"}
-                value={inputMessage}
-                onChange={(e) => { setInputMessage(e.target.value); }}
-              />
-              <IconButton rounded={"full"} variant={"subtle"}>
-                <RiFunctionAddFill />
-              </IconButton>
-              <IconButton rounded={"full"} variant={"subtle"}>
-                <RiMenuFill />
-              </IconButton>
-              <IconButton rounded={"full"} variant={"subtle"} onClick={() => { handleSendMessage(); }}>
-                <RiSendPlane2Fill />
-              </IconButton>
-            </Flex>
-                    
-          </Flex>
-        </Box>
-      );
-    };
-
-    const containerRef = useRef<HTMLDivElement>(null);
+  const MessageUnit: React.FC<MessageUnitProps> = ({
+    author,
+    time,
+    messageContent,
+  }) => {
+    const [userAvatar, setUserAvatar] = useState<string>("");
+    const [username, setUsername] = useState<string>("");
 
     useEffect(() => {
-      if (containerRef.current) {
-        containerRef.current.scrollTop = containerRef.current.scrollHeight;
-      }
-    }, []); // 只在組件掛載時執行一次
-
-
+      const loadAuthor = async () => {
+        if (!author) {
+          throw new Error("author undefined");
+        }
+        const authorUser = await GetUser(author.id);
+        setUserAvatar(authorUser.avatarUrl);
+        setUsername(authorUser.username);
+      };
+      loadAuthor();
+    }, [author]);
 
     return (
-      <Flex direction={"column"} height={"100vh"}>
-        <ChatHeader />
-        <Box flex={"1"} overflowY={"auto"} ref={containerRef} >
-          <ChatBody></ChatBody>
-        </Box>
-        <ChatFooter/>
-      </Flex>
-        
+      <Box padding={"10px"}>
+        <Flex gap={"4"}>
+          <Avatar
+            src={userAvatar}
+            name={username}
+            colorPalette={pickPalette(username ?? "")}
+          />
+          <Flex direction={"column"} gap={"2"}>
+            <Flex gap={"2"} alignItems={"baseline"}>
+              <Text textStyle={"2xl"}>{username}</Text>
+
+              <Text textStyle={"xs"}>{time}</Text>
+            </Flex>
+            <Box>
+              <Text>{messageContent}</Text>
+            </Box>
+          </Flex>
+        </Flex>
+      </Box>
     );
+  };
+
+  const ChatBody = () => {
+    return (
+      <Box height={"100%"}>
+        <Flex direction={"column"} maxHeight={"100%"}>
+          <For each={chatMessages}>
+            {/* eslint-disable-next-line @typescript-eslint/no-unused-vars */}
+            {(message, _) => (
+              <MessageUnit
+                // userAvatar={message.}
+                author={message.author}
+                time={
+                  message.createdAt?.seconds
+                    ? new Date(
+                      Number(message.createdAt.seconds) * 1000
+                    ).toISOString()
+                    : new Date().toISOString()
+                }
+                messageContent={message.text}
+              />
+            )}
+          </For>
+        </Flex>
+      </Box>
+    );
+  };
+
+  const [inputMessage, setInputMessage] = useState("");
+
+  const handleSendMessage = async () => {
+    try {
+      if (!currentRoom?.roomId) {
+        throw new Error("current room id undifinded");
+      }
+      if (!currentUser?.userId) {
+        throw new Error("current user id undifinded");
+      }
+      await SendMessage(
+        currentRoom?.roomId.id,
+        currentUser.userId.id,
+        inputMessage
+      );
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const ChatFooter = () => {
+    return (
+      <Box background={"gray.900"} height={"80px"} padding={"20px"}>
+        <Flex direction={"column"} height={"100%"} justifyContent={"center"}>
+          <Flex>
+            <Textarea
+              placeholder="Comment..."
+              variant={"outline"}
+              resize={"none"}
+              value={inputMessage}
+              onChange={(e) => {
+                setInputMessage(e.target.value);
+              }}
+            />
+            <IconButton rounded={"full"} variant={"subtle"}>
+              <RiFunctionAddFill />
+            </IconButton>
+            <IconButton rounded={"full"} variant={"subtle"}>
+              <RiMenuFill />
+            </IconButton>
+            <IconButton
+              rounded={"full"}
+              variant={"subtle"}
+              onClick={() => {
+                handleSendMessage();
+              }}
+            >
+              <RiSendPlane2Fill />
+            </IconButton>
+          </Flex>
+        </Flex>
+      </Box>
+    );
+  };
+
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (containerRef.current) {
+      containerRef.current.scrollTop = containerRef.current.scrollHeight;
+    }
+  }, []); // 只在組件掛載時執行一次
+
+  return (
+    <Flex direction={"column"} height={"100vh"}>
+      <ChatHeader />
+      <Box flex={"1"} overflowY={"auto"} ref={containerRef}>
+        <ChatBody></ChatBody>
+      </Box>
+      <ChatFooter />
+    </Flex>
+  );
 };
 export default RoomChat;

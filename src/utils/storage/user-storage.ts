@@ -1,22 +1,25 @@
 import { TokenPair } from "@/proto-generated/nori/v0/user/token_pair_pb";
-import { UserId } from "@/proto-generated/nori/v0/user/user_id_pb";
 
 interface UserAuth {
-    userId: UserId;
-    tokenpair: TokenPair;
+  userId: bigint;
+  tokenPair: TokenPair;
 }
 
 export const storage = {
-  setUserAuth: (data: UserAuth) => {
-    localStorage.setItem("userAuth", JSON.stringify(data));
+  setUserAuth: ({ userId, tokenPair }: UserAuth) => {
+    localStorage.setItem(
+      "userAuth",
+      JSON.stringify({ userId: String(userId), tokenPair })
+    );
   },
 
   getUserAuth: (): UserAuth | null => {
-    const data = localStorage.getItem("userAuth");
-    return data ? JSON.parse(data) : null;
+    const userAuth = localStorage.getItem("userAuth");
+    if (!userAuth) return null;
+    const data = JSON.parse(userAuth);
+    return { userId: BigInt(data.userId), tokenPair: data.tokenPair };
   },
-
   clearUserAuth: () => {
     localStorage.removeItem("userAuth");
-  }
+  },
 };

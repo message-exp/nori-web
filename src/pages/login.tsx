@@ -92,16 +92,18 @@ const Login = () => {
     }
 
     if (isInputEmpty) {
+      setTextErrorMessage("");
+      setIsLoginLoading(false);
       return;
     }
 
     try {
-      const tokenpair = await login(account, password);
-      console.log("get token pair: ", tokenpair);
-      const userid = getUserIdFromAccessToken(tokenpair.accessToken); 
+      const tokenPair = await login(account, password);
+      console.log("get token pair: ", tokenPair);
+      const userid = getUserIdFromAccessToken(tokenPair.accessToken); 
       console.log("get userid: ", userid);
 
-      storage.setUserAuth({ userId: userid, tokenpair: tokenpair });
+      storage.setUserAuth({ userId: userid.id, tokenPair });
 
       setTextErrorMessage("");
       setIsLoginLoading(false);

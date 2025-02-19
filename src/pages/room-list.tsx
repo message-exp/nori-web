@@ -1,7 +1,8 @@
-import { Box, Button, Center, DialogActionTrigger, DialogCloseTrigger, Flex, For, Heading, HStack, Icon, Input, Stack } from "@chakra-ui/react";
+import { Box, Button, Center, DialogCloseTrigger, Flex, For, Heading, HStack, Icon, Input, Stack } from "@chakra-ui/react";
 import React, { useEffect, useState } from "react";
 import { IoMdAddCircleOutline } from "react-icons/io";
 import {
+  DialogActionTrigger,
   DialogBody,
   DialogContent,
   DialogFooter,
@@ -124,7 +125,7 @@ const RoomList = () => {
         
     const fetchUsername = async () => {
       try {
-        const user = await GetUser(userAuth.userId.id);
+        const user = await GetUser(userAuth.userId.valueOf());
         setUsername(user.username);
       } catch (error) {
         console.error("Failed to fetch username:", error);
@@ -135,7 +136,7 @@ const RoomList = () => {
 
     const fetchRoomList = async () => {
       try {
-        const roomlist = await GetUserRoomList(userAuth.userId.id);
+        const roomlist = await GetUserRoomList(userAuth.userId.valueOf());
                 
         setRoomListArray(roomlist.rooms);
       } catch (error) {
@@ -181,8 +182,6 @@ const RoomList = () => {
         </Button>
       );
     };
-
-    
 
     
 
