@@ -14,32 +14,32 @@ interface TextInputProps extends ChakraInputProps {
 }
 
 const TextInput: React.FC<TextInputProps> = ({
-    invalid,
-    title,
-    placeholder,
-    value,
-    onChange,
-    errorMessage, 
-    password,
-    ...props
+  invalid,
+  title,
+  placeholder,
+  value,
+  onChange,
+  errorMessage, 
+  password,
+  ...props
 }) => {
-    const InputComponent = password ? PasswordInput : Input;
+  const InputComponent = password ? PasswordInput : Input;
 
-    return (
-        <Field.Root invalid={invalid ?? false}>
-            <Field.Label>{title}</Field.Label>
-            <InputComponent
-                {...props}
-                placeholder={placeholder}
-                value={value}
-                onChange={onChange}
-                bg="gray.700"
-                color="white"
+  return (
+    <Field.Root invalid={invalid ?? false}>
+      <Field.Label>{title}</Field.Label>
+      <InputComponent
+        {...props}
+        placeholder={placeholder}
+        value={value}
+        onChange={onChange}
+        bg="gray.700"
+        color="white"
                 
-            />
-            <Field.ErrorText>{ errorMessage }</Field.ErrorText>
-        </Field.Root>
-    );
+      />
+      <Field.ErrorText>{ errorMessage }</Field.ErrorText>
+    </Field.Root>
+  );
 };
 
 export default TextInput;
