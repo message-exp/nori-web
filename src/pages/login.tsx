@@ -103,7 +103,7 @@ const Login = () => {
       const userid = getUserIdFromAccessToken(tokenPair.accessToken); 
       console.log("get userid: ", userid);
 
-      storage.setUserAuth({ userId: userid.id, tokenPair: tokenPair });
+      storage.setUserAuth({ userId: userid.id, tokenPair });
 
       setTextErrorMessage("");
       setIsLoginLoading(false);
