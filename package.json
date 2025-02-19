@@ -8,7 +8,7 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "lint:fix": "eslint src --fix",
+    "lint:fix": "eslint . --fix",
     "generate": "buf generate"
   },
   "dependencies": {
