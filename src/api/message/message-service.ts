@@ -20,37 +20,37 @@ const client = createClient(MessageService, transport);
  * @returns `null`. Throws an error if the request fails.
  */
 export const SendMessage = async (roomId: bigint, author: bigint, text: string): Promise<null> => {
-    // prepare the request
-    const accessToken = "";  // TODO: get access token
-    const request = create(MessageSchema, {
-        roomId: create(RoomIdSchema, {
-            id: roomId
-        }),
-        author: create(UserIdSchema, {
-            id: author
-        }),
-        text: text,
-    });
+  // prepare the request
+  const accessToken = "";  // TODO: get access token
+  const request = create(MessageSchema, {
+    roomId: create(RoomIdSchema, {
+      id: roomId
+    }),
+    author: create(UserIdSchema, {
+      id: author
+    }),
+    text: text,
+  });
 
-    // send the request
-    try {
-        await client.sendMessage(request, { headers: { authorization: accessToken } });
-    } catch (error) {
-        if (error instanceof ConnectError) {
-            const errorCode = error.code;
-            if (errorCode === Code.Unauthenticated) {
-                // TODO: get a new access token and retry
-            } else if (errorCode === Code.PermissionDenied) {
-                // TODO: handle permission denied case
-            }
-        }
-        // other error
-        console.error("Unexpected error when trying to retrieve room list", error);
-        throw error;
+  // send the request
+  try {
+    await client.sendMessage(request, { headers: { authorization: accessToken } });
+  } catch (error) {
+    if (error instanceof ConnectError) {
+      const errorCode = error.code;
+      if (errorCode === Code.Unauthenticated) {
+        // TODO: get a new access token and retry
+      } else if (errorCode === Code.PermissionDenied) {
+        // TODO: handle permission denied case
+      }
     }
+    // other error
+    console.error("Unexpected error when trying to retrieve room list", error);
+    throw error;
+  }
 
-    // return
-    return null;
+  // return
+  return null;
 };
 
 
@@ -62,42 +62,42 @@ export const SendMessage = async (roomId: bigint, author: bigint, text: string):
  * @returns An async generator that yields messages. Throws an error if the request fails.
  */
 export const GetMessage = async function* (roomId: bigint, baseline?: bigint, limit?: number): AsyncGenerator<Message, void, void> {
-    // prepare the request
-    const accessToken = "";  // TODO: get access token
-    const request = create(GetMessageRequestSchema, {
-        roomId: create(RoomIdSchema, {
-            id: roomId
-        }),
-        limit: limit || 0,
-        baseline: baseline ?  create(MessageIdSchema, {
-            id: baseline
-        }): create(MessageIdSchema, {
-            id: 0n  // 使用 0n 來表示要獲取最新的訊息
-        }),
-        direction: Direction.OLDER,
-    });
-    let response;
+  // prepare the request
+  const accessToken = "";  // TODO: get access token
+  const request = create(GetMessageRequestSchema, {
+    roomId: create(RoomIdSchema, {
+      id: roomId
+    }),
+    limit: limit || 0,
+    baseline: baseline ?  create(MessageIdSchema, {
+      id: baseline
+    }): create(MessageIdSchema, {
+      id: 0n  // 使用 0n 來表示要獲取最新的訊息
+    }),
+    direction: Direction.OLDER,
+  });
+  let response;
 
-    // send the request
-    try {
-        response = client.getMessages(request, { headers: { authorization: accessToken } });
-    } catch (error) {
-        if (error instanceof ConnectError) {
-            const errorCode = error.code;
-            if (errorCode === Code.Unauthenticated) {
-                // TODO: get a new access token and retry
-            } else if (errorCode === Code.PermissionDenied) {
-                // TODO: handle permission denied case
-            }
-        }
-        // other error
-        console.error("Unexpected error when trying to retrieve room list", error);
-        throw error;
+  // send the request
+  try {
+    response = client.getMessages(request, { headers: { authorization: accessToken } });
+  } catch (error) {
+    if (error instanceof ConnectError) {
+      const errorCode = error.code;
+      if (errorCode === Code.Unauthenticated) {
+        // TODO: get a new access token and retry
+      } else if (errorCode === Code.PermissionDenied) {
+        // TODO: handle permission denied case
+      }
     }
+    // other error
+    console.error("Unexpected error when trying to retrieve room list", error);
+    throw error;
+  }
 
-    // process the response and return
-    for await (const message of response) {
-        console.log("Message received", message);
-        yield message;
-    }
+  // process the response and return
+  for await (const message of response) {
+    console.log("Message received", message);
+    yield message;
+  }
 };

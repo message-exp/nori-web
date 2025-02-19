@@ -7,16 +7,16 @@ interface UserAuth {
 }
 
 export const storage = {
-    setUserAuth: (data: UserAuth) => {
-        localStorage.setItem("userAuth", JSON.stringify(data));
-    },
+  setUserAuth: (data: UserAuth) => {
+    localStorage.setItem("userAuth", JSON.stringify(data));
+  },
 
-    getUserAuth: (): UserAuth | null => {
-        const data = localStorage.getItem("userAuth");
-        return data ? JSON.parse(data) : null;
-    },
+  getUserAuth: (): UserAuth | null => {
+    const data = localStorage.getItem("userAuth");
+    return data ? JSON.parse(data) : null;
+  },
 
-    clearUserAuth: () => {
-        localStorage.removeItem("userAuth");
-    }
+  clearUserAuth: () => {
+    localStorage.removeItem("userAuth");
+  }
 };

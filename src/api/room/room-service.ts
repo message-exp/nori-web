@@ -25,40 +25,40 @@ const client = createClient(RoomService, transport);
  * @returns The ID of the created room
  */
 export const CreateRoom = async (roomName: string, creator: bigint, invitees: bigint[]): Promise<bigint> => {
-    // prepare the request
-    const accessToken = "";  // TODO: get access token
-    const request = create(RoomCreateRequestSchema, {
-        name: roomName,
-        creator: create(UserIdSchema, {
-            id: creator
-        }),
-        invitees: invitees.map(id => create(UserIdSchema, { id })),
-    });
-    let response;
+  // prepare the request
+  const accessToken = "";  // TODO: get access token
+  const request = create(RoomCreateRequestSchema, {
+    name: roomName,
+    creator: create(UserIdSchema, {
+      id: creator
+    }),
+    invitees: invitees.map(id => create(UserIdSchema, { id })),
+  });
+  let response;
 
-    // send the request
-    try {
-        response = await client.createRoom(request, { headers: { authorization: accessToken } });
-    } catch (error) {
-        if (error instanceof ConnectError) {
-            const errorCode = error.code;
-            console.error("Error Code:", errorCode);
-            // console.error("Error Code Message:", error.message);
-            // console.error("Error Detail:", error.details);
+  // send the request
+  try {
+    response = await client.createRoom(request, { headers: { authorization: accessToken } });
+  } catch (error) {
+    if (error instanceof ConnectError) {
+      const errorCode = error.code;
+      console.error("Error Code:", errorCode);
+      // console.error("Error Code Message:", error.message);
+      // console.error("Error Detail:", error.details);
 
-            if (errorCode === Code.Unauthenticated) {
-                // TODO: get a new access token and retry
-            } else if (errorCode === Code.PermissionDenied) {
-                // TODO: handle permission denied case
-            }
-        }
-        // other error
-        console.error("Unexpected error when trying to retrieve room list", error);
-        throw error;
+      if (errorCode === Code.Unauthenticated) {
+        // TODO: get a new access token and retry
+      } else if (errorCode === Code.PermissionDenied) {
+        // TODO: handle permission denied case
+      }
     }
+    // other error
+    console.error("Unexpected error when trying to retrieve room list", error);
+    throw error;
+  }
 
-    // process the response and return
-    return response.id;
+  // process the response and return
+  return response.id;
 };
 
 
@@ -69,37 +69,37 @@ export const CreateRoom = async (roomName: string, creator: bigint, invitees: bi
  * @returns The room data
  */
 export const GetRoom = async (roomId: bigint, userId: bigint): Promise<Room> => {
-    // prepare the request
-    const accessToken = "";  // TODO: get access token
-    const request = create(RoomUserRequestSchema, {
-        roomId: create(RoomIdSchema, {
-            id: roomId
-        }),
-        userId: create(UserIdSchema, {
-            id: userId
-        }),
-    });
-    let response;
+  // prepare the request
+  const accessToken = "";  // TODO: get access token
+  const request = create(RoomUserRequestSchema, {
+    roomId: create(RoomIdSchema, {
+      id: roomId
+    }),
+    userId: create(UserIdSchema, {
+      id: userId
+    }),
+  });
+  let response;
 
-    // send the request
-    try {
-        response = await client.getRoom(request, { headers: { authorization: accessToken } });
-    } catch (error) {
-        if (error instanceof ConnectError) {
-            const errorCode = error.code;
-            if (errorCode === Code.Unauthenticated) {
-                // TODO: get a new access token and retry
-            } else if (errorCode === Code.PermissionDenied) {
-                // TODO: handle permission denied case
-            }
-        }
-        // other error
-        console.error("Unexpected error when trying to retrieve room list", error);
-        throw error;
+  // send the request
+  try {
+    response = await client.getRoom(request, { headers: { authorization: accessToken } });
+  } catch (error) {
+    if (error instanceof ConnectError) {
+      const errorCode = error.code;
+      if (errorCode === Code.Unauthenticated) {
+        // TODO: get a new access token and retry
+      } else if (errorCode === Code.PermissionDenied) {
+        // TODO: handle permission denied case
+      }
     }
+    // other error
+    console.error("Unexpected error when trying to retrieve room list", error);
+    throw error;
+  }
 
-    // process the response and return
-    return response;
+  // process the response and return
+  return response;
 };
 
 
@@ -111,35 +111,35 @@ export const GetRoom = async (roomId: bigint, userId: bigint): Promise<Room> => 
  * @returns `null`. Throws an error if the request fails.
  */
 export const UpdateRoomBasic = async (roomId: bigint, sharedName?: string, customName?: string): Promise<null> => {
-    // prepare the request
-    const accessToken = "";  // TODO: get access token
-    const request = create(RoomBasicInfoRequestSchema, {
-        roomId: create(RoomIdSchema, {
-            id: roomId
-        }),
-        sharedName: sharedName,
-        customName: customName,
-    });
+  // prepare the request
+  const accessToken = "";  // TODO: get access token
+  const request = create(RoomBasicInfoRequestSchema, {
+    roomId: create(RoomIdSchema, {
+      id: roomId
+    }),
+    sharedName: sharedName,
+    customName: customName,
+  });
 
-    // send the request
-    try {
-        await client.updateRoomBasic(request, { headers: { authorization: accessToken } });
-    } catch (error) {
-        if (error instanceof ConnectError) {
-            const errorCode = error.code;
-            if (errorCode === Code.Unauthenticated) {
-                // TODO: get a new access token and retry
-            } else if (errorCode === Code.PermissionDenied) {
-                // TODO: handle permission denied case
-            }
-        }
-        // other error
-        console.error("Unexpected error when trying to retrieve room list", error);
-        throw error;
+  // send the request
+  try {
+    await client.updateRoomBasic(request, { headers: { authorization: accessToken } });
+  } catch (error) {
+    if (error instanceof ConnectError) {
+      const errorCode = error.code;
+      if (errorCode === Code.Unauthenticated) {
+        // TODO: get a new access token and retry
+      } else if (errorCode === Code.PermissionDenied) {
+        // TODO: handle permission denied case
+      }
     }
+    // other error
+    console.error("Unexpected error when trying to retrieve room list", error);
+    throw error;
+  }
 
-    // process the response and return
-    return null;
+  // process the response and return
+  return null;
 };
 
 
@@ -151,37 +151,37 @@ export const UpdateRoomBasic = async (roomId: bigint, sharedName?: string, custo
  * @returns `null`. Throws an error if the request fails.
  */
 export const InviteToRoom = async (roomId: bigint, inviter: bigint, invitees: bigint[]): Promise<null> => {
-    // prepare the request
-    const accessToken = "";  // TODO: get access token
-    const request = create(InviteUserToRoomRequestSchema, {
-        roomId: create(RoomIdSchema, {
-            id: roomId
-        }),
-        inviter: create(UserIdSchema, {
-            id: inviter
-        }),
-        invitees: invitees.map(id => create(UserIdSchema, { id })),
-    });
+  // prepare the request
+  const accessToken = "";  // TODO: get access token
+  const request = create(InviteUserToRoomRequestSchema, {
+    roomId: create(RoomIdSchema, {
+      id: roomId
+    }),
+    inviter: create(UserIdSchema, {
+      id: inviter
+    }),
+    invitees: invitees.map(id => create(UserIdSchema, { id })),
+  });
 
-    // send the request
-    try {
-        await client.inviteToRoom(request, { headers: { authorization: accessToken } });
-    } catch (error) {
-        if (error instanceof ConnectError) {
-            const errorCode = error.code;
-            if (errorCode === Code.Unauthenticated) {
-                // TODO: get a new access token and retry
-            } else if (errorCode === Code.PermissionDenied) {
-                // TODO: handle permission denied case
-            }
-        }
-        // other error
-        console.error("Unexpected error when trying to retrieve room list", error);
-        throw error;
+  // send the request
+  try {
+    await client.inviteToRoom(request, { headers: { authorization: accessToken } });
+  } catch (error) {
+    if (error instanceof ConnectError) {
+      const errorCode = error.code;
+      if (errorCode === Code.Unauthenticated) {
+        // TODO: get a new access token and retry
+      } else if (errorCode === Code.PermissionDenied) {
+        // TODO: handle permission denied case
+      }
     }
+    // other error
+    console.error("Unexpected error when trying to retrieve room list", error);
+    throw error;
+  }
 
-    // process the response and return
-    return null;
+  // process the response and return
+  return null;
 };
 
 
@@ -192,34 +192,34 @@ export const InviteToRoom = async (roomId: bigint, inviter: bigint, invitees: bi
  * @returns `null`. Throws an error if the request fails.
  */
 export const InviteRoomReply = async (roomId: bigint, accept: boolean): Promise<null> => {
-    // prepare the request
-    const accessToken = "";  // TODO: get access token
-    const request = create(RoomJoinInviteReplySchema, {
-        roomId: create(RoomIdSchema, {
-            id: roomId
-        }),
-        accept: accept,
-    });
+  // prepare the request
+  const accessToken = "";  // TODO: get access token
+  const request = create(RoomJoinInviteReplySchema, {
+    roomId: create(RoomIdSchema, {
+      id: roomId
+    }),
+    accept: accept,
+  });
 
-    // send the request
-    try {
-        await client.inviteRoomReply(request, { headers: { authorization: accessToken } });
-    } catch (error) {
-        if (error instanceof ConnectError) {
-            const errorCode = error.code;
-            if (errorCode === Code.Unauthenticated) {
-                // TODO: get a new access token and retry
-            } else if (errorCode === Code.PermissionDenied) {
-                // TODO: handle permission denied case
-            }
-        }
-        // other error
-        console.error("Unexpected error when trying to retrieve room list", error);
-        throw error;
+  // send the request
+  try {
+    await client.inviteRoomReply(request, { headers: { authorization: accessToken } });
+  } catch (error) {
+    if (error instanceof ConnectError) {
+      const errorCode = error.code;
+      if (errorCode === Code.Unauthenticated) {
+        // TODO: get a new access token and retry
+      } else if (errorCode === Code.PermissionDenied) {
+        // TODO: handle permission denied case
+      }
     }
+    // other error
+    console.error("Unexpected error when trying to retrieve room list", error);
+    throw error;
+  }
 
-    // process the response and return
-    return null;
+  // process the response and return
+  return null;
 };
 
 
@@ -230,36 +230,36 @@ export const InviteRoomReply = async (roomId: bigint, accept: boolean): Promise<
  * @returns `null`. Throws an error if the request fails.
  */
 export const JoinRoom = async (roomId: bigint, userId: bigint): Promise<null> => {
-    // prepare the request
-    const accessToken = "";  // TODO: get access token
-    const request = create(RoomUserRequestSchema, {
-        roomId: create(RoomIdSchema, {
-            id: roomId
-        }),
-        userId: create(UserIdSchema, {
-            id: userId
-        }),
-    });
+  // prepare the request
+  const accessToken = "";  // TODO: get access token
+  const request = create(RoomUserRequestSchema, {
+    roomId: create(RoomIdSchema, {
+      id: roomId
+    }),
+    userId: create(UserIdSchema, {
+      id: userId
+    }),
+  });
 
-    // send the request
-    try {
-        await client.joinRoom(request, { headers: { authorization: accessToken } });
-    } catch (error) {
-        if (error instanceof ConnectError) {
-            const errorCode = error.code;
-            if (errorCode === Code.Unauthenticated) {
-                // TODO: get a new access token and retry
-            } else if (errorCode === Code.PermissionDenied) {
-                // TODO: handle permission denied case
-            }
-        }
-        // other error
-        console.error("Unexpected error when trying to retrieve room list", error);
-        throw error;
+  // send the request
+  try {
+    await client.joinRoom(request, { headers: { authorization: accessToken } });
+  } catch (error) {
+    if (error instanceof ConnectError) {
+      const errorCode = error.code;
+      if (errorCode === Code.Unauthenticated) {
+        // TODO: get a new access token and retry
+      } else if (errorCode === Code.PermissionDenied) {
+        // TODO: handle permission denied case
+      }
     }
+    // other error
+    console.error("Unexpected error when trying to retrieve room list", error);
+    throw error;
+  }
 
-    // process the response and return
-    return null;
+  // process the response and return
+  return null;
 };
 
 
@@ -272,40 +272,40 @@ export const JoinRoom = async (roomId: bigint, userId: bigint): Promise<null> =>
  * @returns `null`. Throws an error if the request fails.
  */
 export const JoinRoomReply = async (roomId: bigint, joiner: bigint, accept: boolean, approver: bigint): Promise<null> => {
-    // prepare the request
-    const accessToken = "";  // TODO: get access token
-    const request = create(RoomJoinRequestReplySchema, {
-        roomId: create(RoomIdSchema, {
-            id: roomId
-        }),
-        joiner: create(UserIdSchema, {
-            id: joiner
-        }),
-        accept: accept,
-        approver: create(UserIdSchema, {
-            id: approver
-        }),
-    });
+  // prepare the request
+  const accessToken = "";  // TODO: get access token
+  const request = create(RoomJoinRequestReplySchema, {
+    roomId: create(RoomIdSchema, {
+      id: roomId
+    }),
+    joiner: create(UserIdSchema, {
+      id: joiner
+    }),
+    accept: accept,
+    approver: create(UserIdSchema, {
+      id: approver
+    }),
+  });
 
-    // send the request
-    try {
-        await client.joinRoomReply(request, { headers: { authorization: accessToken } });
-    } catch (error) {
-        if (error instanceof ConnectError) {
-            const errorCode = error.code;
-            if (errorCode === Code.Unauthenticated) {
-                // TODO: get a new access token and retry
-            } else if (errorCode === Code.PermissionDenied) {
-                // TODO: handle permission denied case
-            }
-        }
-        // other error
-        console.error("Unexpected error when trying to retrieve room list", error);
-        throw error;
+  // send the request
+  try {
+    await client.joinRoomReply(request, { headers: { authorization: accessToken } });
+  } catch (error) {
+    if (error instanceof ConnectError) {
+      const errorCode = error.code;
+      if (errorCode === Code.Unauthenticated) {
+        // TODO: get a new access token and retry
+      } else if (errorCode === Code.PermissionDenied) {
+        // TODO: handle permission denied case
+      }
     }
+    // other error
+    console.error("Unexpected error when trying to retrieve room list", error);
+    throw error;
+  }
 
-    // process the response and return
-    return null;
+  // process the response and return
+  return null;
 };
 
 
@@ -316,34 +316,34 @@ export const JoinRoomReply = async (roomId: bigint, joiner: bigint, accept: bool
  * @returns `null`. Throws an error if the request fails.
  */
 export const LeaveRoom = async (roomId: bigint, userId: bigint): Promise<null> => {
-    // prepare the request
-    const accessToken = "";  // TODO: get access token
-    const request = create(RoomUserRequestSchema, {
-        roomId: create(RoomIdSchema, {
-            id: roomId
-        }),
-        userId: create(UserIdSchema, {
-            id: userId
-        }),
-    });
+  // prepare the request
+  const accessToken = "";  // TODO: get access token
+  const request = create(RoomUserRequestSchema, {
+    roomId: create(RoomIdSchema, {
+      id: roomId
+    }),
+    userId: create(UserIdSchema, {
+      id: userId
+    }),
+  });
 
-    // send the request
-    try {
-        await client.leaveRoom(request, { headers: { authorization: accessToken } });
-    } catch (error) {
-        if (error instanceof ConnectError) {
-            const errorCode = error.code;
-            if (errorCode === Code.Unauthenticated) {
-                // TODO: get a new access token and retry
-            } else if (errorCode === Code.PermissionDenied) {
-                // TODO: handle permission denied case
-            }
-        }
-        // other error
-        console.error("Unexpected error when trying to retrieve room list", error);
-        throw error;
+  // send the request
+  try {
+    await client.leaveRoom(request, { headers: { authorization: accessToken } });
+  } catch (error) {
+    if (error instanceof ConnectError) {
+      const errorCode = error.code;
+      if (errorCode === Code.Unauthenticated) {
+        // TODO: get a new access token and retry
+      } else if (errorCode === Code.PermissionDenied) {
+        // TODO: handle permission denied case
+      }
     }
+    // other error
+    console.error("Unexpected error when trying to retrieve room list", error);
+    throw error;
+  }
 
-    // process the response and return
-    return null;
+  // process the response and return
+  return null;
 };
