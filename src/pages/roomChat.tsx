@@ -36,7 +36,7 @@ import { Field } from "@/components/ui/field";
 import { useParams } from "react-router";
 import { storage } from "@/utils/storage/user-storage";
 import { InviteToRoom } from "@/api/room/room-service";
-import { Room } from "@/proto-generated/nori/v0/room/room_pb";
+// import { Room } from "@/proto-generated/nori/v0/room/room_pb";
 import { Message } from "@/proto-generated/nori/v0/message/message_pb";
 import { GetMessage, SendMessage } from "@/api/message/message-service";
 import { UserId } from "@/proto-generated/nori/v0/user/user_id_pb";
@@ -48,18 +48,18 @@ import { GetUser } from "@/api/user/user-service";
 // }
 
 const RoomChat = () => {
-  const [roomName, setRoomName] = useState("taki");
-  const [roomAvatarSrc, setRoomAvatarSrc] = useState(
-    "https://i.imgur.com/LtR2mmT.png"
-  );
+  // const [roomName, setRoomName] = useState("taki");
+  // const [roomAvatarSrc, setRoomAvatarSrc] = useState(
+  //   "https://i.imgur.com/LtR2mmT.png"
+  // );
 
   // const [currentUser, setCurrentUser] = useState<User>();
   
-  const [currentRoom, setCurrentRoom] = useState<Room>();
+  // const [currentRoom, setCurrentRoom] = useState<Room>();
 
   const [chatMessages, setChatMessages] = useState<Message[]>([]);
 
-  const { roomId } = useParams()
+  const { roomId } = useParams();
   const userId = storage.getUserAuth()?.userId.valueOf() ?? BigInt(0).valueOf();
   const handleLoadMessage = useCallback(async () => {
     if (!roomId) {

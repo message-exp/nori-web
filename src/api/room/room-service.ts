@@ -70,7 +70,6 @@ export const CreateRoom = async (roomName: string, creator: bigint, invitees: bi
  */
 export const GetRoom = async (roomId: bigint, userId: bigint): Promise<Room> => {
   // prepare the request
-  const accessToken = "";  // TODO: get access token
   const request = create(RoomUserRequestSchema, {
     roomId: create(RoomIdSchema, {
       id: roomId
