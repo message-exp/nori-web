@@ -35,7 +35,7 @@ import {
 import { Field } from "@/components/ui/field";
 import { useParams } from "react-router";
 import { storage } from "@/utils/storage/user-storage";
-import { InviteToRoom } from "@/api/room/room-service";
+// import { InviteToRoom } from "@/api/room/room-service";
 // import { Room } from "@/proto-generated/nori/v0/room/room_pb";
 import { Message } from "@/proto-generated/nori/v0/message/message_pb";
 import { GetMessage, SendMessage } from "@/api/message/message-service";
@@ -136,25 +136,25 @@ const RoomChat = () => {
     const [inviteUsername, setInviteUsername] = useState("");
 
     const handleInvite = async () => {
-      try {
-        if (!currentRoom?.roomId) {
-          throw new Error("current room id undifinded");
-        }
+      // try {
+      //   if (!currentRoom?.roomId) {
+      //     throw new Error("current room id undifinded");
+      //   }
 
-        if (!userId) {
-          throw new Error("current user id undefined");
-        }
+      //   if (!userId) {
+      //     throw new Error("current user id undefined");
+      //   }
 
-        // TODO: it need to use username to get userid
-        // for now, just input userid
-        const inviteUserId = BigInt(inviteUsername);
+      //   // TODO: it need to use username to get userid
+      //   // for now, just input userid
+      //   const inviteUserId = BigInt(inviteUsername);
 
-        await InviteToRoom(currentRoom.roomId.id, userId, [
-          inviteUserId,
-        ]);
-      } catch (error) {
-        console.error(error);
-      }
+      //   await InviteToRoom(currentRoom.roomId.id, userId, [
+      //     inviteUserId,
+      //   ]);
+      // } catch (error) {
+      //   console.error(error);
+      // }
     };
 
     return (
@@ -211,10 +211,10 @@ const RoomChat = () => {
                 </IconButton>
               </Center>
 
-              <Avatar name={roomName} src={roomAvatarSrc} size={"lg"}></Avatar>
+              {/* <Avatar name={roomName} src={roomAvatarSrc} size={"lg"}></Avatar>
               <Center>
                 <Heading>{roomName}</Heading>
-              </Center>
+              </Center> */}
             </Flex>
             <InviteDialog></InviteDialog>
           </Flex>
