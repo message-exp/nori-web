@@ -33,19 +33,19 @@ import {
 } from "@/components/ui/dialog";
 
 import { Field } from "@/components/ui/field";
-import { useLocation } from "react-router";
+import { useParams } from "react-router";
 import { storage } from "@/utils/storage/user-storage";
-import { GetRoom, InviteToRoom } from "@/api/room/room-service";
+import { InviteToRoom } from "@/api/room/room-service";
 import { Room } from "@/proto-generated/nori/v0/room/room_pb";
 import { Message } from "@/proto-generated/nori/v0/message/message_pb";
 import { GetMessage, SendMessage } from "@/api/message/message-service";
 import { UserId } from "@/proto-generated/nori/v0/user/user_id_pb";
 import { GetUser } from "@/api/user/user-service";
-import { User } from "@/proto-generated/nori/v0/user/user_pb";
+// import { User } from "@/proto-generated/nori/v0/user/user_pb";
 
-interface LocationState {
-  roomid: bigint;
-}
+// interface LocationState {
+//   roomid: bigint;
+// }
 
 const RoomChat = () => {
   const [roomName, setRoomName] = useState("taki");
@@ -53,20 +53,19 @@ const RoomChat = () => {
     "https://i.imgur.com/LtR2mmT.png"
   );
 
-  const [currentUser, setCurrentUser] = useState<User>();
-
+  // const [currentUser, setCurrentUser] = useState<User>();
+  
   const [currentRoom, setCurrentRoom] = useState<Room>();
 
   const [chatMessages, setChatMessages] = useState<Message[]>([]);
 
-  const location = useLocation();
-  const state = location.state as LocationState;
-
+  const { roomId } = useParams()
+  const userId = storage.getUserAuth()?.userId.valueOf() ?? BigInt(0).valueOf();
   const handleLoadMessage = useCallback(async () => {
-    if (!currentRoom?.roomId?.id) {
+    if (!roomId) {
       throw new Error("roomid undefined");
     }
-    const messages = GetMessage(currentRoom.roomId.id);
+    const messages = GetMessage(BigInt(roomId).valueOf());
 
     // 使用函數式更新來避免依賴 chatMessages
     for await (const message of messages) {
@@ -78,47 +77,47 @@ const RoomChat = () => {
         return isDuplicate ? prevMessages : [...prevMessages, message];
       });
     }
-  }, [currentRoom?.roomId?.id]);
+  }, []);
 
   useEffect(() => {
-    const handleLoadUser = async () => {
-      const userAuth = storage.getUserAuth();
-      if (!userAuth?.userId) {
-        console.error("User ID is not available");
-        return;
-      }
-      const user = await GetUser(userAuth.userId.valueOf());
-      setCurrentUser(user);
-    };
+    // const handleLoadUser = async () => {
+    //   const userAuth = storage.getUserAuth();
+    //   if (!userAuth?.userId) {
+    //     console.error("User ID is not available");
+    //     return;
+    //   }
+    //   const user = await GetUser(userAuth.userId.valueOf());
+    //   setCurrentUser(user);
+    // };
 
-    handleLoadUser();
+    // handleLoadUser();
 
-    const handleLoadRoom = async () => {
-      if (state?.roomid) {
-        // 在這裡使用 roomid 做你想要的操作
-        console.log("Room ID:", state.roomid);
+    // const handleLoadRoom = async () => {
+    //   if (roomId) {
+    //     // 在這裡使用 roomid 做你想要的操作
+    //     console.log("Room ID:", roomId);
 
-        if (!currentUser?.userId) {
-          throw new Error("currentUser undifinded");
-        }
+    //     if (!userId) {
+    //       throw new Error("currentUser undefined");
+    //     }
 
-        const room = await GetRoom(state.roomid, currentUser?.userId.id);
-        setCurrentRoom(room);
+    //     const room = await GetRoom(BigInt(roomId).valueOf(), userId);
+    //     setCurrentRoom(room);
 
-        setRoomName(room.customName || room.sharedName);
+    //     setRoomName(room.customName || room.sharedName);
 
-        setRoomAvatarSrc(room.customAvatarUrl || room.sharedAvatarUrl);
+    //     setRoomAvatarSrc(room.customAvatarUrl || room.sharedAvatarUrl);
 
-        // 例如：
-        // fetchRoomData(state.roomid);
-        // connectToRoom(state.roomid);
-      }
-    };
+    //     // 例如：
+    //     // fetchRoomData(state.roomid);
+    //     // connectToRoom(state.roomid);
+    //   }
+    // };
 
-    handleLoadRoom();
+    // handleLoadRoom();
 
     handleLoadMessage();
-  }, [state?.roomid, currentUser?.userId, handleLoadMessage]);
+  }, [handleLoadMessage]);
 
   const InviteButton = () => {
     return (
@@ -142,15 +141,15 @@ const RoomChat = () => {
           throw new Error("current room id undifinded");
         }
 
-        if (!currentUser?.userId) {
-          throw new Error("current user id undifinded");
+        if (!userId) {
+          throw new Error("current user id undefined");
         }
 
         // TODO: it need to use username to get userid
         // for now, just input userid
         const inviteUserId = BigInt(inviteUsername);
 
-        await InviteToRoom(currentRoom.roomId.id, currentUser.userId.id, [
+        await InviteToRoom(currentRoom.roomId.id, userId, [
           inviteUserId,
         ]);
       } catch (error) {
@@ -316,15 +315,15 @@ const RoomChat = () => {
 
   const handleSendMessage = async () => {
     try {
-      if (!currentRoom?.roomId) {
-        throw new Error("current room id undifinded");
+      if (!roomId) {
+        throw new Error("current room id undefined");
       }
-      if (!currentUser?.userId) {
+      if (!userId) {
         throw new Error("current user id undifinded");
       }
       await SendMessage(
-        currentRoom?.roomId.id,
-        currentUser.userId.id,
+        BigInt(roomId).valueOf(),
+        userId,
         inputMessage
       );
     } catch (error) {

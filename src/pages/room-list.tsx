@@ -47,6 +47,7 @@ const RoomList = () => {
 
   useEffect(() => {
     const userAuth = storage.getUserAuth();
+    console.log("userAuth: ", userAuth);
     if (!userAuth?.userId) {
       console.error("User ID is not available");
       return;
@@ -94,11 +95,7 @@ const RoomList = () => {
     }
 
     const handleIntoRoom = (id: bigint) => {
-      navigate("/roomchat", {
-        state: {
-          roomid: id
-        }
-      });
+      navigate(`/roomchat/${id}`);
     };
 
     const RoomListCard: React.FC<roomListDataProps> = ({ name, id }) => {
