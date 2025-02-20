@@ -83,7 +83,7 @@ export const GetRoom = async (roomId: bigint, userId: bigint): Promise<Room> => 
 
   // send the request
   try {
-    response = await client.getRoom(request, { headers: { authorization: accessToken } });
+    response = await client.getRoom(request);
   } catch (error) {
     if (error instanceof ConnectError) {
       const errorCode = error.code;
@@ -112,7 +112,6 @@ export const GetRoom = async (roomId: bigint, userId: bigint): Promise<Room> => 
  */
 export const UpdateRoomBasic = async (roomId: bigint, sharedName?: string, customName?: string): Promise<null> => {
   // prepare the request
-  const accessToken = "";  // TODO: get access token
   const request = create(RoomBasicInfoRequestSchema, {
     roomId: create(RoomIdSchema, {
       id: roomId
@@ -123,7 +122,7 @@ export const UpdateRoomBasic = async (roomId: bigint, sharedName?: string, custo
 
   // send the request
   try {
-    await client.updateRoomBasic(request, { headers: { authorization: accessToken } });
+    await client.updateRoomBasic(request);
   } catch (error) {
     if (error instanceof ConnectError) {
       const errorCode = error.code;
