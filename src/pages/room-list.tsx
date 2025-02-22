@@ -18,6 +18,8 @@ import { RoomBasicInfoResponse } from "@/proto-generated/nori/v0/room/room_basic
 import { CreateRoom } from "@/api/room/room-service";
 import { useNavigate } from "react-router";
 
+import {getRoomId , getRoomName ,fetchRoomList , fetchUsername} from "@/hooks/room-list";
+
 const RoomList = () => {
   const [username, setUsername] = useState("");
 
@@ -41,7 +43,7 @@ const RoomList = () => {
       backgroundColor: "rgba(255, 255, 255, 0.85)",
     }
   };
-  const [roomListArray, setRoomListArray] = useState<RoomBasicInfoResponse[]>();
+  const [roomListArray, setRoomListArray] = useState<RoomBasicInfoResponse[]>([]);
 
   const navigate = useNavigate();
 
@@ -52,41 +54,44 @@ const RoomList = () => {
       return;
     }
         
-    const fetchUsername = async () => {
-      try {
-        const user = await GetUser(userAuth.userId.valueOf());
-        setUsername(user.username);
-      } catch (error) {
-        console.error("Failed to fetch username:", error);
-      }
-    };
+    // const fetchUsername = async () => {
+    //   try {
+    //     const user = await GetUser(userAuth.userId.valueOf());
+    //     setUsername(user.username);
+    //   } catch (error) {
+    //     console.error("Failed to fetch username:", error);
+    //   }
+    // };
 
-    fetchUsername();
+    // fetchUsername();
 
-    const fetchRoomList = async () => {
-      try {
-        const roomlist = await GetUserRoomList(userAuth.userId.valueOf());
+    // const fetchRoomList = async () => {
+    //   try {
+    //     const roomlist = await GetUserRoomList(userAuth.userId.valueOf());
                 
-        setRoomListArray(roomlist.rooms);
-      } catch (error) {
-        console.error("Failed to fetch room list:", error);
-      }
-    };
+    //     setRoomListArray(roomlist.rooms);
+    //   } catch (error) {
+    //     console.error("Failed to fetch room list:", error);
+    //   }
+    // };
 
-    fetchRoomList();
+    // fetchRoomList();
+    fetchUsername(userAuth.userId.valueOf(), setUsername);
+    fetchRoomList(userAuth.userId.valueOf(), setRoomListArray);
+
   }, []);
 
-  const getRoomName = (room: RoomBasicInfoResponse): string => {
-    return room.name.case === "sharedName" ? room.name.value :
-      room.name.case === "customName" ? room.name.value : "";
-  };
+  // const getRoomName = (room: RoomBasicInfoResponse): string => {
+  //   return room.name.case === "sharedName" ? room.name.value :
+  //     room.name.case === "customName" ? room.name.value : "";
+  // };
 
-  const getRoomId = (room: RoomBasicInfoResponse): bigint => {
-    if (!room.roomId) {
-      throw new Error("Room ID is undefined");
-    }
-    return room.roomId.id;
-  };
+  // const getRoomId = (room: RoomBasicInfoResponse): bigint => {
+  //   if (!room.roomId) {
+  //     throw new Error("Room ID is undefined");
+  //   }
+  //   return room.roomId.id;
+  // };
 
     interface roomListDataProps {
         name: string;
