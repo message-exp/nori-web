@@ -12,17 +12,13 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Field } from "@/components/ui/field";
-import { GetUser, GetUserRoomList } from "@/api/user/user-service";
 import { storage } from "@/utils/storage/user-storage";
 import { RoomBasicInfoResponse } from "@/proto-generated/nori/v0/room/room_basic_info_response_pb";
-import { CreateRoom } from "@/api/room/room-service";
 import { useNavigate } from "react-router";
-
-import {getRoomId , getRoomName ,fetchRoomList , fetchUsername} from "@/hooks/room-list";
+import {getRoomId , getRoomName ,fetchRoomList , fetchUsername , addRoom} from "@/hooks/room-list";
 
 const RoomList = () => {
   const [username, setUsername] = useState("");
-
   const roomListStyle = {
     borderRadius: "lg",
     padding: "20px",
@@ -30,7 +26,6 @@ const RoomList = () => {
     borderColor: "border.disabled",
     color: "fg.disabled"
   };
-
   const scroolStyle = {
     "&::-webkit-scrollbar": {
       width: "8px",
@@ -44,60 +39,23 @@ const RoomList = () => {
     }
   };
   const [roomListArray, setRoomListArray] = useState<RoomBasicInfoResponse[]>([]);
-
-  const navigate = useNavigate();
-
   useEffect(() => {
     const userAuth = storage.getUserAuth();
     if (!userAuth?.userId) {
       console.error("User ID is not available");
       return;
     }
-        
-    // const fetchUsername = async () => {
-    //   try {
-    //     const user = await GetUser(userAuth.userId.valueOf());
-    //     setUsername(user.username);
-    //   } catch (error) {
-    //     console.error("Failed to fetch username:", error);
-    //   }
-    // };
-
-    // fetchUsername();
-
-    // const fetchRoomList = async () => {
-    //   try {
-    //     const roomlist = await GetUserRoomList(userAuth.userId.valueOf());
-                
-    //     setRoomListArray(roomlist.rooms);
-    //   } catch (error) {
-    //     console.error("Failed to fetch room list:", error);
-    //   }
-    // };
-
-    // fetchRoomList();
     fetchUsername(userAuth.userId.valueOf(), setUsername);
     fetchRoomList(userAuth.userId.valueOf(), setRoomListArray);
-
   }, []);
 
-  // const getRoomName = (room: RoomBasicInfoResponse): string => {
-  //   return room.name.case === "sharedName" ? room.name.value :
-  //     room.name.case === "customName" ? room.name.value : "";
-  // };
-
-  // const getRoomId = (room: RoomBasicInfoResponse): bigint => {
-  //   if (!room.roomId) {
-  //     throw new Error("Room ID is undefined");
-  //   }
-  //   return room.roomId.id;
-  // };
 
     interface roomListDataProps {
         name: string;
         id: bigint;
     }
 
+    const navigate = useNavigate();
     const handleIntoRoom = (id: bigint) => {
       navigate("/roomchat", {
         state: {
@@ -138,15 +96,6 @@ const RoomList = () => {
 
     const AddRoomDialog = () => {
       const [addRoomName, setAddRoomName] = useState("");
-
-      const addRoom = async () => {
-        const userAuth = storage.getUserAuth();
-        if (!userAuth?.userId) {
-          throw new Error("User ID is not available");
-        }
-        const newRoomId = await CreateRoom(addRoomName, userAuth.userId.valueOf(), []);
-        console.log("new room id: ", newRoomId);
-      }; 
       return (
         <DialogRoot>
           <DialogTrigger asChild>
@@ -183,7 +132,7 @@ const RoomList = () => {
                 >Cancel</Button>
               </DialogActionTrigger>
               <DialogActionTrigger asChild>
-                <Button onClick={() => addRoom()}>Save</Button>
+                <Button onClick={() => addRoom(addRoomName)}>Save</Button>
               </DialogActionTrigger>
             </DialogFooter>
             <DialogCloseTrigger />
