@@ -38,14 +38,9 @@ const RoomList = () => {
     fetchRoomList(userAuth.userId.valueOf(), setRoomListArray);
   }, []);
 
-
   const navigate = useNavigate();
   const handleIntoRoom = (id: bigint) => {
-    navigate("/roomchat", {
-      state: {
-        roomid: id
-      }
-    });
+    navigate(`/roomchat/${id}`);
   };
 
   return (
