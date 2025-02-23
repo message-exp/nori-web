@@ -1,14 +1,13 @@
 import { GetUser } from "@/api/user/user-service";
 
-import { Dispatch, SetStateAction } from "react";
-
-export const fetchUsername = async (userId: bigint, setUsername: Dispatch<SetStateAction<string>>) => {
+export const fetchUsername = async (userId: bigint) => {
   try {
     const user = await GetUser(userId);
-    setUsername(user.username);
+    return user.username;
   } catch (error) {
     console.error("Failed to fetch username:", error);
   }
+  
 };
 
 

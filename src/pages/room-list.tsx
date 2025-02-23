@@ -4,7 +4,7 @@ import { storage } from "@/utils/storage/user-storage";
 import { RoomBasicInfoResponse } from "@/proto-generated/nori/v0/room/room_basic_info_response_pb";
 import { useNavigate } from "react-router";
 import { getRoomId, getRoomName, fetchRoomList, fetchUsername } from "@/hooks/room-list";
-import { AddRoomDialog , RoomListCard} from "@/components/room-list";
+import { AddRoomDialog, RoomListCard } from "@/components/room-list";
 
 const RoomList = () => {
   const [username, setUsername] = useState("");
@@ -34,8 +34,17 @@ const RoomList = () => {
       console.error("User ID is not available");
       return;
     }
-    fetchUsername(userAuth.userId.valueOf(), setUsername);
-    fetchRoomList(userAuth.userId.valueOf(), setRoomListArray);
+    fetchUsername(userAuth.userId.valueOf()).then(username => {
+      if (username) {
+        setUsername(username);
+      }
+    });
+    fetchRoomList(userAuth.userId.valueOf()).then(rooms => {
+      if (rooms) {
+        setRoomListArray(rooms);
+      }
+    });
+  
   }, []);
 
   const navigate = useNavigate();
@@ -65,7 +74,7 @@ const RoomList = () => {
               each={roomListArray}
             >
               {(roomBasicInfo,) => (
-                <RoomListCard name={getRoomName(roomBasicInfo)} id={getRoomId(roomBasicInfo)} handleIntoRoom={handleIntoRoom}/>
+                <RoomListCard name={getRoomName(roomBasicInfo)} id={getRoomId(roomBasicInfo)} handleIntoRoom={handleIntoRoom} />
               )}
             </For>
             {/* {isLoading && <LoadingCard/>} */}
