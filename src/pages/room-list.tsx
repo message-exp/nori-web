@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { storage } from "@/utils/storage/user-storage";
 import { RoomBasicInfoResponse } from "@/proto-generated/nori/v0/room/room_basic_info_response_pb";
 import { useNavigate } from "react-router";
-import { getRoomId, getRoomName, fetchRoomList, fetchUsername } from "@/hooks/room-list";
+import { getRoomId, fetchRoomList, fetchUsername } from "@/hooks/room-list";
 import { AddRoomDialog, RoomListCard } from "@/components/room-list";
 
 const RoomList = () => {
@@ -74,7 +74,7 @@ const RoomList = () => {
               each={roomListArray}
             >
               {(roomBasicInfo,) => (
-                <RoomListCard name={getRoomName(roomBasicInfo)} id={getRoomId(roomBasicInfo)} handleIntoRoom={handleIntoRoom} />
+                <RoomListCard name={roomBasicInfo.name?.case === "sharedName" || roomBasicInfo.name?.case === "customName" ? roomBasicInfo.name.value : ""} id={getRoomId(roomBasicInfo)} handleIntoRoom={handleIntoRoom} />
               )}
             </For>
             {/* {isLoading && <LoadingCard/>} */}
