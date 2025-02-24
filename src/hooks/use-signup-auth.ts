@@ -9,7 +9,7 @@ interface SignupResult {
   errors: string;
 }
 
-export const useSignupFunc = async (
+export const useSignupAuth = async (
   inputName: string,
   inputEmail: string,
   inputPassword: string,

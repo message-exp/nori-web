@@ -1,12 +1,12 @@
 import { useState, KeyboardEvent, useEffect } from "react";
 import TextInput from "../auth/TextInput";
-import { useSignup } from "@/contexts/SignupContext";
+import { useSignupContext } from "@/contexts/SignupContext";
 import { inputNullCheck } from "@/utils/input-check/input-null-check";
 import { inputEmailCheck } from "@/utils/input-check/input-email-check";
 
 export const InputEmail = () => {
   const [localEmail, setLocalEmail] = useState("");
-  const { setEmail, checkTrigger } = useSignup();
+  const { setEmail, checkTrigger } = useSignupContext();
   const [isEmailValid, setIsEmailValid] = useState(true);
   const [emailErrorMessage, setEmailErrorMessage] = useState("");
 

@@ -42,10 +42,10 @@ export const SignupProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   );
 };
 
-export const useSignup = () => {
+export const useSignupContext = () => {
   const context = useContext(SignupContext);
-  if (context === undefined) {
-    throw new Error("useSignup must be used within a SignupProvider");
+  if (!context) {
+    throw new Error("useSignupContext must be used within a SignupProvider");
   }
   return context;
 };

@@ -1,11 +1,11 @@
 import { useState, KeyboardEvent, useEffect } from "react";
 import TextInput from "../auth/TextInput";
-import { useSignup } from "@/contexts/SignupContext";
+import { useSignupContext } from "@/contexts/SignupContext";
 import { inputNullCheck } from "@/utils/input-check/input-null-check";
 
 export const InputConfirmPassword = () => {
   const [localConfirmPassword, setLocalConfirmPassword] = useState("");
-  const { password, setConfirmPassword, checkTrigger } = useSignup();
+  const { password, setConfirmPassword, checkTrigger } = useSignupContext();
   const [isConfirmPasswordValid, setIsConfirmPasswordValid] = useState(true);
   const [confirmPasswordErrorMessage, setConfirmPasswordErrorMessage] = useState("");
 
