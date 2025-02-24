@@ -11,43 +11,12 @@ import { useSignupSubmit } from "@/hooks/use-signup-submit";
 const SignupForm = () => {
 
   const navigate = useNavigate();
+  
   const {
     isSignupLoading,
     textErrorMessage,
     handleSignup,
   } = useSignupSubmit();
-
-  // const [isSignupLoading, setIsSignupLoading] = useState(false);
-  // const [textErrorMessage, setTextErrorMessage] = useState("");
-
-  // const {
-  //   name,
-  //   email,
-  //   password,
-  //   confirmPassword,
-  //   checkTrigger,
-  //   setCheckTrigger
-  // } = useSignup();
-
-  // const signupButtonClick = async () => {
-  //   setCheckTrigger(!checkTrigger);
-  //   setIsSignupLoading(true);
-  //   console.log("name: ", name);
-  //   console.log("email: ", email);
-  //   console.log("password: ", password);
-  //   console.log("comfirm password", confirmPassword);
-
-  //   const signupResponse = await signupFunc(name, email, password, confirmPassword);
-  //   if (signupResponse.success === true) {
-  //     setTextErrorMessage("");
-  //     navigate("/roomlist");
-  //   }
-  //   else {
-  //     setTextErrorMessage(signupResponse.errors);
-  //   }
-  //   setIsSignupLoading(false);
-
-  // };
 
   return (
     <Center height="100vh" bg="#1e1e1e" color="white">
