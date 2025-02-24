@@ -1,6 +1,6 @@
-import { useState, KeyboardEvent, useEffect } from "react";
+import { useState, KeyboardEvent, useEffect, useCallback } from "react";
 import TextInput from "../auth/TextInput";
-import { useSignupContext } from "@/contexts/SignupContext";
+import { useSignupContext } from "@/hooks/use-signup-context";
 import { inputNullCheck } from "@/utils/input-check/input-null-check";
 
 export const InputName = () => {
@@ -9,31 +9,30 @@ export const InputName = () => {
   const [isNameValid, setIsNameValid] = useState(true);
   const [nameErrorMessage, setNameErrorMessage] = useState("");
 
-  const setInvalidError = () => {
+  const setInvalidError = useCallback(() => {
     setIsNameValid(false);
     setNameErrorMessage("name is null");
-  };
+  }, []);
 
-  const clearInvalidError = () => {
+  const clearInvalidError = useCallback(() => {
     setIsNameValid(true);
     setNameErrorMessage("");
-  };
+  }, []);
 
-  const handleNameSubmit = () => {
-    if (inputNullCheck(localName) === false) {
+  const handleNameSubmit = useCallback(() => {
+    if (!inputNullCheck(localName)) {
       setInvalidError();
       return;
     }
     clearInvalidError();
     setName(localName);
-    
-  };
+  }, [localName, setInvalidError, clearInvalidError, setName]);
 
   useEffect(() => {
     if (checkTrigger) {
       handleNameSubmit();
-    } 
-  }, [checkTrigger]);
+    }
+  }, [checkTrigger, handleNameSubmit]);
 
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {

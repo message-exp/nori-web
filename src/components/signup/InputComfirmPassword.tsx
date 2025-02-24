@@ -1,6 +1,6 @@
-import { useState, KeyboardEvent, useEffect } from "react";
+import { useState, KeyboardEvent, useEffect, useCallback } from "react";
 import TextInput from "../auth/TextInput";
-import { useSignupContext } from "@/contexts/SignupContext";
+import { useSignupContext } from "@/hooks/use-signup-context";
 import { inputNullCheck } from "@/utils/input-check/input-null-check";
 
 export const InputConfirmPassword = () => {
@@ -9,57 +9,52 @@ export const InputConfirmPassword = () => {
   const [isConfirmPasswordValid, setIsConfirmPasswordValid] = useState(true);
   const [confirmPasswordErrorMessage, setConfirmPasswordErrorMessage] = useState("");
 
-  const setInvalidError = (message: string) => {
+  const setInvalidError = useCallback((message: string) => {
     setIsConfirmPasswordValid(false);
     setConfirmPasswordErrorMessage(message);
-  };
+  }, []);
 
-  const clearInvalidError = () => {
+  const clearInvalidError = useCallback(() => {
     setIsConfirmPasswordValid(true);
     setConfirmPasswordErrorMessage("");
-  };
+  }, []);
 
-  const checkPassword = () => {
-    if (localConfirmPassword !== password) {
-      return false;
-    }
-    else {
-      return true;
-    }
-  }
+  const checkPassword = useCallback(() => {
+    return localConfirmPassword === password;
+  }, [localConfirmPassword, password]);
 
-  const handleCheckComfirmPassword = () => {
-    if (checkPassword() === false) {
+  const handleCheckComfirmPassword = useCallback(() => {
+    if (!checkPassword()) {
       setInvalidError("passwords do not match");
-    }
-    else {
+    } else {
       clearInvalidError();
     }
-  };
+  }, [checkPassword, setInvalidError, clearInvalidError]);
 
-  const handleConfirmPasswordSubmit = () => {
-    if (inputNullCheck(localConfirmPassword) === false) {
+  const handleConfirmPasswordSubmit = useCallback(() => {
+    if (!inputNullCheck(localConfirmPassword)) {
       setInvalidError("confirm password is null");
       return;
     }
-    if (checkPassword() === false) {
+    if (!checkPassword()) {
       setInvalidError("passwords do not match");
       return;
-    } 
-    
+    }
+
     clearInvalidError();
     setConfirmPassword(localConfirmPassword);
-  };
+  }, [localConfirmPassword, checkPassword, setInvalidError, clearInvalidError, setConfirmPassword]);
+
 
   useEffect(() => {
     handleCheckComfirmPassword();
-  }, [localConfirmPassword]);
+  }, [localConfirmPassword, handleCheckComfirmPassword]);
 
   useEffect(() => {
     if (checkTrigger) {
       handleConfirmPasswordSubmit();
     }
-  }, [checkTrigger]);
+  }, [checkTrigger, handleConfirmPasswordSubmit]);
 
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {

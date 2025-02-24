@@ -1,6 +1,6 @@
-import { useState, KeyboardEvent, useEffect } from "react";
+import { useState, KeyboardEvent, useEffect, useCallback } from "react";
 import TextInput from "../auth/TextInput";
-import { useSignupContext } from "@/contexts/SignupContext";
+import { useSignupContext } from "@/hooks/use-signup-context";
 import { inputNullCheck } from "@/utils/input-check/input-null-check";
 
 export const InputPassword = () => {
@@ -9,30 +9,30 @@ export const InputPassword = () => {
   const [isPasswordValid, setIsPasswordValid] = useState(true);
   const [passwordErrorMessage, setPasswordErrorMessage] = useState("");
 
-  const setInvalidError = (message: string) => {
+  const setInvalidError = useCallback((message: string) => {
     setIsPasswordValid(false);
     setPasswordErrorMessage(message);
-  };
+  }, []);
 
-  const clearInvalidError = () => {
+  const clearInvalidError = useCallback(() => {
     setIsPasswordValid(true);
     setPasswordErrorMessage("");
-  };
+  }, []);
 
-  const handlePasswordSubmit = () => {
-    if (inputNullCheck(localPassword) === false) {
+  const handlePasswordSubmit = useCallback(() => {
+    if (!inputNullCheck(localPassword)) {
       setInvalidError("password is null");
       return;
     }
     clearInvalidError();
     setPassword(localPassword);
-  };
+  }, [localPassword, setInvalidError, clearInvalidError, setPassword]);
 
   useEffect(() => {
     if (checkTrigger) {
       handlePasswordSubmit();
-    } 
-  }, [checkTrigger]);
+    }
+  }, [checkTrigger, handlePasswordSubmit]);
 
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {

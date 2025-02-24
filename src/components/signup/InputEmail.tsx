@@ -1,6 +1,6 @@
-import { useState, KeyboardEvent, useEffect } from "react";
+import { useState, KeyboardEvent, useEffect, useCallback } from "react";
 import TextInput from "../auth/TextInput";
-import { useSignupContext } from "@/contexts/SignupContext";
+import { useSignupContext } from "@/hooks/use-signup-context";
 import { inputNullCheck } from "@/utils/input-check/input-null-check";
 import { inputEmailCheck } from "@/utils/input-check/input-email-check";
 
@@ -10,34 +10,34 @@ export const InputEmail = () => {
   const [isEmailValid, setIsEmailValid] = useState(true);
   const [emailErrorMessage, setEmailErrorMessage] = useState("");
 
-  const setInvalidError = (message: string) => {
+  const setInvalidError = useCallback((message: string) => {
     setIsEmailValid(false);
     setEmailErrorMessage(message);
-  };
+  }, []);
 
-  const clearInvalidError = () => {
+  const clearInvalidError = useCallback(() => {
     setIsEmailValid(true);
     setEmailErrorMessage("");
-  };
+  }, []);
 
-  const handleEmailSubmit = () => {
-    if (inputNullCheck(localEmail) === false) {
+  const handleEmailSubmit = useCallback(() => {
+    if (!inputNullCheck(localEmail)) {
       setInvalidError("email is null");
       return;
     }
-    if (inputEmailCheck(localEmail) === false) {
+    if (!inputEmailCheck(localEmail)) {
       setInvalidError("invalid email format");
       return;
     }
     clearInvalidError();
     setEmail(localEmail);
-  };
+  }, [localEmail, setInvalidError, clearInvalidError, setEmail]);
 
   useEffect(() => {
     if (checkTrigger) {
       handleEmailSubmit();
-    } 
-  }, [checkTrigger]);
+    }
+  }, [checkTrigger, handleEmailSubmit]);
 
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {

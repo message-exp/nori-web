@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useSignupContext } from "@/contexts/SignupContext";
+import { useSignupContext } from "@/hooks/use-signup-context";
 import { useSignupAuth } from "@/hooks/use-signup-auth";
 
 export const useSignupSubmit = () => {
