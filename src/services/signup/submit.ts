@@ -1,9 +1,6 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { useSignupContext } from "@/hooks/use-signup-context";
+import { signup } from "@/api/user/user-service";
 import { inputNullCheck } from "@/utils/input-check/input-null-check";
 import { inputEmailCheck } from "@/utils/input-check/input-email-check";
-import { signup } from "@/api/user/user-service";
 import { storage } from "@/utils/storage/user-storage";
 
 interface SignupResult {
@@ -11,97 +8,57 @@ interface SignupResult {
   errors: string;
 }
 
-export const useSignupSubmit = () => {
-  const navigate = useNavigate();
-  const signupAuth = useSignupAuth;
-  const [isSignupLoading, setIsSignupLoading] = useState(false);
-  const [textErrorMessage, setTextErrorMessage] = useState("");
+interface SignupData {
+  name: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
+}
 
-  const {
-    name,
-    email,
-    password,
-    confirmPassword,
-    checkTrigger,
-    setCheckTrigger
-  } = useSignupContext();
+export const signupSubmit = async (data: SignupData): Promise<SignupResult> => {
+  const { name, email, password, confirmPassword } = data;
 
-  const handleSignup = async () => {
-    setCheckTrigger(!checkTrigger);
-    setIsSignupLoading(true);
-    
-    const signupResponse = await signupAuth(name, email, password, confirmPassword);
-    if (signupResponse.success === true) {
-      setTextErrorMessage("");
-      navigate("/roomlist");
-    } else {
-      setTextErrorMessage(signupResponse.errors);
-    }
-    
-    setIsSignupLoading(false);
-  };
-
-  return {
-    isSignupLoading,
-    textErrorMessage,
-    handleSignup,
-  };
-};
-
-export const useSignupAuth = async (
-  inputName: string,
-  inputEmail: string,
-  inputPassword: string,
-  inputConfirmPassword: string
-): Promise<SignupResult> => {
-
-  console.log("name: " + inputName);
-  console.log("email: " + inputEmail);
-  console.log("password: " + inputPassword);
-  console.log("confirm password: " + inputConfirmPassword);
-
-  // verify
-  // name
-  if (inputNullCheck(inputName) === false) {
+  // verify name
+  if (inputNullCheck(name) === false) {
     return {
       success: false,
       errors: "Name is null"
     };
   }
 
-  // email
-  if (inputNullCheck(inputEmail) === false) {
+  // verify email
+  if (inputNullCheck(email) === false) {
     return {
       success: false,
       errors: "Email is null"
     };
   }
-  if (inputEmailCheck(inputEmail) === false) {
+  if (inputEmailCheck(email) === false) {
     return {
       success: false,
       errors: "Email form error"
     };
   }
 
-  // password
-  if (inputNullCheck(inputPassword) === false) {
+  // verify password
+  if (inputNullCheck(password) === false) {
     return {
       success: false,
       errors: "password is null"
     };
   }
 
-  // confirm password
-  if (inputPassword !== inputConfirmPassword) {
+  // verify confirm password
+  if (password !== confirmPassword) {
     return {
       success: false,
       errors: "password is not same as confirm password"
     };
   }
-  
+
   try {
-    const response = await signup(inputName, inputEmail, inputPassword);
-    console.log("get signup reponse: ", response);
+    const response = await signup(name, email, password);
+    console.log("get signup response: ", response);
     storage.saveToken(response);
     return {
       success: true,

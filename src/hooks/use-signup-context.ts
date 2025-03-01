@@ -1,5 +1,5 @@
 import { useContext } from "react";
-import { SignupContext } from "@/contexts/signup/";
+import { SignupContext } from "@/contexts/signup";
 
 export const useSignupContext = () => {
   const context = useContext(SignupContext);

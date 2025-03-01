@@ -1,7 +1,9 @@
-import React, { useState, ReactNode, useMemo } from "react";
-import { SignupContext } from "./signup-context";
+import React, { useState, ReactNode, useMemo, createContext } from "react";
+import { SignupContextType } from "./signup-types";
 
-export const SignupProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+const SignupContext = createContext<SignupContextType | undefined>(undefined);
+
+const SignupProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -27,3 +29,5 @@ export const SignupProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     </SignupContext.Provider>
   );
 };
+
+export {SignupProvider, SignupContext};
