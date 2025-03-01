@@ -5,7 +5,8 @@ import { SignupProvider } from "@/contexts/signup/SignupProvider";
 import { InputEmail } from "@/components/signup/InputEmail";
 import { InputPassword } from "@/components/signup/InputPassword";
 import { InputConfirmPassword } from "@/components/signup/InputComfirmPassword";
-import { useSignupSubmit } from "@/hooks/use-signup-submit";
+import { useSignupSubmit } from "@/services/signup/submit";
+// import { useSignupSubmit } from "@/hooks/use-signup-submit";
 
 
 const SignupForm = () => {
