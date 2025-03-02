@@ -40,14 +40,24 @@ interface AddRoomDialogProps {
 
 export const AddRoomDialog = ({ onRoomAdded }: AddRoomDialogProps) => {
   const [addRoomName, setAddRoomName] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+  const [openDialog, setOpenDialog] = useState(false)
 
   const handleSave = async () => {
-    await addRoom(addRoomName);
-    setAddRoomName(""); // 清空輸入
-    onRoomAdded?.(); // 調用更新函數
+    try {
+      setIsLoading(true);
+      await addRoom(addRoomName);
+      setAddRoomName(""); // 清空輸入
+      onRoomAdded?.(); // 調用更新函數
+      setOpenDialog(false);
+    } catch (error) {
+      console.error("Failed to add room:", error);
+    } finally {
+      setIsLoading(false);
+    }
   };
   return (
-    <DialogRoot>
+    <DialogRoot open={openDialog} onOpenChange={(e) => setOpenDialog(e.open)}>
       <DialogTrigger asChild>
         <AddRoomButton />
       </DialogTrigger>
@@ -79,13 +89,20 @@ export const AddRoomDialog = ({ onRoomAdded }: AddRoomDialogProps) => {
                 console.log("cancel");
                 setAddRoomName("");
               }}
+              disabled={isLoading}
             >
               Cancel
             </Button>
           </DialogActionTrigger>
-          <DialogActionTrigger asChild>
-            <Button onClick={handleSave}>Save</Button>
-          </DialogActionTrigger>
+          {/* <DialogActionTrigger asChild>
+            
+          </DialogActionTrigger> */}
+          <Button
+            onClick={handleSave}
+            loading={isLoading}
+          >
+            Save
+          </Button>
         </DialogFooter>
         <DialogCloseTrigger />
       </DialogContent>

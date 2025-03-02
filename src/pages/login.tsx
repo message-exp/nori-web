@@ -100,10 +100,11 @@ const Login = () => {
     try {
       const tokenPair = await login(account, password);
       console.log("get token pair: ", tokenPair);
-      const userid = getUserIdFromAccessToken(tokenPair.accessToken); 
-      console.log("get userid: ", userid);
+      // const userid = getUserIdFromAccessToken(tokenPair.accessToken); 
+      // console.log("get userid: ", userid);
 
-      storage.setUserAuth({ userId: userid.id, tokenPair });
+      // storage.setUserAuth({ userId: userid.id, tokenPair });
+      storage.saveToken(tokenPair);
 
       setTextErrorMessage("");
       setIsLoginLoading(false);
