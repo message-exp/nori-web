@@ -4,7 +4,6 @@ import { PasswordInput } from "@/components/ui/password-input";
 import { useNavigate } from "react-router";
 import { login } from "@/api/user/user-service";
 import { storage } from "@/utils/storage/user-storage";
-import { getUserIdFromAccessToken } from "@/utils/jwt";
 
 const LoginPage = () => {
   const [flag, setFlag] = useState(1);

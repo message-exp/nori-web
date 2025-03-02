@@ -41,7 +41,7 @@ interface AddRoomDialogProps {
 export const AddRoomDialog = ({ onRoomAdded }: AddRoomDialogProps) => {
   const [addRoomName, setAddRoomName] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const [openDialog, setOpenDialog] = useState(false)
+  const [openDialog, setOpenDialog] = useState(false);
 
   const handleSave = async () => {
     try {
