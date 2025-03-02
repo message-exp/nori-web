@@ -28,10 +28,13 @@ const mockTokenPair = create(TokenPairSchema, {
 });
 
 export const GetUser = async (userId: bigint | null | undefined): Promise<User> => {
+
   if (userId == null) {
     throw new Error("userId is null or undefined");
   }
+
   const request = create(UserIdSchema, { id: userId });
+  
   try {
     const response = await client.getUser(request);
     console.log("User retrieved successfully", response);

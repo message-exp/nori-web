@@ -3,8 +3,9 @@ import { useEffect, useState } from "react";
 import { storage } from "@/utils/storage/user-storage";
 import { RoomBasicInfoResponse } from "@/proto-generated/nori/v0/room/room_basic_info_response_pb";
 import { useNavigate } from "react-router";
-import { getRoomId, fetchRoomList, fetchUsername } from "@/hooks/room-list";
 import { AddRoomDialog, RoomListCard } from "@/components/room-list";
+import { getRoomId } from "@/utils/grpc-helper";
+import { GetUser, GetUserRoomList } from "@/api/user/user-service";
 
 const RoomList = () => {
   const [username, setUsername] = useState("");
@@ -29,22 +30,28 @@ const RoomList = () => {
   };
   const [roomListArray, setRoomListArray] = useState<RoomBasicInfoResponse[]>([]);
   useEffect(() => {
-    const userAuth = storage.getUserAuth();
-    if (!userAuth?.userId) {
+    
+    const userId = storage.getUserId();
+
+    if (!userId) {
       console.error("User ID is not available");
       return;
     }
-    fetchUsername(userAuth.userId.valueOf()).then(username => {
+
+    GetUser(userId).then(user => {
+      const username = user.username;
       if (username) {
         setUsername(username);
       }
     });
-    fetchRoomList(userAuth.userId.valueOf()).then(rooms => {
+
+    GetUserRoomList(userId).then(roomList => {
+      const rooms = roomList.rooms;
       if (rooms) {
         setRoomListArray(rooms);
       }
     });
-  
+
   }, []);
 
   const navigate = useNavigate();

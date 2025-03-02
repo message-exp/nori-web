@@ -13,7 +13,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Field } from "@/components/ui/field";
-import { addRoom } from "@/hooks/room-list";
+import { addRoom } from "@/utils/grpc-helper";
 
 interface AddRoomButtonProps {
   onClick?: () => void;
