@@ -13,6 +13,7 @@ import { RefreshTokenSchema } from "@/proto-generated/nori/v0/user/refresh_token
 import { SignUpRequestSchema } from "@/proto-generated/nori/v0/user/signup_request_pb";
 
 import { transport } from "@/api/client";
+import { storage } from "@/utils/storage/user-storage";
 
 const client = createClient(UserService, transport);
 const api_mode = config.api_mode;
@@ -26,12 +27,14 @@ const mockTokenPair = create(TokenPairSchema, {
   }),
 });
 
-export const GetUser = async (userId: bigint): Promise<User> => {
-  // prepare request
-  const request = create(UserIdSchema, {
-    id: userId
-  });
-    // send request
+export const GetUser = async (userId: bigint | null | undefined): Promise<User> => {
+
+  if (userId == null) {
+    throw new Error("userId is null or undefined");
+  }
+
+  const request = create(UserIdSchema, { id: userId });
+  
   try {
     const response = await client.getUser(request);
     console.log("User retrieved successfully", response);
@@ -42,12 +45,11 @@ export const GetUser = async (userId: bigint): Promise<User> => {
   }
 };
 
-export const GetUserRoomList = async (userId: bigint): Promise<RoomList> => {
-  // prepare request
-  const request = create(UserIdSchema, {
-    id: userId
-  });
-    // send request
+export const GetUserRoomList = async (userId: bigint | null | undefined): Promise<RoomList> => {
+  if (userId == null) {
+    throw new Error("userId is null or undefined");
+  }
+  const request = create(UserIdSchema, { id: userId });
   try {
     const response = await client.getUserRoomList(request);
     console.log("Room list retrieved successfully", response);
@@ -57,6 +59,7 @@ export const GetUserRoomList = async (userId: bigint): Promise<RoomList> => {
     throw error;
   }
 };
+
 
 export const login = async (input_email: string, input_password: string): Promise<TokenPair> => {
   console.info("get login info");
@@ -138,10 +141,11 @@ export const signup = async (input_name: string, input_email: string, input_pass
 
   try {
     const response = await client.signup(signupRequest);
-    console.log("登入成功", response);
+    storage.saveToken(response);
+    console.log("signup successful: ", response);
     return response;
   } catch (error) {
-    console.error("登入失敗", error);
+    console.error("signup error: ", error);
     throw error;
   }
     

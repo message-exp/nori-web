@@ -56,7 +56,7 @@ interface PageCardProps {
 }
 
 // 頁面卡片組件
-function PageCard({ title, description, path }: PageCardProps) {
+const PageCard: React.FC<PageCardProps> = ({ title, description, path }) => {
   return (
     <Card.Root>
       <Card.Body gap={2}>
@@ -69,12 +69,12 @@ function PageCard({ title, description, path }: PageCardProps) {
       </Card.Body>
       <Card.Footer>
         <Button colorPalette={"teal"} onClick={() => window.location.href = path}>
-                    view
+          view
         </Button>
       </Card.Footer>
     </Card.Root>
   );
-}
+};
 
 function App() {
   return (
@@ -85,6 +85,7 @@ function App() {
         <Route path="/roomlist" element={<RoomList />} />
         <Route path="/signup" element = {<SignupPage />} />
         <Route path="/roomchat" element={<RoomChat/>} />
+        <Route path="/roomchat/:roomId" element={<RoomChat/>} />
         {/* 添加更多路由 */}
       </Routes>
     </Router>
