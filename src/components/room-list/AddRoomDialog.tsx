@@ -34,19 +34,28 @@ const AddRoomButton = React.forwardRef<HTMLButtonElement, AddRoomButtonProps>((p
   );
 });
 
-export const AddRoomDialog = () => {
+interface AddRoomDialogProps {
+  onRoomAdded?: () => void;
+}
+
+export const AddRoomDialog = ({ onRoomAdded }: AddRoomDialogProps) => {
   const [addRoomName, setAddRoomName] = useState("");
+
+  const handleSave = async () => {
+    await addRoom(addRoomName);
+    setAddRoomName(""); // 清空輸入
+    onRoomAdded?.(); // 調用更新函數
+  };
   return (
     <DialogRoot>
       <DialogTrigger asChild>
         <AddRoomButton />
-        {/* <Button>test</Button> */}
       </DialogTrigger>
 
       <DialogContent>
         <DialogHeader>
           <DialogTitle >
-            <Heading size={"2xl"}>Add Room</Heading>
+            Add Room
           </DialogTitle>
 
         </DialogHeader>
@@ -65,14 +74,17 @@ export const AddRoomDialog = () => {
         <DialogFooter>
           <DialogActionTrigger asChild>
             <Button
-              variant="outline" onClick={() => {
+              variant="outline"
+              onClick={() => {
                 console.log("cancel");
                 setAddRoomName("");
               }}
-            >Cancel</Button>
+            >
+              Cancel
+            </Button>
           </DialogActionTrigger>
           <DialogActionTrigger asChild>
-            <Button onClick={() => addRoom(addRoomName)}>Save</Button>
+            <Button onClick={handleSave}>Save</Button>
           </DialogActionTrigger>
         </DialogFooter>
         <DialogCloseTrigger />

@@ -29,6 +29,20 @@ const RoomList = () => {
     }
   };
   const [roomListArray, setRoomListArray] = useState<RoomBasicInfoResponse[]>([]);
+
+  const fetchRoomList = async () => {
+    const userId = storage.getUserId();
+    if (!userId) {
+      console.error("User ID is not available");
+      return;
+    }
+
+    const roomList = await GetUserRoomList(userId);
+    if (roomList.rooms) {
+      setRoomListArray(roomList.rooms);
+    }
+  };
+
   useEffect(() => {
     
     const userId = storage.getUserId();
@@ -45,12 +59,7 @@ const RoomList = () => {
       }
     });
 
-    GetUserRoomList(userId).then(roomList => {
-      const rooms = roomList.rooms;
-      if (rooms) {
-        setRoomListArray(rooms);
-      }
-    });
+    fetchRoomList();
 
   }, []);
 
@@ -65,7 +74,7 @@ const RoomList = () => {
         <Box height={"100px"} {...roomListStyle}>
           <Flex align={"center"} height={"100%"} width={"100%"} justify={"space-between"}>
             <Heading size={"3xl"}>{username}</Heading>
-            <AddRoomDialog></AddRoomDialog>
+            <AddRoomDialog onRoomAdded={fetchRoomList}/>
           </Flex>
         </Box>
         <Box flex={"1"} {...roomListStyle} overflow={"hidden"}>
@@ -81,10 +90,14 @@ const RoomList = () => {
               each={roomListArray}
             >
               {(roomBasicInfo,) => (
-                <RoomListCard name={roomBasicInfo.name?.case === "sharedName" || roomBasicInfo.name?.case === "customName" ? roomBasicInfo.name.value : ""} id={getRoomId(roomBasicInfo)} handleIntoRoom={handleIntoRoom} />
+                <RoomListCard
+                  name={roomBasicInfo.name?.case === "sharedName" || roomBasicInfo.name?.case === "customName" ? roomBasicInfo.name.value : ""}
+                  id={getRoomId(roomBasicInfo)}
+                  handleIntoRoom={handleIntoRoom}
+                  key={getRoomId(roomBasicInfo)}
+                />
               )}
             </For>
-            {/* {isLoading && <LoadingCard/>} */}
 
           </Stack>
 
