@@ -85,6 +85,7 @@ function App() {
         <Route path="/roomlist" element={<RoomList />} />
         <Route path="/signup" element = {<SignupPage />} />
         <Route path="/roomchat" element={<RoomChat/>} />
+        <Route path="/roomchat/:roomId" element={<RoomChat/>} />
         {/* 添加更多路由 */}
       </Routes>
     </Router>
