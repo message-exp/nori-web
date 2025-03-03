@@ -1,4 +1,4 @@
-import { InputConfirmPassword } from "./InputComfirmPassword";
+import { InputConfirmPassword } from "./InputConfirmPassword";
 import { InputEmail } from "./InputEmail";
 import { InputName } from "./InputName";
 import { InputPassword } from "./InputPassword";
