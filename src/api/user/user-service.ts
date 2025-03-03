@@ -29,7 +29,7 @@ const mockTokenPair = create(TokenPairSchema, {
 
 export const GetUser = async (userId: bigint | null | undefined): Promise<User> => {
 
-  if (userId == null) {
+  if (!userId) {
     throw new Error("userId is null or undefined");
   }
 
@@ -46,7 +46,7 @@ export const GetUser = async (userId: bigint | null | undefined): Promise<User> 
 };
 
 export const GetUserRoomList = async (userId: bigint | null | undefined): Promise<RoomList> => {
-  if (userId == null) {
+  if (!userId) {
     throw new Error("userId is null or undefined");
   }
   const request = create(UserIdSchema, { id: userId });

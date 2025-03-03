@@ -1,6 +1,6 @@
 export const inputNullCheck = (value: string | null | undefined): boolean => {
   // 檢查 null 或 undefined
-  if (value == null) return false;
+  if (!value) return false;
 
   // 檢查空字串
   if (typeof value === "string") {
