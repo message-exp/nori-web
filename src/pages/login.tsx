@@ -1,9 +1,10 @@
 import { useState } from "react";
-import { Button, Input, Text, VStack, Center, Heading, Field, Image } from "@chakra-ui/react";
-import { PasswordInput } from "@/components/ui/password-input";
+import { Button, Text, VStack, Center, Heading, Image } from "@chakra-ui/react";
 import { useNavigate } from "react-router";
-import { login } from "@/api/user/user-service";
-import { storage } from "@/utils/storage/user-storage";
+import { LoginProvider } from "@/contexts/login";
+import { InputEmail, InputPassword } from "@/components/login";
+import { useLoginContext } from "@/hooks/use-login-context";
+import { loginService } from "@/services/login";
 
 const LoginPage = () => {
   const [flag, setFlag] = useState(1);
@@ -13,7 +14,10 @@ const LoginPage = () => {
     );
   } else {
     return (
-      <Login/>
+      <LoginProvider>
+        <LoginForm />
+      </LoginProvider>
+      
     );
   }
 };
@@ -43,88 +47,90 @@ const Welcome = ({ setFlag }: { setFlag: (value: number) => void }) => {
   );
 
 };
-const Login = () => {
+const LoginForm = () => {
   const navigate = useNavigate();
 
-  const [account, setAccount] = useState("");
-  const [password, setPassword] = useState("");
+  // const [account, setAccount] = useState("");
+  // const [password, setPassword] = useState("");
 
-  const [isEmailError, setIsEmailError] = useState(false);
-  const [emailErrorMessage, setEmailErrorMessage] = useState("");
+  // const [isEmailError, setIsEmailError] = useState(false);
+  // const [emailErrorMessage, setEmailErrorMessage] = useState("");
 
-  const [isPasswordError, setIsPasswordError] = useState(false);
-  const [passwordErrorMessage, setPasswordErrorMessage] = useState("");
-
-  const [textErrorMessage, setTextErrorMessage] = useState("");
+  // const [isPasswordError, setIsPasswordError] = useState(false);
+  // const [passwordErrorMessage, setPasswordErrorMessage] = useState("");
 
   const [isLoginLoading, setIsLoginLoading] = useState(false);
+  const [textErrorMessage, setTextErrorMessage] = useState("");
 
-  function isEmpty(str: string | null | undefined): boolean {
-    return !str || str.trim() === "";
-  }
+  
 
-  const loginFunc = async () => {
-    console.log("account: " + account);
-    console.log("password: " + password);
-    /* 串接API */
-    setTextErrorMessage("");
+  // function isEmpty(str: string | null | undefined): boolean {
+  //   return !str || str.trim() === "";
+  // }
+  const {
+    email,
+    password,
+    checkTrigger,
+    setCheckTrigger
+  } = useLoginContext();
+
+  const handleLogin = async () => {
+    setCheckTrigger(!checkTrigger);
     setIsLoginLoading(true);
-    let isInputEmpty = false;
-    if (isEmpty(account)) {
-      setEmailErrorMessage("account empty");
-      setIsEmailError(true);
-      isInputEmpty = true;
-    }
-    else {
-      setEmailErrorMessage("");
-      setIsEmailError(false);
-    }
-
-    if (isEmpty(password)) {
-      setPasswordErrorMessage("password empty");
-      setIsPasswordError(true);
-      isInputEmpty = true;
-    }
-    else {
-      setPasswordErrorMessage("");
-      setIsPasswordError(false);
-    }
-
-    if (isInputEmpty) {
-      setTextErrorMessage("");
-      setIsLoginLoading(false);
-      return;
-    }
-
-    try {
-      const tokenPair = await login(account, password);
-      console.log("get token pair: ", tokenPair);
-      // const userid = getUserIdFromAccessToken(tokenPair.accessToken); 
-      // console.log("get userid: ", userid);
-
-      // storage.setUserAuth({ userId: userid.id, tokenPair });
-      storage.saveToken(tokenPair);
-
-      setTextErrorMessage("");
-      setIsLoginLoading(false);
-
-      navigate("/roomlist");
-    } catch (error) {
-      console.log("get error: ", error);
-      setTextErrorMessage("email or password error");
-      setIsLoginLoading(false);
-    }
-        
-
-    //below just for demo
-    // if (account == "test" && password == "test")
-    // {
-    //     setTextErrorMessage("");
-    //     navigate("/roomlist");
+    // let isInputEmpty = false;
+    // if (isEmpty(account)) {
+    //   setEmailErrorMessage("account empty");
+    //   setIsEmailError(true);
+    //   isInputEmpty = true;
     // }
-    // else
-    // {
-    //     setTextErrorMessage("email or password error");
+    // else {
+    //   setEmailErrorMessage("");
+    //   setIsEmailError(false);
+    // }
+
+    // if (isEmpty(password)) {
+    //   setPasswordErrorMessage("password empty");
+    //   setIsPasswordError(true);
+    //   isInputEmpty = true;
+    // }
+    // else {
+    //   setPasswordErrorMessage("");
+    //   setIsPasswordError(false);
+    // }
+
+    // if (isInputEmpty) {
+    //   setTextErrorMessage("");
+    //   setIsLoginLoading(false);
+    //   return;
+    // }
+
+    const loginResponse = await loginService.submit({
+      email,
+      password
+    });
+
+    if (loginResponse.success) {
+      setTextErrorMessage("");
+      navigate("/roomlist");
+    } else {
+      setTextErrorMessage(loginResponse.errors);
+    }
+
+    setIsLoginLoading(false);
+
+    // try {
+    //   const tokenPair = await login(account, password);
+    //   console.log("get token pair: ", tokenPair);
+    //   storage.saveToken(tokenPair);
+
+    //   setTextErrorMessage("");
+    //   setIsLoginLoading(false);
+
+    //   navigate("/roomlist");
+    // } catch (error) {
+    //   console.log("get error: ", error);
+    //   setTextErrorMessage("email or password error");
+    //   setIsLoginLoading(false);
     // }
         
   };
@@ -135,7 +141,7 @@ const Login = () => {
     <Center height="100vh" bg="#1e1e1e" color="white">
       <VStack width="300px">
         <Heading as="h1" size="lg">Login</Heading>
-        <Field.Root invalid={isEmailError}>
+        {/* <Field.Root invalid={isEmailError}>
           <Field.Label>Email</Field.Label>
           <Input
             placeholder="Email"
@@ -145,9 +151,10 @@ const Login = () => {
             color="white"
           />
           <Field.ErrorText>{ emailErrorMessage }</Field.ErrorText>
-        </Field.Root>
+        </Field.Root> */}
+        <InputEmail/>
 
-        <Field.Root invalid={isPasswordError}>
+        {/* <Field.Root invalid={isPasswordError}>
           <Field.Label>Password</Field.Label>
           <PasswordInput
             placeholder="Password"
@@ -158,12 +165,13 @@ const Login = () => {
             color="white"
           />
           <Field.ErrorText>{passwordErrorMessage}</Field.ErrorText>
-        </Field.Root>
+        </Field.Root> */}
+        <InputPassword/>
                 
                 
         <Button
           width="full"
-          onClick={loginFunc}
+          onClick={handleLogin}
           loading={isLoginLoading}
         >
                     Login
