@@ -5,7 +5,7 @@ import { Message, MessageSchema } from "@/proto-generated/nori/v0/message/messag
 import { MessageIdSchema } from "@/proto-generated/nori/v0/message/message_id_pb";
 import { RoomIdSchema } from "@/proto-generated/nori/v0/room/room_id_pb";
 import { UserIdSchema } from "@/proto-generated/nori/v0/user/user_id_pb";
-import { Direction, GetMessageRequestSchema } from "@/proto-generated/nori/v0/message/get_message_request_pb";
+import { Direction, GetLatestMessageRequestSchema } from "@/proto-generated/nori/v0/message/get_message_request_pb";
 import { transport } from "@/api/client";
 
 
@@ -57,30 +57,26 @@ export const SendMessage = async (roomId: bigint, author: bigint, text: string):
 /**
  * Get messages from a room.
  * @param roomId The ID of the room to retrieve messages from.
- * @param baseline The ID of the message to start retrieving from.
- * @param limit The maximum number of messages to retrieve.
+ * @param userId The ID of the user retrieving the messages.
  * @returns An async generator that yields messages. Throws an error if the request fails.
  */
-export const GetMessage = async function* (roomId: bigint, baseline?: bigint, limit?: number): AsyncGenerator<Message, void, void> {
+export const GetLatestMessage = async function* (roomId: bigint, userId : bigint|undefined): AsyncGenerator<Message, void, void> {
   // prepare the request
   const accessToken = "";  // TODO: get access token
-  const request = create(GetMessageRequestSchema, {
+
+  const request = create(GetLatestMessageRequestSchema, {
     roomId: create(RoomIdSchema, {
       id: roomId
     }),
-    limit: limit || 0,
-    baseline: baseline ?  create(MessageIdSchema, {
-      id: baseline
-    }): create(MessageIdSchema, {
-      id: 0n  // 使用 0n 來表示要獲取最新的訊息
-    }),
-    direction: Direction.OLDER,
+    userId: create(UserIdSchema, {
+      id: userId
+    })
   });
   let response;
 
   // send the request
   try {
-    response = client.getMessages(request, { headers: { authorization: accessToken } });
+    response = client.getLatestMessages(request, { headers: { authorization: accessToken } });
   } catch (error) {
     if (error instanceof ConnectError) {
       const errorCode = error.code;
