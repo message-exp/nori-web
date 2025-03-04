@@ -7,7 +7,7 @@ import { RoomIdSchema } from "@/proto-generated/nori/v0/room/room_id_pb";
 import { UserIdSchema } from "@/proto-generated/nori/v0/user/user_id_pb";
 import { Direction, GetLatestMessageRequestSchema } from "@/proto-generated/nori/v0/message/get_message_request_pb";
 import { transport } from "@/api/client";
-
+import { storage } from "@/utils/storage/user-storage"
 
 const client = createClient(MessageService, transport);
     
@@ -35,6 +35,7 @@ export const SendMessage = async (roomId: bigint, author: bigint, text: string):
   // send the request
   try {
     await client.sendMessage(request, { headers: { authorization: accessToken } });
+    console.log("Successfully sent message");
   } catch (error) {
     if (error instanceof ConnectError) {
       const errorCode = error.code;
@@ -60,9 +61,9 @@ export const SendMessage = async (roomId: bigint, author: bigint, text: string):
  * @param userId The ID of the user retrieving the messages.
  * @returns An async generator that yields messages. Throws an error if the request fails.
  */
-export const GetLatestMessage = async function* (roomId: bigint, userId : bigint|undefined): AsyncGenerator<Message, void, void> {
+export const GetLatestMessage = async function* (roomId: bigint, userId : bigint|undefined): AsyncGenerator<Message, void , void> {
   // prepare the request
-  const accessToken = "";  // TODO: get access token
+  const { tokenPair } = storage.getUserAuth() ;  // TODO: get access token
 
   const request = create(GetLatestMessageRequestSchema, {
     roomId: create(RoomIdSchema, {
@@ -76,21 +77,23 @@ export const GetLatestMessage = async function* (roomId: bigint, userId : bigint
 
   // send the request
   try {
-    response = client.getLatestMessages(request, { headers: { authorization: accessToken } });
+    response = client.getLatestMessages(request, { headers: { authorization: tokenPair?.accessToken?.accessToken ?? ""} });
+    console.log("Successfully get message");
   } catch (error) {
     if (error instanceof ConnectError) {
       const errorCode = error.code;
       if (errorCode === Code.Unauthenticated) {
         // TODO: get a new access token and retry
+
       } else if (errorCode === Code.PermissionDenied) {
         // TODO: handle permission denied case
+        
       }
     }
     // other error
     console.error("Unexpected error when trying to retrieve room list", error);
     throw error;
   }
-
   // process the response and return
   for await (const message of response) {
     console.log("Message received", message);
