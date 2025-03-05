@@ -17,4 +17,5 @@ export const addRoom = async (addRoomName : string) => {
   }
   const newRoomId = await CreateRoom(addRoomName, userId, []);
   console.log("new room id: ", newRoomId);
+  return newRoomId;
 }; 

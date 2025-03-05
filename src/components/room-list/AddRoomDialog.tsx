@@ -14,6 +14,7 @@ import {
 } from "@/components/ui/dialog";
 import { Field } from "@/components/ui/field";
 import { addRoom } from "@/utils/grpc-helper";
+import { RoomBasicInfoResponse } from "@/proto-generated/nori/v0/room/room_basic_info_response_pb";
 
 interface AddRoomButtonProps {
   onClick?: () => void;
@@ -35,7 +36,7 @@ const AddRoomButton = React.forwardRef<HTMLButtonElement, AddRoomButtonProps>((p
 });
 
 interface AddRoomDialogProps {
-  onRoomAdded?: () => void;
+  onRoomAdded?: (inputRoom: RoomBasicInfoResponse) => void;
 }
 
 export const AddRoomDialog = ({ onRoomAdded }: AddRoomDialogProps) => {
@@ -46,9 +47,9 @@ export const AddRoomDialog = ({ onRoomAdded }: AddRoomDialogProps) => {
   const handleSave = async () => {
     try {
       setIsLoading(true);
-      await addRoom(addRoomName);
+      const newRoomId = await addRoom(addRoomName);
       setAddRoomName(""); // 清空輸入
-      onRoomAdded?.(); // 調用更新函數
+      onRoomAdded?.(newroom); // 調用更新函數
       setOpenDialog(false);
     } catch (error) {
       console.error("Failed to add room:", error);
