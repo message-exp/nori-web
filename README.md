@@ -11,14 +11,29 @@
     ```sh
     git submodule update --init --recursive
     ```
+4. Install dependencies
 
-4. Generate TypeScript code from protos
+    ```sh
+    pnpm install
+    ```
+
+5. Generate TypeScript code from protos
 
     ```sh
     script/generate.sh
     ```
 
-5. Start the client
+6. Create .env file.
+
+    First duplicate the template .env file:
+
+    ```sh
+    cp .env.sample .env
+    ```
+
+    Then, edit .env. Please change the value with your own.
+
+7. Start the client
 
     ```sh
     pnpm run dev
