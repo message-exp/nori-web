@@ -84,10 +84,11 @@ export const GetLatestMessage = async function* (roomId: bigint, userId : bigint
       const errorCode = error.code;
       if (errorCode === Code.Unauthenticated) {
         // TODO: get a new access token and retry
+        console.log("ERROR:Unauthenticated")
 
       } else if (errorCode === Code.PermissionDenied) {
         // TODO: handle permission denied case
-        
+        console.log("ERROR:PermissionDenied")
       }
     }
     // other error
