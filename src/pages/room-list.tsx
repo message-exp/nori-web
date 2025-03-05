@@ -18,6 +18,77 @@ import { RoomBasicInfoResponse } from "@/proto-generated/nori/v0/room/room_basic
 import { CreateRoom } from "@/api/room/room-service";
 import { useNavigate } from "react-router";
 
+const AddRoomButton = React.forwardRef<
+    HTMLButtonElement,
+    React.ComponentPropsWithoutRef<typeof Button>
+>((props, ref) => (
+  <Button ref={ref} variant={"surface"} {...props}>
+    <Center inline gap={"2"}>
+      <Icon size={"xl"}>
+        <IoMdAddCircleOutline />
+      </Icon>
+      <Heading size={"2xl"}>ADD ROOM</Heading>
+    </Center>
+  </Button>
+));
+
+const AddRoomDialog = () => {
+  const [addRoomName, setAddRoomName] = useState("");
+
+  const addRoom = async () => {
+    const userAuth = storage.getUserAuth();
+    if (!userAuth?.userId) {
+      throw new Error("User ID is not available");
+    }
+    const newRoomId = await CreateRoom(addRoomName, userAuth?.userId, []);
+    console.log("new room id: ", newRoomId);
+  };
+
+    
+  return (
+    <DialogRoot>
+      <DialogTrigger asChild>
+        <AddRoomButton></AddRoomButton>
+      </DialogTrigger>
+
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle >
+            <Heading size={"2xl"}>Add Room</Heading>
+          </DialogTitle>
+
+        </DialogHeader>
+        <DialogBody>
+          <Field label="Room name">
+            <Input
+              placeholder="room name"
+              value={addRoomName}
+              onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+                console.log("change");
+                setAddRoomName(e.target.value);
+              }}
+            />
+          </Field>
+        </DialogBody>
+        <DialogFooter>
+          <DialogActionTrigger asChild>
+            <Button
+              variant="outline" onClick={() => {
+                console.log("cancel");
+                setAddRoomName("");
+              }}
+            >Cancel</Button>
+          </DialogActionTrigger>
+          <DialogActionTrigger asChild>
+            <Button onClick={() => addRoom()}>Save</Button>
+          </DialogActionTrigger>
+        </DialogFooter>
+        <DialogCloseTrigger />
+      </DialogContent>
+    </DialogRoot>
+  );
+};
+
 const RoomList = () => {
   const [username, setUsername] = useState("");
 
@@ -112,80 +183,7 @@ const RoomList = () => {
       );
     };
 
-    interface AddRoomButtonProps {
-        onClick?: () => void;
-        className?: string;
-        children?: React.ReactNode;
-    }
-
-    const AddRoomButton = React.forwardRef<HTMLButtonElement, AddRoomButtonProps>((props, ref) => {
-      return (
-        <Button variant={"surface"} {...props} ref={ref}>
-          <Center inline gap={"2"}>
-            <Icon size={"xl"}>
-              <IoMdAddCircleOutline />
-            </Icon>
-            <Heading size={"2xl"}>ADD ROOM</Heading>
-          </Center>
-        </Button>
-      );
-    });
-
-    const AddRoomDialog = () => {
-      const [addRoomName, setAddRoomName] = useState("");
-
-      const addRoom = async () => {
-        const userAuth = storage.getUserAuth();
-        if (!userAuth?.userId) {
-          throw new Error("User ID is not available");
-        }
-        const newRoomId = await CreateRoom(addRoomName, userAuth.userId.valueOf(), []);
-        console.log("new room id: ", newRoomId);
-      }; 
-      return (
-        <DialogRoot>
-          <DialogTrigger asChild>
-            <AddRoomButton />
-            {/* <Button>test</Button> */}
-          </DialogTrigger>
-                
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle >
-                <Heading size={"2xl"}>Add Room</Heading>
-              </DialogTitle>
-                            
-            </DialogHeader>
-            <DialogBody>
-              <Field label="Room name">
-                <Input
-                  placeholder="room name"
-                  value={addRoomName}
-                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                    console.log("change");
-                    setAddRoomName(e.target.value);
-                  }}
-                />
-              </Field>
-            </DialogBody>
-            <DialogFooter>
-              <DialogActionTrigger asChild>
-                <Button
-                  variant="outline" onClick={() => {
-                    console.log("cancel");
-                    setAddRoomName("");
-                  }}
-                >Cancel</Button>
-              </DialogActionTrigger>
-              <DialogActionTrigger asChild>
-                <Button onClick={() => addRoom()}>Save</Button>
-              </DialogActionTrigger>
-            </DialogFooter>
-            <DialogCloseTrigger />
-          </DialogContent>
-        </DialogRoot>
-      );
-    };
+    
 
     return (
       <Box height="100vh" padding={"10px"}>
