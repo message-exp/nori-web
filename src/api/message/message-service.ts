@@ -2,12 +2,11 @@ import { createClient, Code, ConnectError } from "@connectrpc/connect";
 import { create } from "@bufbuild/protobuf";
 import { MessageService } from "@/proto-generated/nori/v0/message/message_service_pb";
 import { Message, MessageSchema } from "@/proto-generated/nori/v0/message/message_pb";
-import { MessageIdSchema } from "@/proto-generated/nori/v0/message/message_id_pb";
 import { RoomIdSchema } from "@/proto-generated/nori/v0/room/room_id_pb";
 import { UserIdSchema } from "@/proto-generated/nori/v0/user/user_id_pb";
-import { Direction, GetLatestMessageRequestSchema } from "@/proto-generated/nori/v0/message/get_message_request_pb";
+import { GetLatestMessageRequestSchema } from "@/proto-generated/nori/v0/message/get_message_request_pb";
 import { transport } from "@/api/client";
-import { storage } from "@/utils/storage/user-storage"
+import { storage } from "@/utils/storage/user-storage";
 
 const client = createClient(MessageService, transport);
     
@@ -84,11 +83,11 @@ export const GetLatestMessage = async function* (roomId: bigint, userId : bigint
       const errorCode = error.code;
       if (errorCode === Code.Unauthenticated) {
         // TODO: get a new access token and retry
-        console.log("ERROR:Unauthenticated")
+        console.log("ERROR:Unauthenticated");
 
       } else if (errorCode === Code.PermissionDenied) {
         // TODO: handle permission denied case
-        console.log("ERROR:PermissionDenied")
+        console.log("ERROR:PermissionDenied");
       }
     }
     // other error
