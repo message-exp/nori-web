@@ -1,7 +1,7 @@
-import { signup } from "@/api/user/user-service";
 import { inputNullCheck } from "@/utils/input-check/input-null-check";
 import { inputEmailCheck } from "@/utils/input-check/input-email-check";
 import { storage } from "@/utils/storage/user-storage";
+import { signup } from "@/api/user/user-account-service";
 
 interface SignupResult {
   success: boolean;

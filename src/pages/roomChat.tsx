@@ -35,13 +35,17 @@ import {
 import { Field } from "@/components/ui/field";
 import { useLocation } from "react-router";
 import { storage } from "@/utils/storage/user-storage";
-import { GetRoom, InviteToRoom } from "@/api/room/room-service";
+// import { GetRoom, InviteToRoom } from "@/api/room/room-service";
 import { Room } from "@/proto-generated/nori/v0/room/room_pb";
 import { Message } from "@/proto-generated/nori/v0/message/message_pb";
 import { GetMessage, SendMessage } from "@/api/message/message-service";
 import { UserId } from "@/proto-generated/nori/v0/user/user_id_pb";
-import { GetUser } from "@/api/user/user-service";
-import { User } from "@/proto-generated/nori/v0/user/user_pb";
+import { User } from "@/proto-generated/nori/v0/user/account/user_pb";
+import { GetUser } from "@/api/user/user-account-service";
+import { GetRoom } from "@/api/room/room-general-service";
+import { InviteToRoom } from "@/api/room/room-member-service";
+// import { GetUser } from "@/api/user/user-service";
+// import { User } from "@/proto-generated/nori/v0/user/user_pb";
 
 interface LocationState {
   roomid: bigint;

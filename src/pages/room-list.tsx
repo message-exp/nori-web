@@ -12,11 +12,12 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Field } from "@/components/ui/field";
-import { GetUser, GetUserRoomList } from "@/api/user/user-service";
 import { storage } from "@/utils/storage/user-storage";
-import { RoomBasicInfoResponse } from "@/proto-generated/nori/v0/room/room_basic_info_response_pb";
-import { CreateRoom } from "@/api/room/room-service";
 import { useNavigate } from "react-router";
+import { CreateRoom } from "@/api/room/room-general-service";
+import { RoomBasicInfoResponse } from "@/proto-generated/nori/v0/room/general/room_basic_info_response_pb";
+import { GetUser } from "@/api/user/user-account-service";
+import { GetUserRoomList } from "@/api/user/user-network-service";
 
 const AddRoomButton = React.forwardRef<
     HTMLButtonElement,
@@ -159,7 +160,7 @@ const RoomList = () => {
     return room.roomId.id;
   };
 
-    interface roomListDataProps {
+    interface RoomListDataProps {
         name: string;
         id: bigint;
     }
@@ -172,7 +173,7 @@ const RoomList = () => {
       });
     };
 
-    const RoomListCard: React.FC<roomListDataProps> = ({ name, id }) => {
+    const RoomListCard: React.FC<RoomListDataProps> = ({ name, id }) => {
       return (
         <Button radioGroup="xl" height={"100px"} width={"100%"} variant={"ghost"} onClick={() => handleIntoRoom(id)} >
           <HStack direction={"row"}>
@@ -210,7 +211,6 @@ const RoomList = () => {
                   <RoomListCard name={getRoomName(roomBasicInfo)} id={getRoomId(roomBasicInfo)} />
                 )}
               </For>
-              {/* {isLoading && <LoadingCard/>} */}
 
             </Stack>
                     
