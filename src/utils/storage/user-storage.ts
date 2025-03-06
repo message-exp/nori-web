@@ -25,6 +25,17 @@ export const storage = {
     }  
     return { userId: BigInt(data.userId), tokenPair: data.tokenPair };
   },
+
+  getUserId: (): bigint | null => {
+    const userAuth = storage.getUserAuth();
+    return userAuth ? userAuth.userId : null;
+  },
+
+  getTokenPair: (): TokenPair | null => {
+    const userAuth = storage.getUserAuth();
+    return userAuth ? userAuth.tokenPair : null;
+  },
+
   clearUserAuth: () => {
     localStorage.removeItem("userAuth");
   },

@@ -3,10 +3,7 @@ import { Button, Input, Text, VStack, Center, Heading, Field, Image } from "@cha
 import { PasswordInput } from "@/components/ui/password-input";
 import { useNavigate } from "react-router";
 import { storage } from "@/utils/storage/user-storage";
-import { getUserIdFromAccessToken } from "@/utils/jwt";
 import { login } from "@/api/user/user-access-service";
-import { create } from "@bufbuild/protobuf";
-import { TokenPairSchema } from "@/proto-generated/nori/v0/user/access/token_pairs_pb";
 
 const LoginPage = () => {
   const [flag, setFlag] = useState(1);
@@ -100,16 +97,9 @@ const Login = () => {
     }
 
     try {
-      const userTokenPair = await login(account, password);
-      const tokenPair = create(TokenPairSchema, {
-        refreshToken: userTokenPair.refreshToken,
-        accessToken: userTokenPair.accessToken
-      })
-      console.log("get token pair: ", tokenPair);
-      const userid = getUserIdFromAccessToken(tokenPair.accessToken); 
-      console.log("get userid: ", userid);
-
-      storage.setUserAuth({ userId: userid.id, tokenPair });
+      const response = await login(account, password);
+      console.log("get token pair: ", response);
+      storage.saveToken(response);
 
       setTextErrorMessage("");
       setIsLoginLoading(false);
@@ -120,18 +110,6 @@ const Login = () => {
       setTextErrorMessage("email or password error");
       setIsLoginLoading(false);
     }
-        
-
-    //below just for demo
-    // if (account == "test" && password == "test")
-    // {
-    //     setTextErrorMessage("");
-    //     navigate("/roomlist");
-    // }
-    // else
-    // {
-    //     setTextErrorMessage("email or password error");
-    // }
         
   };
 
