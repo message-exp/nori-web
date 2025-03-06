@@ -2,8 +2,8 @@ import { useState } from "react";
 import { Button, Input, Text, VStack, Center, Heading, Field, Image } from "@chakra-ui/react";
 import { PasswordInput } from "@/components/ui/password-input";
 import { useNavigate } from "react-router";
-import { login } from "@/api/user/user-service";
 import { storage } from "@/utils/storage/user-storage";
+import { login } from "@/api/user/user-access-service";
 
 const LoginPage = () => {
   const [flag, setFlag] = useState(1);
@@ -97,13 +97,9 @@ const Login = () => {
     }
 
     try {
-      const tokenPair = await login(account, password);
-      console.log("get token pair: ", tokenPair);
-      // const userid = getUserIdFromAccessToken(tokenPair.accessToken); 
-      // console.log("get userid: ", userid);
-
-      // storage.setUserAuth({ userId: userid.id, tokenPair });
-      storage.saveToken(tokenPair);
+      const response = await login(account, password);
+      console.log("get token pair: ", response);
+      storage.saveToken(response);
 
       setTextErrorMessage("");
       setIsLoginLoading(false);
@@ -114,18 +110,6 @@ const Login = () => {
       setTextErrorMessage("email or password error");
       setIsLoginLoading(false);
     }
-        
-
-    //below just for demo
-    // if (account == "test" && password == "test")
-    // {
-    //     setTextErrorMessage("");
-    //     navigate("/roomlist");
-    // }
-    // else
-    // {
-    //     setTextErrorMessage("email or password error");
-    // }
         
   };
 

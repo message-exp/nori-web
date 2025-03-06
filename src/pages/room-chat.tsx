@@ -9,8 +9,8 @@ import { storage } from "@/utils/storage/user-storage";
 import { Room } from "@/proto-generated/nori/v0/room/room_pb";
 import { Message } from "@/proto-generated/nori/v0/message/message_pb";
 import { GetMessage } from "@/api/message/message-service";
-import { GetUser } from "@/api/user/user-service";
-import { User } from "@/proto-generated/nori/v0/user/user_pb";
+// import { GetUser } from "@/api/user/user-service";
+import { User } from "@/proto-generated/nori/v0/user/account/user_pb";
 
 interface RoomMembers {
   [userId: string]: User;
@@ -20,10 +20,10 @@ const RoomChat = () => {
   const [roomAvatarSrc, setRoomAvatarSrc] = useState(
     "https://i.imgur.com/LtR2mmT.png"
   );
-  const [currentUser, setCurrentUser] = useState<User>();
-  const [currentRoom, setCurrentRoom] = useState<Room>();
+  // const [currentUser, setCurrentUser] = useState<User>();
+  // const [currentRoom, setCurrentRoom] = useState<Room>();
   const [chatMessages, setChatMessages] = useState<Message[]>([]);
-  const [roomMembers, setRoomMembers] = useState<RoomMembers>({});
+  // const [roomMembers, setRoomMembers] = useState<RoomMembers>({});
 
   return (
     <RoomMembersProvider>

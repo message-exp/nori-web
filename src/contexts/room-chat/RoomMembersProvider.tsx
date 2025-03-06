@@ -1,5 +1,5 @@
+import { User } from "@/proto-generated/nori/v0/user/account/user_pb";
 import { createContext, useContext, useMemo, useState } from "react";
-import { User } from "@/proto-generated/nori/v0/user/user_pb";
 
 interface RoomMembers {
   [userId: string]: User;

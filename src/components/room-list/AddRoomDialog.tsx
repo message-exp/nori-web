@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/dialog";
 import { Field } from "@/components/ui/field";
 import { addRoom } from "@/utils/grpc-helper";
-import { RoomBasicInfoResponse } from "@/proto-generated/nori/v0/room/room_basic_info_response_pb";
+import { RoomBasicInfoResponse } from "@/proto-generated/nori/v0/room/general/room_basic_info_response_pb";
 
 interface AddRoomButtonProps {
   onClick?: () => void;
@@ -49,7 +49,8 @@ export const AddRoomDialog = ({ onRoomAdded }: AddRoomDialogProps) => {
       setIsLoading(true);
       const newRoomId = await addRoom(addRoomName);
       setAddRoomName(""); // 清空輸入
-      onRoomAdded?.(newroom); // 調用更新函數
+      // TODO: wait for roomlist update
+      // onRoomAdded?.(newroom); // 調用更新函數
       setOpenDialog(false);
     } catch (error) {
       console.error("Failed to add room:", error);

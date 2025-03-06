@@ -1,6 +1,6 @@
-import { RoomBasicInfoResponse } from "@/proto-generated/nori/v0/room/room_basic_info_response_pb";
+import { RoomBasicInfoResponse } from "@/proto-generated/nori/v0/room/general/room_basic_info_response_pb";
 import { storage } from "./storage/user-storage";
-import { CreateRoom } from "@/api/room/room-service";
+import { CreateRoom } from "@/api/room/room-general-service";
 
 
 export const getRoomId = (room: RoomBasicInfoResponse): bigint => {
