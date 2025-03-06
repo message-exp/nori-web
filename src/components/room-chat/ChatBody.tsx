@@ -11,10 +11,8 @@ function ChatBody(props: Readonly<ChatBodyProps>) {
     <Box height={"100%"}>
       <Flex direction={"column"} maxHeight={"100%"}>
         <For each={chatMessages}>
-          {/* eslint-disable-next-line @typescript-eslint/no-unused-vars */}
-          {(message, _) => (
+          {(message) => (
             <MessageUnit
-              // userAvatar={message.}
               author={message.author}
               time={
                 message.createdAt?.seconds
