@@ -5,12 +5,14 @@ function ChatFooter() {
   return (
     <Box background={"gray.900"} height={"80px"} padding={"20px"}>
       <Flex direction={"column"} height={"100%"} justifyContent={"center"}>
-        <Flex gap={"4"}>
+        <Flex gap={"4"} align={"center"} >
           <Textarea
             placeholder="Comment..."
             variant={"outline"}
             resize={"none"}
             flexGrow={1}
+            color={"white"}
+            scrollbar={"hidden"}
           />
           <IconButton rounded={"full"} variant={"subtle"}>
             <RiFunctionAddFill />
