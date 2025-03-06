@@ -13,8 +13,10 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Field } from "@/components/ui/field";
-import { addRoom } from "@/utils/grpc-helper";
 import { RoomBasicInfoResponse } from "@/proto-generated/nori/v0/room/room_basic_info_response_pb";
+import { CreateRoom } from "@/api/room/room-service";
+import { storage } from "@/utils/storage/user-storage";
+import { GetRoomBasic } from "@/api/room/room-general-service";
 
 interface AddRoomButtonProps {
   onClick?: () => void;
@@ -47,9 +49,14 @@ export const AddRoomDialog = ({ onRoomAdded }: AddRoomDialogProps) => {
   const handleSave = async () => {
     try {
       setIsLoading(true);
-      const newRoomId = await addRoom(addRoomName);
+      const userId = storage.getUserId();
+      if (!userId) {
+        throw new Error("user id is null or undifined");
+      }
+      const newRoomId = await CreateRoom(addRoomName, userId, []);
+      const newRoomBasicInfo = await GetRoomBasic(newRoomId, userId);
       setAddRoomName(""); // 清空輸入
-      onRoomAdded?.(newroom); // 調用更新函數
+      onRoomAdded?.(newRoomBasicInfo); // 調用更新函數
       setOpenDialog(false);
     } catch (error) {
       console.error("Failed to add room:", error);

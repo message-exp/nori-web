@@ -6,7 +6,6 @@ import { useNavigate } from "react-router";
 import { AddRoomDialog, RoomListCard } from "@/components/room-list";
 import { getRoomId } from "@/utils/grpc-helper";
 import { GetUser, GetUserRoomList } from "@/api/user/user-service";
-import { Room } from "@/proto-generated/nori/v0/room/room_pb";
 
 const RoomList = () => {
   const [username, setUsername] = useState("");
@@ -51,7 +50,7 @@ const RoomList = () => {
     }
 
     setRoomListArray([...roomListArray, inputRoom]);
-  }
+  };
 
   useEffect(() => {
     
