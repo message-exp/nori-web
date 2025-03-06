@@ -51,7 +51,7 @@ const RoomList = () => {
     }
 
     setRoomListArray([...roomListArray, inputRoom]);
-  }
+  };
 
   useEffect(() => {
     

@@ -20,10 +20,10 @@ const RoomChat = () => {
   const [roomAvatarSrc, setRoomAvatarSrc] = useState(
     "https://i.imgur.com/LtR2mmT.png"
   );
-  const [currentUser, setCurrentUser] = useState<User>();
-  const [currentRoom, setCurrentRoom] = useState<Room>();
+  // const [currentUser, setCurrentUser] = useState<User>();
+  // const [currentRoom, setCurrentRoom] = useState<Room>();
   const [chatMessages, setChatMessages] = useState<Message[]>([]);
-  const [roomMembers, setRoomMembers] = useState<RoomMembers>({});
+  // const [roomMembers, setRoomMembers] = useState<RoomMembers>({});
 
   return (
     <RoomMembersProvider>

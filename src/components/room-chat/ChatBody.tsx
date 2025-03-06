@@ -17,8 +17,8 @@ function ChatBody(props: Readonly<ChatBodyProps>) {
               time={
                 message.createdAt?.seconds
                   ? new Date(
-                      Number(message.createdAt.seconds) * 1000
-                    ).toISOString()
+                    Number(message.createdAt.seconds) * 1000
+                  ).toISOString()
                   : new Date().toISOString()
               }
               messageContent={message.text}

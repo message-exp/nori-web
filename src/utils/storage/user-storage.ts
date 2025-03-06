@@ -42,14 +42,14 @@ export const storage = {
 
   saveToken: (inputToken: TokenPair | UserTokenPair) => {
     try {
-      if ('userId' in inputToken) {
+      if ("userId" in inputToken) {
         // 處理 UserTokenPair
         const userId = inputToken.userId;
         if (!userId) throw new Error("userId is null or undifinded");
         const tokenPair = create(TokenPairSchema, {
           accessToken: inputToken.accessToken,
           refreshToken: inputToken.refreshToken
-        })
+        });
         storage.setUserAuth({
           userId: userId.id,
           tokenPair: tokenPair
@@ -60,8 +60,7 @@ export const storage = {
         const tokenPair = create(TokenPairSchema, {
           accessToken: inputToken.accessToken,
           refreshToken: inputToken.refreshToken
-          
-        })
+        });
         storage.setUserAuth({
           userId: userId.id,
           tokenPair: tokenPair

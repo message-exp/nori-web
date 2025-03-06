@@ -74,7 +74,7 @@ export const UpdateUserProfile = async (userId: bigint, profileData: {
   bio?: string;
   // Add other profile fields as needed
 }): Promise<void> => {
-  const validatedUserId  = create(UserIdSchema, {id: userId})
+  const validatedUserId = create(UserIdSchema, { id: userId });
   const request = create(UserProfileUpdateRequestSchema, {
     userId: validatedUserId,
     ...profileData
