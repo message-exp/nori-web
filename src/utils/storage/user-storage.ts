@@ -1,5 +1,9 @@
 import { TokenPair } from "@/proto-generated/nori/v0/user/token_pair_pb";
 import { getUserIdFromAccessToken } from "../jwt";
+import { UserRefreshToken, UserRefreshTokenSchema } from "@/proto-generated/nori/v0/user/access/token_pairs_pb";
+import { create } from "@bufbuild/protobuf";
+import { UserIdSchema } from "@/proto-generated/nori/v0/user/user_id_pb";
+import { RefreshTokenSchema } from "@/proto-generated/nori/v0/user/access/refresh_token_pb";
 
 interface UserAuth {
   userId: bigint;
@@ -24,6 +28,19 @@ export const storage = {
     }  
     return { userId: BigInt(data.userId), tokenPair: data.tokenPair };
   },
+
+  getUserRefreshToken: (): UserRefreshToken | null => {
+    const userAuth = storage.getUserAuth();
+    if (!userAuth) return null;
+    const userId = create(UserIdSchema, { id: userAuth?.userId });
+    const refreshToken = create(RefreshTokenSchema);
+    const userRefreshToken = create(UserRefreshTokenSchema, {
+      userId: userId,
+      refreshToken: refreshToken
+    });
+    return userRefreshToken;
+  },
+
   clearUserAuth: () => {
     localStorage.removeItem("userAuth");
   },

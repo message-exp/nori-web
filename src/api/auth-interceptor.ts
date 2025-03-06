@@ -11,7 +11,21 @@ export const authInterceptor: Interceptor = (next) => async (req) => {
     
   // set token in request header
   if (token) {
-    req.header.set("authorization", `Bearer ${token}`);
+    try {
+      const tokenData = JSON.parse(atob(token.split('.')[1]));
+      const expirationTime = tokenData.exp * 1000; // 轉換為毫秒
+      
+      if (Date.now() >= expirationTime) {
+        
+      }
+
+      // 如果 token 有效，加入到 header
+      req.header.set("authorization", `Bearer ${token}`);
+    } catch (error) {
+      // token 解析失敗或其他錯誤
+      console.error('Token validation failed:', error);
+      throw error;
+    }
   }
 
   // continue with request
