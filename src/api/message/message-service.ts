@@ -21,7 +21,7 @@ const client = createClient(MessageService, transport);
  */
 export const SendMessage = async (roomId: bigint, author: bigint, text: string): Promise<null> => {
   // prepare the request
-  const accessToken = "";  // TODO: get access token
+  const accessToken = ""; // TODO: get access token
   const request = create(MessageSchema, {
     roomId: create(RoomIdSchema, {
       id: roomId
@@ -63,16 +63,16 @@ export const SendMessage = async (roomId: bigint, author: bigint, text: string):
  */
 export const GetMessage = async function* (roomId: bigint, baseline?: bigint, limit?: number): AsyncGenerator<Message, void, void> {
   // prepare the request
-  const accessToken = "";  // TODO: get access token
+  const accessToken = ""; // TODO: get access token
   const request = create(GetMessageRequestSchema, {
     roomId: create(RoomIdSchema, {
       id: roomId
     }),
     limit: limit || 0,
-    baseline: baseline ?  create(MessageIdSchema, {
+    baseline: baseline ? create(MessageIdSchema, {
       id: baseline
     }): create(MessageIdSchema, {
-      id: 0n  // 使用 0n 來表示要獲取最新的訊息
+      id: 0n // 使用 0n 來表示要獲取最新的訊息
     }),
     direction: Direction.OLDER,
   });

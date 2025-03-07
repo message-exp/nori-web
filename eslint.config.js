@@ -25,7 +25,9 @@ export default tseslint.config(
       ],
       'indent': ['error', 2],
       'semi': ['error', 'always'],
-      'quotes': ['error', 'double']
+      'quotes': ['error', 'double'],
+      'no-multi-spaces': 'error',
+      'comma-spacing': ['error', { 'before': false, 'after': true }]
     },
   },
 )

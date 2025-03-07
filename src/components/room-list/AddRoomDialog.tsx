@@ -54,9 +54,8 @@ export const AddRoomDialog = ({ onRoomAdded }: AddRoomDialogProps) => {
       }
       const newRoomId = await CreateRoom(addRoomName, userId, []);
       const newRoomBasicInfo = await GetRoomBasic(newRoomId, userId);
-      setAddRoomName(""); // 清空輸入
-      // TODO: wait for roomlist update
-      // onRoomAdded?.(newroom); // 調用更新函數
+      setAddRoomName("");
+      onRoomAdded?.(newRoomBasicInfo);
       setOpenDialog(false);
     } catch (error) {
       console.error("Failed to add room:", error);

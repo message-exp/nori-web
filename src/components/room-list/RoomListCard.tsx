@@ -6,7 +6,7 @@ interface RoomListDataProps {
     handleIntoRoom: (id: bigint) => void;
 }
 
-export const RoomListCard: React.FC<RoomListDataProps> = ({ name, id , handleIntoRoom}) => {
+export const RoomListCard: React.FC<RoomListDataProps> = ({ name, id, handleIntoRoom }) => {
   return (
     <Button radioGroup="xl" height={"100px"} width={"100%"} variant={"ghost"} onClick={() => handleIntoRoom(id)} >
       <HStack direction={"row"}>
