@@ -1,7 +1,7 @@
 import { UserId } from "@/proto-generated/nori/v0/user/user_id_pb";
 import { Box, Flex, Text } from "@chakra-ui/react";
 import { Avatar } from "@/components/ui/avatar";
-import { useState } from "react";
+import { useRoomMembers } from "@/contexts/room-chat/RoomMembersProvider";
 
 interface MessageUnitProps {
   author?: UserId;
@@ -29,8 +29,11 @@ function MessageUnit({
   time,
   messageContent,
 }: Readonly<MessageUnitProps>) {
-  const [userAvatar, setUserAvatar] = useState<string>("");
-  const [username, setUsername] = useState<string>("");
+  const { members } = useRoomMembers();
+  const username =
+    author && author.id ? members[author.id.toString()]?.username : "Unknown";
+  const userAvatar =
+    author && author.id ? members[author.id.toString()]?.avatarUrl : "";
 
   return (
     <Box padding={"10px"}>
@@ -43,7 +46,6 @@ function MessageUnit({
         <Flex direction={"column"} gap={"2"}>
           <Flex gap={"2"} alignItems={"baseline"}>
             <Text textStyle={"2xl"}>{username}</Text>
-
             <Text textStyle={"xs"}>{time}</Text>
           </Flex>
           <Box>
