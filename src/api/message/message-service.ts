@@ -20,7 +20,7 @@ const client = createClient(MessageService, transport);
  */
 export const SendMessage = async (roomId: bigint, author: bigint, text: string): Promise<null> => {
   // prepare the request
-  const accessToken = "";  // TODO: get access token
+  const accessToken = ""; // TODO: get access token
   const request = create(MessageSchema, {
     roomId: create(RoomIdSchema, {
       id: roomId
