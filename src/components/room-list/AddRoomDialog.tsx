@@ -13,10 +13,9 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Field } from "@/components/ui/field";
-import { RoomBasicInfoResponse } from "@/proto-generated/nori/v0/room/room_basic_info_response_pb";
-import { CreateRoom } from "@/api/room/room-service";
 import { storage } from "@/utils/storage/user-storage";
-import { GetRoomBasic } from "@/api/room/room-general-service";
+import { CreateRoom, GetRoomBasic } from "@/api/room/room-general-service";
+import { RoomBasicInfoResponse } from "@/proto-generated/nori/v0/room/general/room_basic_info_response_pb";
 
 interface AddRoomButtonProps {
   onClick?: () => void;
@@ -56,7 +55,8 @@ export const AddRoomDialog = ({ onRoomAdded }: AddRoomDialogProps) => {
       const newRoomId = await CreateRoom(addRoomName, userId, []);
       const newRoomBasicInfo = await GetRoomBasic(newRoomId, userId);
       setAddRoomName(""); // 清空輸入
-      onRoomAdded?.(newRoomBasicInfo); // 調用更新函數
+      // TODO: wait for roomlist update
+      // onRoomAdded?.(newroom); // 調用更新函數
       setOpenDialog(false);
     } catch (error) {
       console.error("Failed to add room:", error);

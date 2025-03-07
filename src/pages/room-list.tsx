@@ -1,11 +1,12 @@
 import { Box, Flex, For, Heading, Stack } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { storage } from "@/utils/storage/user-storage";
-import { RoomBasicInfoResponse } from "@/proto-generated/nori/v0/room/room_basic_info_response_pb";
 import { useNavigate } from "react-router";
 import { AddRoomDialog, RoomListCard } from "@/components/room-list";
 import { getRoomId } from "@/utils/grpc-helper";
-import { GetUser, GetUserRoomList } from "@/api/user/user-service";
+import { RoomBasicInfoResponse } from "@/proto-generated/nori/v0/room/general/room_basic_info_response_pb";
+import { GetUserRoomList } from "@/api/user/user-network-service";
+import { GetUser } from "@/api/user/user-account-service";
 
 const RoomList = () => {
   const [username, setUsername] = useState("");

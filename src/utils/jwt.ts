@@ -1,4 +1,4 @@
-import { AccessToken } from "@/proto-generated/nori/v0/user/access_token_pb";
+import { AccessToken } from "@/proto-generated/nori/v0/user/access/access_token_pb";
 import { UserId, UserIdSchema } from "@/proto-generated/nori/v0/user/user_id_pb";
 import { create } from "@bufbuild/protobuf";
 import { jwtDecode } from "jwt-decode";

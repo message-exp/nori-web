@@ -6,7 +6,7 @@ import RoomList from "@/pages/room-list";
 import SignupPage from "./pages/signup";
 import { Box, Card, Heading } from "@chakra-ui/react";
 import { Button } from "@/components/ui/button";
-import RoomChat from "./pages/roomChat";
+import RoomChat from "./pages/room-chat";
 
 function NavigationPage() {
   return (
