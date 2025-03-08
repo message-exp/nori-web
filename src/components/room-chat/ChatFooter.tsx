@@ -1,11 +1,27 @@
-import { Box, Flex, IconButton, Textarea } from "@chakra-ui/react";
-import { RiFunctionAddFill, RiMenuFill, RiSendPlane2Fill } from "react-icons/ri";
+import { Box, Flex, IconButton, Spinner, Textarea } from "@chakra-ui/react";
+import {
+  RiFunctionAddFill,
+  RiMenuFill,
+  RiSendPlane2Fill,
+} from "react-icons/ri";
 
-function ChatFooter() {
+interface ChatFooterProps {
+  inputMessage: string;
+  isSending: boolean;
+  setInputMessage: React.Dispatch<React.SetStateAction<string>>;
+  sendMessage: () => void;
+}
+
+function ChatFooter({
+  inputMessage,
+  isSending,
+  setInputMessage,
+  sendMessage,
+}: Readonly<ChatFooterProps>) {
   return (
     <Box background={"gray.900"} height={"80px"} padding={"20px"}>
       <Flex direction={"column"} height={"100%"} justifyContent={"center"}>
-        <Flex gap={"4"} align={"center"} >
+        <Flex gap={"4"} align={"center"}>
           <Textarea
             placeholder="Comment..."
             variant={"outline"}
@@ -13,6 +29,10 @@ function ChatFooter() {
             flexGrow={1}
             color={"white"}
             scrollbar={"hidden"}
+            value={inputMessage}
+            onChange={(e) => {
+              setInputMessage(e.target.value);
+            }}
           />
           <IconButton rounded={"full"} variant={"subtle"}>
             <RiFunctionAddFill />
@@ -23,8 +43,10 @@ function ChatFooter() {
           <IconButton
             rounded={"full"}
             variant={"subtle"}
+            onClick={sendMessage}
+            disabled={isSending}
           >
-            <RiSendPlane2Fill />
+            {!isSending ? <RiSendPlane2Fill /> : <Spinner></Spinner>}
           </IconButton>
         </Flex>
       </Flex>
