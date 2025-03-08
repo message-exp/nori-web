@@ -5,13 +5,15 @@ import MessageUnit from "@/components/room-chat/MessageUnit";
 interface ChatBodyProps {
   chatMessages: Message[];
 }
+
 function ChatBody(props: Readonly<ChatBodyProps>) {
   const { chatMessages } = props;
+  
   return (
     <Box height={"100%"}>
       <Flex direction={"column"} maxHeight={"100%"}>
         <For each={chatMessages}>
-          {(message) => (
+          {(message, index) => (
             <MessageUnit
               author={message.author}
               time={
@@ -22,6 +24,7 @@ function ChatBody(props: Readonly<ChatBodyProps>) {
                   : new Date().toISOString()
               }
               messageContent={message.text}
+              key={index}
             />
           )}
         </For>
