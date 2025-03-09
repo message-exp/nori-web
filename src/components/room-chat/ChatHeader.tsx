@@ -14,7 +14,7 @@ interface RoomHeaderProps {
   roomAvatarSrc: string;
 }
 
-export const ChatHeader = (props: Readonly<RoomHeaderProps>) => {
+const ChatHeader = (props: Readonly<RoomHeaderProps>) => {
   const { roomName, roomAvatarSrc } = props;
   
   return (
@@ -44,3 +44,5 @@ export const ChatHeader = (props: Readonly<RoomHeaderProps>) => {
     </Box>
   );
 };
+
+export default ChatHeader;

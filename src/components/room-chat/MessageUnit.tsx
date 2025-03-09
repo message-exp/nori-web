@@ -23,7 +23,8 @@ const pickPalette = (name: string): ColorPalette => {
   return colorValues[index];
 };
 
-export const MessageUnit= ({
+export function MessageUnit({
+  author,
   time,
   messageContent,
 }: Readonly<MessageUnitProps>) {

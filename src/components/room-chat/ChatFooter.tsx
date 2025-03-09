@@ -53,4 +53,4 @@ function ChatFooter({
     </Box>
   );
 };
-
+export default ChatFooter;
