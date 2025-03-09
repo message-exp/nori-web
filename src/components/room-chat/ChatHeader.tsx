@@ -7,6 +7,7 @@ import {
   IconButton,
 } from "@chakra-ui/react";
 import { RiArrowLeftLine } from "react-icons/ri";
+import { InviteUserDialog } from "./InviteUserDialog";
 
 interface RoomHeaderProps {
   roomName: string;
@@ -34,6 +35,10 @@ function ChatHeader(props: Readonly<RoomHeaderProps>) {
           <Center>
             <Heading>{roomName}</Heading>
           </Center>
+          <Box ml="auto">
+            <InviteUserDialog />
+          </Box>
+          
         </Flex>
       </Flex>
     </Box>
