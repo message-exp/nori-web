@@ -52,5 +52,5 @@ function ChatFooter({
       </Flex>
     </Box>
   );
-}
-export default ChatFooter;
+};
+

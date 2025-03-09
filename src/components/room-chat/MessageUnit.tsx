@@ -23,8 +23,7 @@ const pickPalette = (name: string): ColorPalette => {
   return colorValues[index];
 };
 
-function MessageUnit({
-  author,
+export const MessageUnit= ({
   time,
   messageContent,
 }: Readonly<MessageUnitProps>) {
@@ -51,5 +50,4 @@ function MessageUnit({
       </Flex>
     </Box>
   );
-}
-export default MessageUnit;
+};
