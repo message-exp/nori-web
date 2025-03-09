@@ -1,20 +1,10 @@
 import { Box, Flex } from "@chakra-ui/react";
-import { useCallback, useEffect, useState } from "react";
+import { useState } from "react";
 
-import ChatHeader from "@/components/room-chat/ChatHeader";
-import ChatFooter from "@/components/room-chat/ChatFooter";
-import ChatBody from "@/components/room-chat/ChatBody";
+import {ChatHeader, ChatFooter, ChatBody} from "@/components/room-chat";
 import { RoomMembersProvider } from "@/contexts/room-chat/RoomMembersProvider";
-import { storage } from "@/utils/storage/user-storage";
-import { Room } from "@/proto-generated/nori/v0/room/room_pb";
 import { Message } from "@/proto-generated/nori/v0/message/message_pb";
-import { GetMessage } from "@/api/message/message-service";
 // import { GetUser } from "@/api/user/user-service";
-import { User } from "@/proto-generated/nori/v0/user/account/user_pb";
-
-interface RoomMembers {
-  [userId: string]: User;
-}
 const RoomChat = () => {
   const [roomName, setRoomName] = useState("taki");
   const [roomAvatarSrc, setRoomAvatarSrc] = useState(

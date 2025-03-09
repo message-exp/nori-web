@@ -24,13 +24,12 @@ const pickPalette = (name: string): ColorPalette => {
   return colorValues[index];
 };
 
-function MessageUnit({
-  author,
+export const MessageUnit= ({
   time,
   messageContent,
-}: Readonly<MessageUnitProps>) {
-  const [userAvatar, setUserAvatar] = useState<string>("");
-  const [username, setUsername] = useState<string>("");
+}: Readonly<MessageUnitProps>)=> {
+  const [userAvatar] = useState<string>("");
+  const [username] = useState<string>("");
 
   return (
     <Box padding={"10px"}>
@@ -53,5 +52,4 @@ function MessageUnit({
       </Flex>
     </Box>
   );
-}
-export default MessageUnit;
+};

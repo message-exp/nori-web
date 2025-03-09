@@ -1,11 +1,11 @@
 import { Box, Flex, For } from "@chakra-ui/react";
 import { Message } from "@/proto-generated/nori/v0/message/message_pb";
-import MessageUnit from "@/components/room-chat/MessageUnit";
+import { MessageUnit } from "@/components/room-chat/MessageUnit";
 
 interface ChatBodyProps {
   chatMessages: Message[];
 }
-function ChatBody(props: Readonly<ChatBodyProps>) {
+export const ChatBody= (props: Readonly<ChatBodyProps>) => {
   const { chatMessages } = props;
   return (
     <Box height={"100%"}>
@@ -28,5 +28,6 @@ function ChatBody(props: Readonly<ChatBodyProps>) {
       </Flex>
     </Box>
   );
-}
+};
 export default ChatBody;
+
