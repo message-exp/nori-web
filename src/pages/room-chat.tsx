@@ -1,9 +1,7 @@
 import { Box, Flex } from "@chakra-ui/react";
 import { useCallback, useEffect, useState } from "react";
 
-import ChatHeader from "@/components/room-chat/ChatHeader";
-import ChatFooter from "@/components/room-chat/ChatFooter";
-import ChatBody from "@/components/room-chat/ChatBody";
+import {ChatHeader ,ChatFooter , ChatBody} from "@/components/room-chat";
 import { RoomMembersProvider } from "@/contexts/room-chat/RoomMembersProvider";
 import { storage } from "@/utils/storage/user-storage";
 import { Room } from "@/proto-generated/nori/v0/room/room_pb";

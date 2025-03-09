@@ -29,4 +29,5 @@ export const ChatBody= (props: Readonly<ChatBodyProps>) => {
     </Box>
   );
 }
+export default ChatBody;
 

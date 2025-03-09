@@ -4,3 +4,5 @@ import {ChatHeader} from "./ChatHeader";
 import {InviteUserDialog} from "./InviteUserDialog";
 import {MessageUnit} from "./MessageUnit";
 // import AddUserDialog from "./AddUserDialog";
+
+export {ChatBody, ChatFooter, ChatHeader, InviteUserDialog, MessageUnit};
