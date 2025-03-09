@@ -25,12 +25,11 @@ const pickPalette = (name: string): ColorPalette => {
 };
 
 export const MessageUnit= ({
-  author,
   time,
   messageContent,
 }: Readonly<MessageUnitProps>)=> {
-  const [userAvatar, setUserAvatar] = useState<string>("");
-  const [username, setUsername] = useState<string>("");
+  const [userAvatar] = useState<string>("");
+  const [username] = useState<string>("");
 
   return (
     <Box padding={"10px"}>
@@ -53,4 +52,4 @@ export const MessageUnit= ({
       </Flex>
     </Box>
   );
-}
+};

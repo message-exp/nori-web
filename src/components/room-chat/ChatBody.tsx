@@ -28,6 +28,6 @@ export const ChatBody= (props: Readonly<ChatBodyProps>) => {
       </Flex>
     </Box>
   );
-}
+};
 export default ChatBody;
 

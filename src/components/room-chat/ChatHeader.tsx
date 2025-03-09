@@ -43,4 +43,4 @@ export const ChatHeader = (props: Readonly<RoomHeaderProps>) => {
       </Flex>
     </Box>
   );
-}
+};
