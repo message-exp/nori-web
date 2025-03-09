@@ -1,6 +1,6 @@
 import { Box, Flex, For } from "@chakra-ui/react";
 import { Message } from "@/proto-generated/nori/v0/message/message_pb";
-import MessageUnit from "@/components/room-chat/MessageUnit";
+import { MessageUnit } from "@/components/room-chat/MessageUnit";
 
 interface ChatBodyProps {
   chatMessages: Message[];
