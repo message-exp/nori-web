@@ -44,4 +44,3 @@ export const ChatHeader = (props: Readonly<RoomHeaderProps>) => {
     </Box>
   );
 }
-export default ChatHeader;

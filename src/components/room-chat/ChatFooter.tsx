@@ -31,4 +31,4 @@ export const ChatFooter= () => {
     </Box>
   );
 }
-export default ChatFooter;
+
