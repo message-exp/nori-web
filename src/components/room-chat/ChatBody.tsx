@@ -5,7 +5,7 @@ import MessageUnit from "@/components/room-chat/MessageUnit";
 interface ChatBodyProps {
   chatMessages: Message[];
 }
-function ChatBody(props: Readonly<ChatBodyProps>) {
+export const ChatBody= (props: Readonly<ChatBodyProps>) => {
   const { chatMessages } = props;
   return (
     <Box height={"100%"}>

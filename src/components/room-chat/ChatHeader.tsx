@@ -14,7 +14,7 @@ interface RoomHeaderProps {
   roomAvatarSrc: string;
 }
 
-function ChatHeader(props: Readonly<RoomHeaderProps>) {
+export const ChatHeader = (props: Readonly<RoomHeaderProps>) => {
   const { roomName, roomAvatarSrc } = props;
   
   return (

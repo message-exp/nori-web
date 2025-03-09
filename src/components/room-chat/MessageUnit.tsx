@@ -24,11 +24,11 @@ const pickPalette = (name: string): ColorPalette => {
   return colorValues[index];
 };
 
-function MessageUnit({
+export const MessageUnit= ({
   author,
   time,
   messageContent,
-}: Readonly<MessageUnitProps>) {
+}: Readonly<MessageUnitProps>)=> {
   const [userAvatar, setUserAvatar] = useState<string>("");
   const [username, setUsername] = useState<string>("");
 

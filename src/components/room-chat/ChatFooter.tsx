@@ -1,7 +1,7 @@
 import { Box, Flex, IconButton, Textarea } from "@chakra-ui/react";
 import { RiFunctionAddFill, RiMenuFill, RiSendPlane2Fill } from "react-icons/ri";
 
-function ChatFooter() {
+export const ChatFooter= () => {
   return (
     <Box background={"gray.900"} height={"80px"} padding={"20px"}>
       <Flex direction={"column"} height={"100%"} justifyContent={"center"}>
