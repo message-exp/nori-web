@@ -50,23 +50,9 @@ const Welcome = ({ setFlag }: { setFlag: (value: number) => void }) => {
 const LoginForm = () => {
   const navigate = useNavigate();
 
-  // const [account, setAccount] = useState("");
-  // const [password, setPassword] = useState("");
-
-  // const [isEmailError, setIsEmailError] = useState(false);
-  // const [emailErrorMessage, setEmailErrorMessage] = useState("");
-
-  // const [isPasswordError, setIsPasswordError] = useState(false);
-  // const [passwordErrorMessage, setPasswordErrorMessage] = useState("");
-
   const [isLoginLoading, setIsLoginLoading] = useState(false);
   const [textErrorMessage, setTextErrorMessage] = useState("");
 
-  
-
-  // function isEmpty(str: string | null | undefined): boolean {
-  //   return !str || str.trim() === "";
-  // }
   const {
     email,
     password,
@@ -77,32 +63,6 @@ const LoginForm = () => {
   const handleLogin = async () => {
     setCheckTrigger(!checkTrigger);
     setIsLoginLoading(true);
-    // let isInputEmpty = false;
-    // if (isEmpty(account)) {
-    //   setEmailErrorMessage("account empty");
-    //   setIsEmailError(true);
-    //   isInputEmpty = true;
-    // }
-    // else {
-    //   setEmailErrorMessage("");
-    //   setIsEmailError(false);
-    // }
-
-    // if (isEmpty(password)) {
-    //   setPasswordErrorMessage("password empty");
-    //   setIsPasswordError(true);
-    //   isInputEmpty = true;
-    // }
-    // else {
-    //   setPasswordErrorMessage("");
-    //   setIsPasswordError(false);
-    // }
-
-    // if (isInputEmpty) {
-    //   setTextErrorMessage("");
-    //   setIsLoginLoading(false);
-    //   return;
-    // }
 
     const loginResponse = await loginService.submit({
       email,
@@ -117,22 +77,7 @@ const LoginForm = () => {
     }
 
     setIsLoginLoading(false);
-
-    // try {
-    //   const tokenPair = await login(account, password);
-    //   console.log("get token pair: ", tokenPair);
-    //   storage.saveToken(tokenPair);
-
-    //   setTextErrorMessage("");
-    //   setIsLoginLoading(false);
-
-    //   navigate("/roomlist");
-    // } catch (error) {
-    //   console.log("get error: ", error);
-    //   setTextErrorMessage("email or password error");
-    //   setIsLoginLoading(false);
-    // }
-        
+  
   };
 
 
@@ -141,31 +86,9 @@ const LoginForm = () => {
     <Center height="100vh" bg="#1e1e1e" color="white">
       <VStack width="300px">
         <Heading as="h1" size="lg">Login</Heading>
-        {/* <Field.Root invalid={isEmailError}>
-          <Field.Label>Email</Field.Label>
-          <Input
-            placeholder="Email"
-            value={account}
-            onChange={(e) => setAccount(e.target.value)}
-            bg="gray.700"
-            color="white"
-          />
-          <Field.ErrorText>{ emailErrorMessage }</Field.ErrorText>
-        </Field.Root> */}
-        <InputEmail/>
 
-        {/* <Field.Root invalid={isPasswordError}>
-          <Field.Label>Password</Field.Label>
-          <PasswordInput
-            placeholder="Password"
-            // type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            bg="gray.700"
-            color="white"
-          />
-          <Field.ErrorText>{passwordErrorMessage}</Field.ErrorText>
-        </Field.Root> */}
+        <InputEmail />
+        
         <InputPassword/>
                 
                 

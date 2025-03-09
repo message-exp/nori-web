@@ -1,4 +1,4 @@
-import { login } from "@/api/user/user-service";
+import { login } from "@/api/user/user-access-service";
 import { inputNullCheck } from "@/utils/input-check/input-null-check";
 import { inputEmailCheck } from "@/utils/input-check/input-email-check";
 import { storage } from "@/utils/storage/user-storage";
