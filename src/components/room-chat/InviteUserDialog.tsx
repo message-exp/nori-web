@@ -17,13 +17,13 @@ import { Field } from "@/components/ui/field";
 import { storage } from "@/utils/storage/user-storage";
 import { InviteToRoom } from "@/api/room/room-member-service";
 
-interface AddRoomButtonProps {
+interface InviteUserButtonProps {
   onClick?: () => void;
   className?: string;
   children?: React.ReactNode;
 }
 
-const InviteUserButton = React.forwardRef<HTMLButtonElement, AddRoomButtonProps>((props, ref) => {
+const InviteUserButton = React.forwardRef<HTMLButtonElement, InviteUserButtonProps>((props, ref) => {
   return (
     <Button variant={"surface"} {...props} ref={ref}>
       <Center inline gap={"2"}>
@@ -53,7 +53,7 @@ export const InviteUserDialog = () => {
       if (!roomId) {
         throw new Error("room id is null or undifined");
       }
-      console.log(roomId)
+      console.log(roomId);
       await InviteToRoom(BigInt(roomId), inviterUserId, [BigInt(InviteeUserId)]);
       setInviteeUserId("");
       setOpenDialog(false);
@@ -63,7 +63,7 @@ export const InviteUserDialog = () => {
     } finally {
       setIsLoading(false);
     }
-  }
+  };
   return (
     <DialogRoot open={openDialog} onOpenChange={(e) => setOpenDialog(e.open)}>
       <DialogTrigger asChild>
@@ -100,9 +100,6 @@ export const InviteUserDialog = () => {
               Cancel
             </Button>
           </DialogActionTrigger>
-          {/* <DialogActionTrigger asChild>
-            
-          </DialogActionTrigger> */}
           <Button
             onClick={handleInvite}
             loading={isLoading}
