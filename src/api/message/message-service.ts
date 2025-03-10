@@ -47,7 +47,7 @@ export const SendMessage = async (
     console.log("Successfully sent message");
     return MessageId;
   } catch (error) {
-    console.error("Unexpected error when trying to retrieve room list", error);
+    console.error("Unexpected error when trying to send message", error);
     throw error;
   }
 };
@@ -79,7 +79,7 @@ export const GetLatestMessage = async function* (
     }
     console.log("Successfully get message");
   } catch (error) {
-    console.error("Unexpected error when trying to retrieve room list", error);
+    console.error("Unexpected error when trying to get lastest message", error);
     throw error;
   }
 };
@@ -103,7 +103,7 @@ export const GetHistoryMessage = async function (
     console.log("Successfully get history message");
     return response;
   } catch (error) {
-    console.error("Unexpected error when trying to retrieve room list", error);
+    console.error("Unexpected error when trying to get history message", error);
     throw error;
   }
 };
