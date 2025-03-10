@@ -7,10 +7,10 @@ import { useLoginContext } from "@/hooks/use-login-context";
 import { loginService } from "@/services/login";
 
 const LoginPage = () => {
-  const [flag, setFlag] = useState(1);
-  if (flag) {
+  const [isShowWelcome, setIsShowWelcome] = useState(true);
+  if (isShowWelcome) {
     return (
-      <Welcome setFlag={setFlag} />
+      <Welcome setState={setIsShowWelcome} />
     );
   } else {
     return (
@@ -21,7 +21,7 @@ const LoginPage = () => {
     );
   }
 };
-const Welcome = ({ setFlag }: { setFlag: (value: number) => void }) => {
+const Welcome = ({ setState }: { setState: (value: boolean) => void }) => {
   return (
     <Center height="100vh" bg="#1e1e1e" color="white">
       <VStack>
@@ -37,7 +37,7 @@ const Welcome = ({ setFlag }: { setFlag: (value: number) => void }) => {
         </Heading>
         <Button
           colorScheme="gray"
-          onClick={() => setFlag(0)}
+          onClick={() => setState(false)}
         >
                     Log in
         </Button>
