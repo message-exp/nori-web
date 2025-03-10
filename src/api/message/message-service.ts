@@ -43,7 +43,7 @@ export const SendMessage = async (
 
   try {
     console.log(request);
-    const MessageId = await client.sendMessage(request, {"timeoutMs":0});
+    const MessageId = await client.sendMessage(request);
     console.log("Successfully sent message");
     return MessageId;
   } catch (error) {
@@ -70,20 +70,17 @@ export const GetLatestMessage = async function* (
       id: userId,
     }),
   });
-  let response;
 
-  // send the request
   try {
-    response = client.getLatestMessages(request);
+    const response = client.getLatestMessages(request);
+    for await (const message of response) {
+      console.log("Message received", message);
+      yield message;
+    }
     console.log("Successfully get message");
   } catch (error) {
     console.error("Unexpected error when trying to retrieve room list", error);
     throw error;
-  }
-  // process the response and return
-  for await (const message of response) {
-    console.log("Message received", message);
-    yield message;
   }
 };
 
