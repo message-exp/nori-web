@@ -1,14 +1,10 @@
-import { User } from "@/proto-generated/nori/v0/user/account/user_pb";
-import { createContext, useContext, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
+import { RoomMembersContext } from "@/contexts/room-chat/useRoomMembers";
 
-interface RoomMembers {
-  [userId: string]: User;
+export interface RoomMembers {
+  [userId: string]: string;
 }
 
-const RoomMembersContext = createContext<{
-  members: RoomMembers;
-  setMembers: React.Dispatch<React.SetStateAction<RoomMembers>>;
-} | null>(null);
 
 export function RoomMembersProvider({
   children,
@@ -16,9 +12,8 @@ export function RoomMembersProvider({
   children: React.ReactNode;
 }>) {
   const [members, setMembers] = useState<RoomMembers>({});
-
   const value = useMemo(() => ({ members, setMembers }), [members, setMembers]);
-
+  
   return (
     <RoomMembersContext.Provider value={value}>
       {children}
@@ -26,10 +21,4 @@ export function RoomMembersProvider({
   );
 }
 
-export function useRoomMembers() {
-  const context = useContext(RoomMembersContext);
-  if (!context) {
-    throw new Error("context not found");
-  }
-  return context;
-}
+

@@ -1,15 +1,22 @@
-import { createClient, Code, ConnectError } from "@connectrpc/connect";
+import { createClient } from "@connectrpc/connect";
 import { create } from "@bufbuild/protobuf";
 import { MessageService } from "@/proto-generated/nori/v0/message/message_service_pb";
-import { Message, MessageSchema } from "@/proto-generated/nori/v0/message/message_pb";
+import {
+  Message,
+} from "@/proto-generated/nori/v0/message/message_pb";
 import { RoomIdSchema } from "@/proto-generated/nori/v0/room/room_id_pb";
 import { UserIdSchema } from "@/proto-generated/nori/v0/user/user_id_pb";
-import { GetLatestMessageRequestSchema } from "@/proto-generated/nori/v0/message/get_message_request_pb";
+import {
+  GetLatestMessageRequestSchema,
+  GetHistoryMessageRequestSchema,
+  Direction,
+} from "@/proto-generated/nori/v0/message/get_message_requests_pb";
+import { SendMessageRequestSchema } from "@/proto-generated/nori/v0/message/send_message_request_pb";
 import { transport } from "@/api/client";
-import { storage } from "@/utils/storage/user-storage";
+import { MessageId } from "@/proto-generated/nori/v0/message/message_id_pb";
+import { MessageList } from "@/proto-generated/nori/v0/message/message_list_pb";
 
 const client = createClient(MessageService, transport);
-    
 
 /**
  * Send a message to a room.
@@ -18,41 +25,32 @@ const client = createClient(MessageService, transport);
  * @param text The message text.
  * @returns `null`. Throws an error if the request fails.
  */
-export const SendMessage = async (roomId: bigint, author: bigint, text: string): Promise<null> => {
+export const SendMessage = async (
+  roomId: bigint,
+  author: bigint,
+  text: string
+):Promise<MessageId> => {
   // prepare the request
-  const accessToken = ""; // TODO: get access token
-  const request = create(MessageSchema, {
+  const request = create(SendMessageRequestSchema, {
     roomId: create(RoomIdSchema, {
-      id: roomId
+      id: roomId,
     }),
     author: create(UserIdSchema, {
-      id: author
+      id: author,
     }),
     text: text,
   });
 
-  // send the request
   try {
-    await client.sendMessage(request, { headers: { authorization: accessToken } });
+    console.log(request);
+    const MessageId = await client.sendMessage(request);
     console.log("Successfully sent message");
+    return MessageId;
   } catch (error) {
-    if (error instanceof ConnectError) {
-      const errorCode = error.code;
-      if (errorCode === Code.Unauthenticated) {
-        // TODO: get a new access token and retry
-      } else if (errorCode === Code.PermissionDenied) {
-        // TODO: handle permission denied case
-      }
-    }
-    // other error
-    console.error("Unexpected error when trying to retrieve room list", error);
+    console.error("Unexpected error when trying to send message", error);
     throw error;
   }
-
-  // return
-  return null;
 };
-
 
 /**
  * Get messages from a room.
@@ -60,43 +58,52 @@ export const SendMessage = async (roomId: bigint, author: bigint, text: string):
  * @param userId The ID of the user retrieving the messages.
  * @returns An async generator that yields messages. Throws an error if the request fails.
  */
-export const GetLatestMessage = async function* (roomId: bigint, userId : bigint|undefined): AsyncGenerator<Message, void , void> {
-  // prepare the request
-  const { tokenPair } = storage.getUserAuth() ;  // TODO: get access token
-
+export const GetLatestMessage = async function* (
+  roomId: bigint,
+  userId: bigint | undefined
+): AsyncGenerator<Message, void, void> {
   const request = create(GetLatestMessageRequestSchema, {
     roomId: create(RoomIdSchema, {
-      id: roomId
+      id: roomId,
     }),
     userId: create(UserIdSchema, {
-      id: userId
-    })
+      id: userId,
+    }),
   });
-  let response;
+
+  try {
+    const response = client.getLatestMessages(request);
+    for await (const message of response) {
+      console.log("Message received", message);
+      yield message;
+    }
+    console.log("Successfully get message");
+  } catch (error) {
+    console.error("Unexpected error when trying to get lastest message", error);
+    throw error;
+  }
+};
+
+export const GetHistoryMessage = async function (
+  roomId:bigint,
+  direction:Direction = Direction.OLDER,
+  limit:number = 10,
+):Promise<MessageList> {
+  const request = create(GetHistoryMessageRequestSchema, {
+    roomId: create(RoomIdSchema, {
+      id: roomId,
+    }),
+    limit: limit,
+    direction:direction,
+  });
 
   // send the request
   try {
-    response = client.getLatestMessages(request, { headers: { authorization: tokenPair?.accessToken?.accessToken ?? ""} });
-    console.log("Successfully get message");
+    const response = await client.getHistoryMessages(request);
+    console.log("Successfully get history message");
+    return response;
   } catch (error) {
-    if (error instanceof ConnectError) {
-      const errorCode = error.code;
-      if (errorCode === Code.Unauthenticated) {
-        // TODO: get a new access token and retry
-        console.log("ERROR:Unauthenticated");
-
-      } else if (errorCode === Code.PermissionDenied) {
-        // TODO: handle permission denied case
-        console.log("ERROR:PermissionDenied");
-      }
-    }
-    // other error
-    console.error("Unexpected error when trying to retrieve room list", error);
+    console.error("Unexpected error when trying to get history message", error);
     throw error;
-  }
-  // process the response and return
-  for await (const message of response) {
-    console.log("Message received", message);
-    yield message;
   }
 };
