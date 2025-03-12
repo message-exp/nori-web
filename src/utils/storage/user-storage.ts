@@ -1,9 +1,6 @@
-import { TokenPair } from "@/proto-generated/nori/v0/user/token_pair_pb";
+import { TokenPair, TokenPairSchema, UserTokenPair } from "@/proto-generated/nori/v0/user/access/token_pairs_pb";
 import { getUserIdFromAccessToken } from "../jwt";
-import { UserRefreshToken, UserRefreshTokenSchema } from "@/proto-generated/nori/v0/user/access/token_pairs_pb";
 import { create } from "@bufbuild/protobuf";
-import { UserIdSchema } from "@/proto-generated/nori/v0/user/user_id_pb";
-import { RefreshTokenSchema } from "@/proto-generated/nori/v0/user/access/refresh_token_pb";
 
 interface UserAuth {
   userId: bigint;
@@ -29,30 +26,48 @@ export const storage = {
     return { userId: BigInt(data.userId), tokenPair: data.tokenPair };
   },
 
-  getUserRefreshToken: (): UserRefreshToken | null => {
+  getUserId: (): bigint | null => {
     const userAuth = storage.getUserAuth();
-    if (!userAuth) return null;
-    const userId = create(UserIdSchema, { id: userAuth?.userId });
-    const refreshToken = create(RefreshTokenSchema);
-    const userRefreshToken = create(UserRefreshTokenSchema, {
-      userId: userId,
-      refreshToken: refreshToken
-    });
-    return userRefreshToken;
+    return userAuth ? userAuth.userId : null;
+  },
+
+  getTokenPair: (): TokenPair | null => {
+    const userAuth = storage.getUserAuth();
+    return userAuth ? userAuth.tokenPair : null;
   },
 
   clearUserAuth: () => {
     localStorage.removeItem("userAuth");
   },
 
-  saveToken: (inputTokenPair: TokenPair) => {
+  saveToken: (inputToken: TokenPair | UserTokenPair) => {
     try {
-      const userId = getUserIdFromAccessToken(inputTokenPair.accessToken);
-      storage.setUserAuth({ userId: userId.id, tokenPair: inputTokenPair });
+      if ("userId" in inputToken) {
+        // 處理 UserTokenPair
+        const userId = inputToken.userId;
+        if (!userId) throw new Error("userId is null or undifinded");
+        const tokenPair = create(TokenPairSchema, {
+          accessToken: inputToken.accessToken,
+          refreshToken: inputToken.refreshToken
+        });
+        storage.setUserAuth({
+          userId: userId.id,
+          tokenPair: tokenPair
+        });
+      } else {
+        // 處理 TokenPair
+        const userId = getUserIdFromAccessToken(inputToken.accessToken);
+        const tokenPair = create(TokenPairSchema, {
+          accessToken: inputToken.accessToken,
+          refreshToken: inputToken.refreshToken
+        });
+        storage.setUserAuth({
+          userId: userId.id,
+          tokenPair: tokenPair
+        });
+      }
     } catch (error) {
       console.error("save token error: ", error);
     }
-    
-
   }
 };

@@ -1,30 +1,20 @@
+import { login } from "@/api/user/user-access-service";
 import { inputNullCheck } from "@/utils/input-check/input-null-check";
 import { inputEmailCheck } from "@/utils/input-check/input-email-check";
 import { storage } from "@/utils/storage/user-storage";
-import { signup } from "@/api/user/user-account-service";
 
-interface SignupResult {
+interface LoginResult {
   success: boolean;
   errors: string;
 }
 
-interface SignupData {
-  name: string;
+interface LoginData {
   email: string;
   password: string;
-  confirmPassword: string;
 }
 
-export const signupSubmit = async (data: SignupData): Promise<SignupResult> => {
-  const { name, email, password, confirmPassword } = data;
-
-  // verify name
-  if (inputNullCheck(name) === false) {
-    return {
-      success: false,
-      errors: "Name is null"
-    };
-  }
+export const loginSubmit = async (data: LoginData): Promise<LoginResult> => {
+  const { email, password } = data;
 
   // verify email
   if (inputNullCheck(email) === false) {
@@ -48,24 +38,16 @@ export const signupSubmit = async (data: SignupData): Promise<SignupResult> => {
     };
   }
 
-  // verify confirm password
-  if (password !== confirmPassword) {
-    return {
-      success: false,
-      errors: "password is not same as confirm password"
-    };
-  }
-
   try {
-    const response = await signup(name, email, password);
-    console.log("get signup response: ", response);
+    const response = await login(email, password);
+    console.log("get login response: ", response);
     storage.saveToken(response);
     return {
       success: true,
       errors: ""
     };
   } catch (error) {
-    console.error("signup error: ", error);
+    console.error("login error: ", error);
     return {
       success: false,
       errors: "try catch error: " + error

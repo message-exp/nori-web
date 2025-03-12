@@ -1,24 +1,27 @@
 import { useState } from "react";
-import { Button, Input, Text, VStack, Center, Heading, Field, Image } from "@chakra-ui/react";
-import { PasswordInput } from "@/components/ui/password-input";
+import { Button, Text, VStack, Center, Heading, Image } from "@chakra-ui/react";
 import { useNavigate } from "react-router";
-import { login } from "@/api/user/user-service";
-import { storage } from "@/utils/storage/user-storage";
-import { getUserIdFromAccessToken } from "@/utils/jwt";
+import { LoginProvider } from "@/contexts/login";
+import { InputEmail, InputPassword } from "@/components/login";
+import { useLoginContext } from "@/hooks/use-login-context";
+import { loginService } from "@/services/login";
 
 const LoginPage = () => {
-  const [flag, setFlag] = useState(1);
-  if (flag) {
+  const [isShowWelcome, setIsShowWelcome] = useState(true);
+  if (isShowWelcome) {
     return (
-      <Welcome setFlag={setFlag} />
+      <Welcome setState={setIsShowWelcome} />
     );
   } else {
     return (
-      <Login/>
+      <LoginProvider>
+        <LoginForm />
+      </LoginProvider>
+      
     );
   }
 };
-const Welcome = ({ setFlag }: { setFlag: (value: number) => void }) => {
+const Welcome = ({ setState }: { setState: (value: boolean) => void }) => {
   return (
     <Center height="100vh" bg="#1e1e1e" color="white">
       <VStack>
@@ -34,7 +37,7 @@ const Welcome = ({ setFlag }: { setFlag: (value: number) => void }) => {
         </Heading>
         <Button
           colorScheme="gray"
-          onClick={() => setFlag(0)}
+          onClick={() => setState(false)}
         >
                     Log in
         </Button>
@@ -44,89 +47,37 @@ const Welcome = ({ setFlag }: { setFlag: (value: number) => void }) => {
   );
 
 };
-const Login = () => {
+const LoginForm = () => {
   const navigate = useNavigate();
 
-  const [account, setAccount] = useState("");
-  const [password, setPassword] = useState("");
-
-  const [isEmailError, setIsEmailError] = useState(false);
-  const [emailErrorMessage, setEmailErrorMessage] = useState("");
-
-  const [isPasswordError, setIsPasswordError] = useState(false);
-  const [passwordErrorMessage, setPasswordErrorMessage] = useState("");
-
+  const [isLoginLoading, setIsLoginLoading] = useState(false);
   const [textErrorMessage, setTextErrorMessage] = useState("");
 
-  const [isLoginLoading, setIsLoginLoading] = useState(false);
+  const {
+    email,
+    password,
+    checkTrigger,
+    setCheckTrigger
+  } = useLoginContext();
 
-  function isEmpty(str: string | null | undefined): boolean {
-    return !str || str.trim() === "";
-  }
-
-  const loginFunc = async () => {
-    console.log("account: " + account);
-    console.log("password: " + password);
-    /* 串接API */
-    setTextErrorMessage("");
+  const handleLogin = async () => {
+    setCheckTrigger(!checkTrigger);
     setIsLoginLoading(true);
-    let isInputEmpty = false;
-    if (isEmpty(account)) {
-      setEmailErrorMessage("account empty");
-      setIsEmailError(true);
-      isInputEmpty = true;
-    }
-    else {
-      setEmailErrorMessage("");
-      setIsEmailError(false);
-    }
 
-    if (isEmpty(password)) {
-      setPasswordErrorMessage("password empty");
-      setIsPasswordError(true);
-      isInputEmpty = true;
-    }
-    else {
-      setPasswordErrorMessage("");
-      setIsPasswordError(false);
-    }
+    const loginResponse = await loginService.submit({
+      email,
+      password
+    });
 
-    if (isInputEmpty) {
+    if (loginResponse.success) {
       setTextErrorMessage("");
-      setIsLoginLoading(false);
-      return;
-    }
-
-    try {
-      const tokenPair = await login(account, password);
-      console.log("get token pair: ", tokenPair);
-      const userid = getUserIdFromAccessToken(tokenPair.accessToken); 
-      console.log("get userid: ", userid);
-
-      storage.setUserAuth({ userId: userid.id, tokenPair });
-
-      setTextErrorMessage("");
-      setIsLoginLoading(false);
-
       navigate("/roomlist");
-    } catch (error) {
-      console.log("get error: ", error);
-      setTextErrorMessage("email or password error");
-      setIsLoginLoading(false);
+    } else {
+      setTextErrorMessage(loginResponse.errors);
     }
-        
 
-    //below just for demo
-    // if (account == "test" && password == "test")
-    // {
-    //     setTextErrorMessage("");
-    //     navigate("/roomlist");
-    // }
-    // else
-    // {
-    //     setTextErrorMessage("email or password error");
-    // }
-        
+    setIsLoginLoading(false);
+  
   };
 
 
@@ -135,35 +86,15 @@ const Login = () => {
     <Center height="100vh" bg="#1e1e1e" color="white">
       <VStack width="300px">
         <Heading as="h1" size="lg">Login</Heading>
-        <Field.Root invalid={isEmailError}>
-          <Field.Label>Email</Field.Label>
-          <Input
-            placeholder="Email"
-            value={account}
-            onChange={(e) => setAccount(e.target.value)}
-            bg="gray.700"
-            color="white"
-          />
-          <Field.ErrorText>{ emailErrorMessage }</Field.ErrorText>
-        </Field.Root>
 
-        <Field.Root invalid={isPasswordError}>
-          <Field.Label>Password</Field.Label>
-          <PasswordInput
-            placeholder="Password"
-            // type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            bg="gray.700"
-            color="white"
-          />
-          <Field.ErrorText>{passwordErrorMessage}</Field.ErrorText>
-        </Field.Root>
+        <InputEmail />
+        
+        <InputPassword/>
                 
                 
         <Button
           width="full"
-          onClick={loginFunc}
+          onClick={handleLogin}
           loading={isLoginLoading}
         >
                     Login
