@@ -16,7 +16,10 @@ import {
   MessageSchema,
 } from "@/proto-generated/nori/v0/message/message_pb";
 import { UserIdSchema } from "@/proto-generated/nori/v0/user/user_id_pb";
-import { RoomMembersProvider } from "@/contexts/room-chat/RoomMembersProvider";
+import { RoomMembers, RoomMembersProvider } from "@/contexts/room-chat/RoomMembersProvider";
+import { GetRoomMembers } from "@/api/room/room-member-service"
+import { useRoomMembers } from "@/contexts/room-chat/useRoomMembers";
+
 
 const RoomChat = () => {
   const roomName = "taki";
@@ -26,15 +29,15 @@ const RoomChat = () => {
   const [chatMessages, setChatMessages] = useState<Message[]>([]);
   const [isSending, setIsSending] = useState<boolean>(false);
   const [inputMessage, setInputMessage] = useState<string>("");
-  // const roomMembersContext = useRoomMembers()
+  const roomMembersContext = useRoomMembers()
   useEffect(() => {
-    // (async () =>{
-    //   const roomMembers = await GetRoomMembers(currentRoomId,currentUserId)
-    //   roomMembersContext.setMembers(roomMembers.members.reduce((roomMemberList, { userId, roomNickname}) => {
-    //     roomMemberList[userId?.id?.toString() ?? "0"] = roomNickname;
-    //     return roomMemberList;
-    //   }, {} as RoomMembers));
-    // })();
+    (async () =>{
+      const roomMembers = await GetRoomMembers(currentRoomId,currentUserId)
+      roomMembersContext.setMembers(roomMembers.members.reduce((roomMemberList, { userId, roomNickname}) => {
+        roomMemberList[userId?.id?.toString() ?? "0"] = roomNickname;
+        return roomMemberList;
+      }, {} as RoomMembers));
+    })();
     (async () => {
       const historyMessage = await GetHistoryMessage(currentRoomId);
       console.log(historyMessage);
@@ -55,6 +58,7 @@ const RoomChat = () => {
     try {
       setIsSending(true);
       await SendMessage(currentRoomId, currentUserId, inputMessage);
+      setInputMessage("");
       setChatMessages((prev) => [
         ...prev,
         create(MessageSchema, {
