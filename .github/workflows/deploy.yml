@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - cheng/auto-deploy
 
 jobs:
   deploy:
