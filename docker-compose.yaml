@@ -6,7 +6,7 @@ services:
     env_file:
       - ./.env
     ports:
-      - "30110:4173"
+      - "${COMPOSE_PORT:-4173}:4173"
     environment:
       - VITE_BACKEND_URL=${VITE_BACKEND_URL}
       - VITE_API_MODE=${VITE_API_MODE}
