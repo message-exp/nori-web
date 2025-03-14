@@ -16,7 +16,7 @@ interface RoomHeaderProps {
 
 const ChatHeader = (props: Readonly<RoomHeaderProps>) => {
   const { roomName, roomAvatarSrc } = props;
-  const navigate  = useNavigate();
+  const navigate = useNavigate();
 
   return (
     <Box height={"70px"} backgroundColor={"gray.900"} padding={"15px"}>
@@ -27,7 +27,7 @@ const ChatHeader = (props: Readonly<RoomHeaderProps>) => {
               rounded={"full"}
               variant={"subtle"}
               size={"xl"}
-              onClick={() => {navigate('/roomlist')}}
+              onClick={() => {navigate("/roomlist");}}
             >
               <RiArrowLeftLine />
             </IconButton>

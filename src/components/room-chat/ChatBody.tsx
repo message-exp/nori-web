@@ -12,7 +12,7 @@ export interface RoomMembers {
 }
 
 function ChatBody(props: Readonly<ChatBodyProps>) {
-  const { chatMessages,roomMembers } = props;
+  const { chatMessages, roomMembers } = props;
 
   return (
     <Box height={"100%"}>

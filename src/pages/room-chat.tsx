@@ -16,7 +16,7 @@ import {
   MessageSchema,
 } from "@/proto-generated/nori/v0/message/message_pb";
 import { UserIdSchema } from "@/proto-generated/nori/v0/user/user_id_pb";
-import { GetRoomMembers } from "@/api/room/room-member-service"
+import { GetRoomMembers } from "@/api/room/room-member-service";
 
 
 
@@ -31,13 +31,13 @@ const RoomChat = () => {
   const [roomMembers, setRoomMembers] = useState<RoomMembers>({});
   useEffect(() => {
     (async () =>{
-      const roomMembers = await GetRoomMembers(currentRoomId,currentUserId)
+      const roomMembers = await GetRoomMembers(currentRoomId, currentUserId);
       setRoomMembers(roomMembers.members.reduce<Record<string, string>>((roomMemberList, member) => {
         if (member.userId) {
           roomMemberList[member.userId.id.toString()] = member.roomNickname;
         }
         return roomMemberList;
-      }, {}))
+      }, {}));
     })();
     (async () => {
       const historyMessage = await GetHistoryMessage(currentRoomId);
