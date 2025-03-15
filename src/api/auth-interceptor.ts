@@ -8,66 +8,82 @@ const PUBLIC_PATHS = [
   "/nori.v0.UserAccountService/Login"
 ];
 
+interface RefreshQueueItem {
+  resolve: (value: string) => void;
+  reject: (error: any) => void;
+}
+
 let isRefreshing = false;
-let refreshPromise: Promise<any> | null = null;
+let refreshQueue: RefreshQueueItem[] = [];
 
-const REFRESH_BEFORE_MS = 5 * 60 * 1000; // 5 minutes in milliseconds
-
-const isTokenExpired = (accessToken: string): boolean => {
-  const tokenData = JSON.parse(atob(accessToken.split(".")[1]));
-  const expirationTime = tokenData.exp * 1000;
-  return Date.now() >= (expirationTime - REFRESH_BEFORE_MS);
+const processQueue = (token: string, error: any = null) => {
+  refreshQueue.forEach(item => {
+    if (error) {
+      item.reject(error);
+    } else {
+      item.resolve(token);
+    }
+  });
+  refreshQueue = [];
 };
 
-const handleTokenRefresh = async (userId: bigint, refreshToken: string) => {
-  if (!isRefreshing) {
-    isRefreshing = true;
-    refreshPromise = refreshUserToken(userId, refreshToken)
-      .then(newAccessToken => {
-        storage.refreshAccessToken(newAccessToken);
-        return newAccessToken;
-      })
-      .finally(() => {
-        isRefreshing = false;
-        refreshPromise = null;
+const refreshAccessToken = async (userId: bigint, refreshToken: string): Promise<string> => {
+  try {
+    if (!isRefreshing) {
+      isRefreshing = true;
+      const newTokens = await refreshUserToken(userId, refreshToken);
+      storage.refreshAccessToken(newTokens);
+      isRefreshing = false;
+      processQueue(newTokens.accessToken);
+      return newTokens.accessToken;
+    } else {
+      return new Promise((resolve, reject) => {
+        refreshQueue.push({ resolve, reject });
       });
+    }
+  } catch (error) {
+    isRefreshing = false;
+    processQueue("", error);
+    throw error;
   }
-  return refreshPromise;
+};
+
+const isTokenExpired = (accessToken: string): boolean => {
+  try {
+    const tokenData = JSON.parse(atob(accessToken.split(".")[1]));
+    return Date.now() + (5 * 60* 1000) >= tokenData.exp * 1000;
+  } catch {
+    return true;
+  }
 };
 
 export const authInterceptor: Interceptor = (next) => async (req) => {
   const servicePath = "/" + req.url.split("/").slice(3).join("/");
 
+  // 如果是公開路徑，直接通過
   if (PUBLIC_PATHS.includes(servicePath)) {
     return next(req);
   }
 
+  // 如果沒有儲存認證資訊，直接通過
   const auth = storage.getUserAuth();
   if (!auth) {
     return next(req);
   }
-  const userId = auth?.userId;
-  const currentAccessToken = auth?.tokenPair.accessToken?.accessToken ?? "";
-  const currentRefreshToken = auth?.tokenPair.refreshToken?.refreshToken ?? "";
 
-  try {
-    let finalAccessToken = currentAccessToken;
+  const { userId, tokenPair } = auth;
+  let accessToken = tokenPair.accessToken?.accessToken;
+  const refreshToken = tokenPair.refreshToken?.refreshToken;
 
-    if (isTokenExpired(currentAccessToken)) {
-      if (!currentRefreshToken) {
-        throw new Error("Refresh token not found");
-      }
-
-      const newTokens = await handleTokenRefresh(userId, currentRefreshToken);
-      finalAccessToken = newTokens.accessToken;
-    }
-
-    req.header.set("authorization", `Bearer ${finalAccessToken}`);
-    return next(req);
-  } catch (error) {
-    console.error("Authentication error:", error);
-    isRefreshing = false;
-    refreshPromise = null;
-    throw error;
+  // 如果 token 過期且有 refresh token，則更新
+  if (accessToken && isTokenExpired(accessToken) && refreshToken) {
+    accessToken = await refreshAccessToken(userId, refreshToken);
   }
+
+  // 如果有 access token（不管是新的還是舊的），加到 header
+  if (accessToken) {
+    req.header.set("authorization", `Bearer ${accessToken}`);
+  }
+
+  return next(req);
 };
