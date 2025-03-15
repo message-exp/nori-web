@@ -1,7 +1,7 @@
 import { TokenPair, TokenPairSchema, UserTokenPair } from "@/proto-generated/nori/v0/user/access/token_pairs_pb";
 import { getUserIdFromAccessToken } from "../jwt";
 import { create } from "@bufbuild/protobuf";
-import { AccessToken, AccessTokenSchema } from "@/proto-generated/nori/v0/user/access/access_token_pb";
+import { AccessToken } from "@/proto-generated/nori/v0/user/access/access_token_pb";
 
 interface UserAuth {
   userId: bigint;
