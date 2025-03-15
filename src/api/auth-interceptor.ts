@@ -6,7 +6,7 @@ import { TokenPair } from "@/proto-generated/nori/v0/user/access/token_pairs_pb"
 const PUBLIC_PATHS = [
   "/nori.v0.UserAccessService/RefreshUserToken",
   "/nori.v0.UserAccountService/Signup",
-  "/nori.v0.UserAccountService/Login"
+  "/nori.v0.UserAccessService/Login"
 ];
 
 interface ApiError {
@@ -68,6 +68,7 @@ const isTokenExpired = (accessToken: string): boolean => {
 
 export const authInterceptor: Interceptor = (next) => async (req) => {
   const servicePath = "/" + req.url.split("/").slice(3).join("/");
+  console.log(servicePath);
 
   // 如果是公開路徑，直接通過
   if (PUBLIC_PATHS.includes(servicePath)) {
