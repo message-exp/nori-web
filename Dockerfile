@@ -1,23 +1,26 @@
-# 使用 Node.js 18 作為基礎映像
-FROM node:18-slim
+# use Node.js 22 as base image
+FROM node:22-slim
 
-# 設定工作目錄
+# set working directory
 WORKDIR /app
 
-# 安裝 pnpm
+# install pnpm
 RUN npm install -g pnpm
 
-# 複製 package.json 和 pnpm-lock.yaml
+# copy package.json and pnpm-lock.yaml
 COPY package.json pnpm-lock.yaml ./
 
-# 安裝依賴
-RUN pnpm install
+# install dependencies
+RUN pnpm install --frozen-lockfile
 
-# 複製其餘檔案
+# copy all files
 COPY . .
 
-# 暴露開發伺服器端口
-EXPOSE 5173
+# build project
+RUN pnpm build
 
-# 設定容器啟動命令
-CMD ["pnpm", "dev"]
+# expose port
+EXPOSE 4173
+
+# start project
+CMD ["pnpm", "preview"]

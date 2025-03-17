@@ -3,11 +3,11 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
+    env_file:
+      - ./.env
     ports:
-      - "5173:5173"
-    volumes:
-      - .:/app
-      - /app/node_modules
+      - "${COMPOSE_PORT:-4173}:4173"
     environment:
-      - NODE_ENV=development
-    command: pnpm dev --host
+      - VITE_BACKEND_URL=${VITE_BACKEND_URL}
+      - VITE_API_MODE=${VITE_API_MODE}
+    command: pnpm preview --host
