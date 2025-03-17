@@ -11,7 +11,7 @@ RUN npm install -g pnpm
 COPY package.json pnpm-lock.yaml ./
 
 # install dependencies
-RUN pnpm install
+RUN pnpm install --frozen-lockfile
 
 # copy all files
 COPY . .
