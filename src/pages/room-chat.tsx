@@ -4,7 +4,7 @@ import { useParams } from "react-router";
 import { create } from "@bufbuild/protobuf";
 import ChatHeader from "@/components/room-chat/ChatHeader";
 import ChatFooter from "@/components/room-chat/ChatFooter";
-import ChatBody from "@/components/room-chat/ChatBody";
+import ChatBody, { RoomMembers } from "@/components/room-chat/ChatBody";
 import { storage } from "@/utils/storage/user-storage";
 import {
   GetHistoryMessage,
@@ -16,7 +16,9 @@ import {
   MessageSchema,
 } from "@/proto-generated/nori/v0/message/message_pb";
 import { UserIdSchema } from "@/proto-generated/nori/v0/user/user_id_pb";
-import { RoomMembersProvider } from "@/contexts/room-chat/RoomMembersProvider";
+import { GetRoomMembers } from "@/api/room/room-member-service";
+
+
 
 const RoomChat = () => {
   const roomName = "taki";
@@ -26,15 +28,17 @@ const RoomChat = () => {
   const [chatMessages, setChatMessages] = useState<Message[]>([]);
   const [isSending, setIsSending] = useState<boolean>(false);
   const [inputMessage, setInputMessage] = useState<string>("");
-  // const roomMembersContext = useRoomMembers()
+  const [roomMembers, setRoomMembers] = useState<RoomMembers>({});
   useEffect(() => {
-    // (async () =>{
-    //   const roomMembers = await GetRoomMembers(currentRoomId,currentUserId)
-    //   roomMembersContext.setMembers(roomMembers.members.reduce((roomMemberList, { userId, roomNickname}) => {
-    //     roomMemberList[userId?.id?.toString() ?? "0"] = roomNickname;
-    //     return roomMemberList;
-    //   }, {} as RoomMembers));
-    // })();
+    (async () =>{
+      const roomMembers = await GetRoomMembers(currentRoomId, currentUserId);
+      setRoomMembers(roomMembers.members.reduce<Record<string, string>>((roomMemberList, member) => {
+        if (member.userId) {
+          roomMemberList[member.userId.id.toString()] = member.roomNickname;
+        }
+        return roomMemberList;
+      }, {}));
+    })();
     (async () => {
       const historyMessage = await GetHistoryMessage(currentRoomId);
       console.log(historyMessage);
@@ -55,6 +59,7 @@ const RoomChat = () => {
     try {
       setIsSending(true);
       await SendMessage(currentRoomId, currentUserId, inputMessage);
+      setInputMessage("");
       setChatMessages((prev) => [
         ...prev,
         create(MessageSchema, {
@@ -70,20 +75,18 @@ const RoomChat = () => {
   };
 
   return (
-    <RoomMembersProvider>
-      <Flex direction={"column"} height={"100vh"}>
-        <ChatHeader roomName={roomName} roomAvatarSrc={roomAvatarSrc} />
-        <Box flex={"1"} overflowY={"auto"}>
-          <ChatBody chatMessages={chatMessages}></ChatBody>
-        </Box>
-        <ChatFooter
-          sendMessage={sendMessage}
-          setInputMessage={setInputMessage}
-          isSending={isSending}
-          inputMessage={inputMessage}
-        />
-      </Flex>
-    </RoomMembersProvider>
+    <Flex direction={"column"} height={"100vh"}>
+      <ChatHeader roomName={roomName} roomAvatarSrc={roomAvatarSrc} />
+      <Box flex={"1"} overflowY={"auto"}>
+        <ChatBody chatMessages={chatMessages} roomMembers={roomMembers}></ChatBody>
+      </Box>
+      <ChatFooter
+        sendMessage={sendMessage}
+        setInputMessage={setInputMessage}
+        isSending={isSending}
+        inputMessage={inputMessage}
+      />
+    </Flex>
   );
 };
 export default RoomChat;

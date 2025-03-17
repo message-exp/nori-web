@@ -4,18 +4,23 @@ import { MessageUnit } from "@/components/room-chat/MessageUnit";
 
 interface ChatBodyProps {
   chatMessages: Message[];
+  roomMembers: RoomMembers;
+}
+
+export interface RoomMembers {
+  [userId: string]: string;
 }
 
 function ChatBody(props: Readonly<ChatBodyProps>) {
-  const { chatMessages } = props;
-  
+  const { chatMessages, roomMembers } = props;
+
   return (
     <Box height={"100%"}>
       <Flex direction={"column"} maxHeight={"100%"}>
         <For each={chatMessages}>
           {(message, index) => (
             <MessageUnit
-              author={message.author}
+              author={roomMembers[message.author?.id.toString() ?? ""]}
               time={
                 message.createdAt?.seconds
                   ? new Date(
