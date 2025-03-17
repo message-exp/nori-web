@@ -1,6 +1,7 @@
 import { TokenPair, TokenPairSchema, UserTokenPair } from "@/proto-generated/nori/v0/user/access/token_pairs_pb";
 import { getUserIdFromAccessToken } from "../jwt";
 import { create } from "@bufbuild/protobuf";
+import { AccessToken } from "@/proto-generated/nori/v0/user/access/access_token_pb";
 
 interface UserAuth {
   userId: bigint;
@@ -69,5 +70,24 @@ export const storage = {
     } catch (error) {
       console.error("save token error: ", error);
     }
-  }
+  },
+
+  refreshAccessToken: (newAccessToken: AccessToken) => {
+    const currentAuth = storage.getUserAuth();
+    if (!currentAuth) {
+      console.error("No existing auth found to refresh");
+      return;
+    }
+
+    const updatedTokenPair = create(TokenPairSchema, {
+      accessToken: newAccessToken,
+      refreshToken: currentAuth.tokenPair.refreshToken
+    });
+
+    storage.setUserAuth({
+      userId: currentAuth.userId,
+      tokenPair: updatedTokenPair
+    });
+  },
+
 };

@@ -1,7 +1,6 @@
 import { createClient } from "@connectrpc/connect";
 import { create } from "@bufbuild/protobuf";
-import { UserTokenPair, UserRefreshTokenSchema } from "@/proto-generated/nori/v0/user/access/token_pairs_pb";
-import { AccessToken } from "@/proto-generated/nori/v0/user/access/access_token_pb";
+import { UserTokenPair, UserRefreshTokenSchema, TokenPair } from "@/proto-generated/nori/v0/user/access/token_pairs_pb";
 import { UserEmailPasswordLoginSchema } from "@/proto-generated/nori/v0/user/access/user_login_pb";
 import { UserResetPasswordRequestSchema } from "@/proto-generated/nori/v0/user/access/user_reset_password_request_pb";
 import { UserAccessService } from "@/proto-generated/nori/v0/user/access/user_access_service_pb";
@@ -39,7 +38,7 @@ export const logout = async (tokenPair: UserTokenPair): Promise<void> => {
   }
 };
 
-export const refreshUserToken = async (userId: bigint, refreshToken: string): Promise<AccessToken> => {
+export const refreshUserToken = async (userId: bigint, refreshToken: string): Promise<TokenPair> => {
   const validatedUserId = create(UserIdSchema, { id: userId });
   const validatedRefreshToken = create(RefreshTokenSchema, { refreshToken: refreshToken });
   const request = create(UserRefreshTokenSchema, {
