@@ -1,7 +1,7 @@
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader, LoaderCircle } from "lucide-react";
+import { AlertCircle, Loader } from "lucide-react";
 import React from "react";
 import { set, useForm } from "react-hook-form";
 import { z } from "zod";
@@ -10,7 +10,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
 import { debouncePromise } from "~/lib/debounce-helper";
+import { login } from "~/lib/matrix-api/login";
 import { getBaseUrl } from "~/lib/matrix-api/utils";
+import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
 
 
 const debouncedGetBaseUrl = debouncePromise(getBaseUrl, 1000); // 1 second cooldown
@@ -29,10 +31,11 @@ const formSchema = z.object({
       { message: "The domain is invalid." }
     ),
   password: z.string().min(1),
-})
+});
 
 export function Login({ className, props }: { className?: string, props?: any }) {
   const [isLoading, setIsLoading] = React.useState(false);  // a state to control the submit button loading animation
+  const [error, setError] = React.useState<string | null>(null);  // a state to control the form error message
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -40,12 +43,22 @@ export function Login({ className, props }: { className?: string, props?: any })
       username: "",
       password: "",
     },
-  })
+  });
  
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    // Do something with the form values.
-    // ✅ This will be type-safe and validated.
-    console.log(values)
+  async function onSubmit(values: z.infer<typeof formSchema>) {
+    console.log(values); // TODO: remove this line debug code
+
+    let response;
+    try {
+      response = await login(values.username, values.password);
+      console.log("login response", response);
+    } catch (error) {
+      console.error("Error logging in:", error);
+      setError("Invalid username or password");
+      return;
+    }
+
+    // TODO: redirect to the home page
   }
 
   return (
@@ -54,6 +67,13 @@ export function Login({ className, props }: { className?: string, props?: any })
         <CardTitle>Sign in</CardTitle>
       </CardHeader>
       <CardContent>
+        <Alert className="mb-4" variant="destructive" hidden={!error}>
+          <AlertCircle className="h-4 w-4" />
+          <AlertTitle>Error!</AlertTitle>
+          <AlertDescription>
+            {error}
+          </AlertDescription>
+        </Alert>
         <Form {...form}>
           <form className="space-y-8">
             <FormField
@@ -85,6 +105,7 @@ export function Login({ className, props }: { className?: string, props?: any })
             <Button type="submit" disabled={isLoading} className="w-full"
               onClick={async () => {
                 setIsLoading(true);
+                setError(null);
                 await form.handleSubmit(onSubmit)();
                 setIsLoading(false);
               }}
