@@ -1,18 +1,32 @@
-import { Button } from "~/components/ui/button";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "~/components/ui/card";
-import { Input } from "~/components/ui/input";
-import { Label } from "~/components/ui/label";
+"use client";
 
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+import { Button } from "~/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "~/components/ui/form";
+import { Input } from "~/components/ui/input";
+
+
+const formSchema = z.object({
+  username: z.string().trim().min(1).max(255), // TODO: validate the format of the username
+  password: z.string().min(1),
+})
 
 export function Login({ className, props }: { className?: string, props?: any }) {
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    const formData = new FormData(event.currentTarget);
-    const homeserver = formData.get("homeserver") as string;
-    const username = formData.get("username") as string;
-    const password = formData.get("password") as string;
-
-    console.log({ homeserver, username, password });
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      username: "",
+      password: "",
+    },
+  })
+ 
+  function onSubmit(values: z.infer<typeof formSchema>) {
+    // Do something with the form values.
+    // ✅ This will be type-safe and validated.
+    console.log(values)
   }
 
   return (
@@ -21,26 +35,38 @@ export function Login({ className, props }: { className?: string, props?: any })
         <CardTitle>Sign in</CardTitle>
       </CardHeader>
       <CardContent>
-        <form onSubmit={handleSubmit}>
-          <div className="grid w-full items-center gap-4">
-            <div className="flex flex-col space-y-1.5">
-              <Label htmlFor="homeserver">Home server</Label>
-              <Input id="homeserver" defaultValue="matrix.org" />
-            </div>
-            <div className="flex flex-col space-y-1.5">
-              <Label htmlFor="username">Username</Label>
-              <Input id="username" placeholder="username" />
-            </div>
-            <div className="flex flex-col space-y-1.5">
-              <Label htmlFor="password">Password</Label>
-              <Input id="password" placeholder="password" type="password" />
-            </div>
-          </div>
-        </form>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+            <FormField
+              control={form.control}
+              name="username"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Username</FormLabel>
+                  <FormControl>
+                    <Input placeholder="@user:matrix.org" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="password"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Password</FormLabel>
+                  <FormControl>
+                    <Input type="password" placeholder="password" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <Button type="submit">Sign in</Button>
+          </form>
+        </Form>
       </CardContent>
-      <CardFooter>
-        <Button type="submit">Sign in</Button>
-      </CardFooter>
     </Card>
   );
 }
