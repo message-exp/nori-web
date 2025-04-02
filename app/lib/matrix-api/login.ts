@@ -29,7 +29,9 @@ export async function login(userId: string, password: string): Promise<sdk.Login
   // re-create a client
   await client.newClient({
     baseUrl: baseUrl,
+    deviceId: response.device_id,
     accessToken: response.access_token,
+    refreshToken: response.refresh_token,
     userId: response.user_id,
   });
 
