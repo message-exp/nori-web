@@ -19,8 +19,7 @@ export async function getBaseUrl(userId: string): Promise<string | "IGNORE" | "F
 
     // 3-1: If the returned status code is 404, then IGNORE
     if (response.status === 404) {
-      // return "IGNORE"
-      return hostName // TODO: temporary for testing
+      return "IGNORE"
     }
 
     // 3-2: If the returned status code is not 200, or the response body is empty, then FAIL_PROMPT

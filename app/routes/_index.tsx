@@ -1,6 +1,7 @@
 import type { Route } from "./+types/_index";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Button } from "~/components/ui/button";
+import { Link } from "react-router";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -17,12 +18,12 @@ export default function Home() {
           <CardTitle>Welcome to nori!</CardTitle>
         </CardHeader>
         <CardContent>
-          <a href="/login" className="mr-3">
+          <Link to="/login" className="mr-3">
             <Button variant="outline">Sign in</Button>
-          </a>
-          <a href="/register">
+          </Link>
+          <Link to="/register">
             <Button variant="outline">Create an account</Button>
-          </a>
+          </Link>
         </CardContent>
       </Card>
     </div>
