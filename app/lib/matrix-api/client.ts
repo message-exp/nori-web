@@ -24,7 +24,7 @@ class Client {
           console.log("prepared");
       } else {
           console.log(state);
-          process.exit(1);
+          return;
       }
     });
   }
