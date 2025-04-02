@@ -13,6 +13,7 @@ import { debouncePromise } from "~/lib/debounce-helper";
 import { login } from "~/lib/matrix-api/login";
 import { getBaseUrl } from "~/lib/matrix-api/utils";
 import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
+import { Link, redirect } from "react-router";
 
 
 const debouncedGetBaseUrl = debouncePromise(getBaseUrl, 1000); // 1 second cooldown
@@ -46,8 +47,6 @@ export function Login({ className, props }: { className?: string, props?: any })
   });
  
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values); // TODO: remove this line debug code
-
     let response;
     try {
       response = await login(values.username, values.password);
@@ -58,7 +57,8 @@ export function Login({ className, props }: { className?: string, props?: any })
       return;
     }
 
-    // TODO: redirect to the home page
+    // redirect to the home page
+    return redirect("/home");
   }
 
   return (
@@ -119,7 +119,7 @@ export function Login({ className, props }: { className?: string, props?: any })
       </CardContent>
       <CardFooter className="justify-center">
         <p className="text-sm text-muted-foreground">
-          Have no account? <a href="/register" className="border-accent-foreground border-b-1 hover:border-b-2">Create an account</a>
+          Have no account? <Link to="/register" className="border-accent-foreground border-b-1 hover:border-b-2">Create an account</Link>
         </p>
       </CardFooter>
     </Card>
