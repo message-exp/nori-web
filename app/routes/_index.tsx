@@ -1,5 +1,4 @@
 import type { Route } from "./+types/_index";
-import { Welcome } from "../welcome/welcome";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Button } from "~/components/ui/button";
 
@@ -11,7 +10,6 @@ export function meta({}: Route.MetaArgs) {
 }
 
 export default function Home() {
-  // return <Welcome />;
   return (
     <div className="flex h-screen w-full items-center justify-center">
       <Card>
