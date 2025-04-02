@@ -11,6 +11,11 @@ export async function login(userId: string, password: string): Promise<sdk.Login
     return baseUrl
   }
 
+  // create a new client to connect to the home server of the user
+  await client.newClient({
+    baseUrl: baseUrl,
+  });
+
   const response = await client.client.loginRequest({
     type: "m.login.password",
     identifier: {
@@ -26,8 +31,6 @@ export async function login(userId: string, password: string): Promise<sdk.Login
     accessToken: response.access_token,
     userId: response.user_id,
   });
-
-  await client.sync()
 
   return response
 }

@@ -30,4 +30,4 @@ class Client {
   }
 }
 
-export const client = new Client({ baseUrl: "https://matrix.org" });
+export const client = new Client({ baseUrl: "https://matrix.org" });  // TODO: change the default URL
