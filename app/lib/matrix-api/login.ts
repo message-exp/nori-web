@@ -16,6 +16,7 @@ export async function login(userId: string, password: string): Promise<sdk.Login
     baseUrl: baseUrl,
   });
 
+  // log in to the home server, get tokens
   const response = await client.client.loginRequest({
     type: "m.login.password",
     identifier: {
