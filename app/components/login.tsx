@@ -6,7 +6,7 @@ import React from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "~/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "~/components/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
 import { debouncePromise } from "~/lib/debounce-helper";
@@ -117,6 +117,11 @@ export function Login({ className, props }: { className?: string, props?: any })
           </form>
         </Form>
       </CardContent>
+      <CardFooter className="justify-center">
+        <p className="text-sm text-muted-foreground">
+          Have no account? <a href="/register" className="border-accent-foreground border-b-1 hover:border-b-2">Create an account</a>
+        </p>
+      </CardFooter>
     </Card>
   );
 }
