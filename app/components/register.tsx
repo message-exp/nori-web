@@ -53,15 +53,13 @@ export function Register({ className, props }: { className?: string, props?: any
   });
  
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log("form values", values); // debugging, remember to remove this line
-
     let response;
     try {
       response = await register(values.homeserver, values.username, values.password);
       console.log("register response", response);
     } catch (error) {
       console.error("Error registering:", error);
-      setError("Invalid username or password");
+      setError(error instanceof Error ? error.message : "An error occurred during registration.");
       return;
     }
 
