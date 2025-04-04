@@ -2,6 +2,7 @@ import type { Route } from "./+types/_index";
 import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
 import { Button } from "~/components/ui/button";
 import { Link } from "react-router";
+import { ThemeToggle } from "~/components/theme-toggle";
 
 export function meta({}: Route.MetaArgs) {
   return [
@@ -26,6 +27,9 @@ export default function Home() {
           </Link>
         </CardContent>
       </Card>
+      <div className="fixed bottom-4 right-4">
+        <ThemeToggle />
+      </div>
     </div>
   );
 }
