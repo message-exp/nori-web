@@ -6,7 +6,7 @@ import {
   Scripts,
   ScrollRestoration,
 } from "react-router";
-import { ThemeProvider } from "~/components/theme-provider"
+import { ThemeProvider } from "~/components/theme-provider";
 
 import type { Route } from "./+types/root";
 import "./app.css";

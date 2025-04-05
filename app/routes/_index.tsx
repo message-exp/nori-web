@@ -1,6 +1,7 @@
 import type { Route } from "./+types/_index";
 import { Welcome } from "../welcome/welcome";
 
+// eslint-disable-next-line no-empty-pattern
 export function meta({}: Route.MetaArgs) {
   return [
     { title: "New React Router App" },
