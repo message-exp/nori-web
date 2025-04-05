@@ -9,6 +9,7 @@
     "typecheck": "react-router typegen && tsc",
     "format": "prettier . --write",
     "format:check": "prettier . --check",
+    "lint": "eslint .",
     "prepare": "husky"
   },
   "dependencies": {
