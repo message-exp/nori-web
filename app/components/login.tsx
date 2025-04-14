@@ -6,8 +6,21 @@ import React from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "~/components/ui/button";
-import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "~/components/ui/card";
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "~/components/ui/form";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "~/components/ui/card";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
 import { debouncePromise } from "~/lib/debounce-helper";
 import { login } from "~/lib/matrix-api/login";
@@ -15,28 +28,39 @@ import { getBaseUrl } from "~/lib/matrix-api/utils";
 import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
 import { Link, redirect, useNavigate } from "react-router";
 
-
 const debouncedGetBaseUrl = debouncePromise(getBaseUrl, 1000); // 1 second cooldown
 
 // define form schema
 const formSchema = z.object({
-  username: z.string()
+  username: z
+    .string()
     .trim()
     .min(1)
     .max(255)
-    .refine(  // check whether the domain in the user ID in valid
+    .refine(
+      // check whether the domain in the user ID in valid
       async (username) => {
         const baseUrl = await debouncedGetBaseUrl(username);
-        return baseUrl !== "IGNORE" && baseUrl !== "FAIL_PROMPT" && baseUrl !== "FAIL_ERROR";
+        return (
+          baseUrl !== "IGNORE" &&
+          baseUrl !== "FAIL_PROMPT" &&
+          baseUrl !== "FAIL_ERROR"
+        );
       },
-      { message: "The domain is invalid." }
+      { message: "The domain is invalid." },
     ),
   password: z.string().min(1),
 });
 
-export function Login({ className, props }: { className?: string, props?: any }) {
-  const [isLoading, setIsLoading] = React.useState(false);  // a state to control the submit button loading animation
-  const [error, setError] = React.useState<string | null>(null);  // a state to control the form error message
+export function Login({
+  className,
+  props,
+}: {
+  className?: string;
+  props?: any;
+}) {
+  const [isLoading, setIsLoading] = React.useState(false); // a state to control the submit button loading animation
+  const [error, setError] = React.useState<string | null>(null); // a state to control the form error message
 
   const navigate = useNavigate();
 
@@ -47,7 +71,7 @@ export function Login({ className, props }: { className?: string, props?: any })
       password: "",
     },
   });
- 
+
   async function onSubmit(values: z.infer<typeof formSchema>) {
     let response;
     try {
@@ -64,7 +88,10 @@ export function Login({ className, props }: { className?: string, props?: any })
   }
 
   return (
-    <Card className={`w-full sm:w-1/2 md:w-1/3 lg:w-1/4 ${className}`} {...props}>
+    <Card
+      className={`w-full sm:w-1/2 md:w-1/3 lg:w-1/4 ${className}`}
+      {...props}
+    >
       <CardHeader>
         <CardTitle>Sign in</CardTitle>
       </CardHeader>
@@ -72,9 +99,7 @@ export function Login({ className, props }: { className?: string, props?: any })
         <Alert className="mb-4" variant="destructive" hidden={!error}>
           <AlertCircle className="h-4 w-4" />
           <AlertTitle>Error!</AlertTitle>
-          <AlertDescription>
-            {error}
-          </AlertDescription>
+          <AlertDescription>{error}</AlertDescription>
         </Alert>
         <Form {...form}>
           <form className="space-y-8">
@@ -104,7 +129,10 @@ export function Login({ className, props }: { className?: string, props?: any })
                 </FormItem>
               )}
             />
-            <Button type="submit" disabled={isLoading} className="w-full"
+            <Button
+              type="submit"
+              disabled={isLoading}
+              className="w-full"
               onClick={async () => {
                 setIsLoading(true);
                 setError(null);
@@ -112,16 +140,20 @@ export function Login({ className, props }: { className?: string, props?: any })
                 setIsLoading(false);
               }}
             >
-                { isLoading 
-                  ? <Loader className="animate-spin" />
-                  : "Sign in" }
+              {isLoading ? <Loader className="animate-spin" /> : "Sign in"}
             </Button>
           </form>
         </Form>
       </CardContent>
       <CardFooter className="justify-center">
         <p className="text-sm text-muted-foreground">
-          Have no account? <Link to="/register" className="border-accent-foreground border-b-1 hover:border-b-2">Create an account</Link>
+          Have no account?{" "}
+          <Link
+            to="/register"
+            className="border-accent-foreground border-b-1 hover:border-b-2"
+          >
+            Create an account
+          </Link>
         </p>
       </CardFooter>
     </Card>
