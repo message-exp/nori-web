@@ -26,7 +26,7 @@ import { debouncePromise } from "~/lib/debounce-helper";
 import { login } from "~/lib/matrix-api/login";
 import { getBaseUrl } from "~/lib/matrix-api/utils";
 import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
-import { Link, redirect, useNavigate } from "react-router";
+import { Link, useNavigate } from "react-router";
 
 const debouncedGetBaseUrl = debouncePromise(getBaseUrl, 1000); // 1 second cooldown
 
@@ -57,7 +57,7 @@ export function Login({
   props,
 }: {
   className?: string;
-  props?: any;
+  props?: React.HTMLAttributes<HTMLDivElement>;
 }) {
   const [isLoading, setIsLoading] = React.useState(false); // a state to control the submit button loading animation
   const [error, setError] = React.useState<string | null>(null); // a state to control the form error message

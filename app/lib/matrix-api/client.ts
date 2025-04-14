@@ -18,6 +18,7 @@ class Client {
 
   async sync() {
     // TODO: complete and validate this function
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     this.client.once(sdk.ClientEvent.Sync, function (state, prevState, res) {
       if (state === "PREPARED") {
         console.log("prepared");

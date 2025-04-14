@@ -28,7 +28,7 @@ export async function getBaseUrl(
     if (!response.ok) {
       throw new Error(`${response.status}`);
     }
-  } catch (error) {
+  } catch {
     return "FAIL_PROMPT";
   }
 
@@ -37,7 +37,7 @@ export async function getBaseUrl(
   let data;
   try {
     data = await response.json();
-  } catch (error) {
+  } catch {
     return "FAIL_PROMPT";
   }
 
@@ -52,7 +52,7 @@ export async function getBaseUrl(
   // 3-5-1: Parse it as a URL. If it is not a URL, then FAIL_ERROR.
   try {
     new URL(baseUrl);
-  } catch (error) {
+  } catch {
     return "FAIL_ERROR";
   }
 
@@ -67,7 +67,7 @@ export async function getBaseUrl(
     if (!response.ok) {
       throw new Error(`${response.status}`);
     }
-  } catch (error) {
+  } catch {
     return "FAIL_ERROR";
   }
 
@@ -81,7 +81,7 @@ export async function getBaseUrl(
     // Parse it as a URL. If it is not a URL, then FAIL_ERROR.
     try {
       new URL(identityBaseUrl);
-    } catch (error) {
+    } catch {
       return "FAIL_ERROR";
     }
 
@@ -92,7 +92,7 @@ export async function getBaseUrl(
       if (!response.ok) {
         throw new Error(`${response.status}`);
       }
-    } catch (error) {
+    } catch {
       return "FAIL_ERROR";
     }
 
