@@ -1,7 +1,6 @@
 import { Login } from "~/components/login";
 import { ThemeToggle } from "~/components/theme-toggle";
 
-
 export default function LoginPage() {
   return (
     <div className="flex h-screen w-full items-center justify-center">

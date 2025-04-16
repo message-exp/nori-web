@@ -2,13 +2,19 @@ import * as sdk from "matrix-js-sdk";
 import { getBaseUrl } from "./utils";
 import { client } from "./client";
 
-
-export async function login(userId: string, password: string): Promise<sdk.LoginResponse | string> {
+export async function login(
+  userId: string,
+  password: string,
+): Promise<sdk.LoginResponse | string> {
   // get base URL from host name
-  const baseUrl = await getBaseUrl(userId)
-  console.log("baseUrl", baseUrl)
-  if (baseUrl === "IGNORE" || baseUrl === "FAIL_PROMPT" || baseUrl === "FAIL_ERROR") {
-    return baseUrl
+  const baseUrl = await getBaseUrl(userId);
+  console.log("baseUrl", baseUrl);
+  if (
+    baseUrl === "IGNORE" ||
+    baseUrl === "FAIL_PROMPT" ||
+    baseUrl === "FAIL_ERROR"
+  ) {
+    return baseUrl;
   }
 
   // create a new client to connect to the home server of the user
@@ -21,10 +27,10 @@ export async function login(userId: string, password: string): Promise<sdk.Login
     type: "m.login.password",
     identifier: {
       type: "m.id.user",
-      user: userId
+      user: userId,
     },
-    password: password
-  })
+    password: password,
+  });
 
   // re-create a client
   await client.newClient({
@@ -35,5 +41,5 @@ export async function login(userId: string, password: string): Promise<sdk.Login
     userId: response.user_id,
   });
 
-  return response
+  return response;
 }
