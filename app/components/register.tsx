@@ -63,7 +63,7 @@ export function Register({
   props,
 }: {
   className?: string;
-  props?: any;
+  props?: React.HTMLAttributes<HTMLDivElement>;
 }) {
   const [isLoading, setIsLoading] = React.useState(false); // a state to control the submit button loading animation
   const [error, setError] = React.useState<string | null>(null); // a state to control the form error message
