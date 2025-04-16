@@ -38,7 +38,7 @@ const formSchema = z
       .trim()
       .min(1)
       .refine(
-        // check whether the domain in the user ID in valid
+        // check whether the domain in the user ID is valid
         async (homeserver) => {
           const baseUrl = await debouncedGetBaseUrl(`@user:${homeserver}`);
           return (
