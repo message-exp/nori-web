@@ -1,10 +1,10 @@
-import { Login } from "~/components/login";
+import { Register } from "~/components/register";
 import { ThemeToggle } from "~/components/theme-toggle";
 
-export default function LoginPage() {
+export default function RegisterPage() {
   return (
     <div className="flex h-screen w-full items-center justify-center">
-      <Login className="flex" />
+      <Register className="flex" />
       <div className="fixed bottom-4 right-4">
         <ThemeToggle />
       </div>

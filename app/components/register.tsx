@@ -23,7 +23,7 @@ import {
 } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
 import { debouncePromise } from "~/lib/debounce-helper";
-import { login } from "~/lib/matrix-api/login";
+import { register } from "~/lib/matrix-api/register";
 import { getBaseUrl } from "~/lib/matrix-api/utils";
 import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
 import { Link, useNavigate } from "react-router";
@@ -31,33 +31,39 @@ import { Link, useNavigate } from "react-router";
 const debouncedGetBaseUrl = debouncePromise(getBaseUrl, 1000); // 1 second cooldown
 
 // define form schema
-const formSchema = z.object({
-  username: z
-    .string()
-    .trim()
-    .min(1)
-    .max(255)
-    .refine(
-      // check whether the domain in the user ID in valid
-      async (username) => {
-        const baseUrl = await debouncedGetBaseUrl(username);
-        return (
-          baseUrl !== "IGNORE" &&
-          baseUrl !== "FAIL_PROMPT" &&
-          baseUrl !== "FAIL_ERROR"
-        );
-      },
-      { message: "The domain is invalid." },
-    ),
-  password: z.string().min(1),
-});
+const formSchema = z
+  .object({
+    homeserver: z
+      .string()
+      .trim()
+      .min(1)
+      .refine(
+        // check whether the domain in the user ID in valid
+        async (homeserver) => {
+          const baseUrl = await debouncedGetBaseUrl(`@user:${homeserver}`);
+          return (
+            baseUrl !== "IGNORE" &&
+            baseUrl !== "FAIL_PROMPT" &&
+            baseUrl !== "FAIL_ERROR"
+          );
+        },
+        { message: "The domain is invalid." },
+      ),
+    username: z.string().trim().min(1),
+    password: z.string().min(1),
+  })
+  .refine((data) => data.homeserver.length + data.username.length <= 255, {
+    message:
+      "Combined length of homeserver and username must not exceed 255 characters",
+    path: ["username"], // shows the error on the username field
+  });
 
-export function Login({
+export function Register({
   className,
   props,
 }: {
   className?: string;
-  props?: React.HTMLAttributes<HTMLDivElement>;
+  props?: any;
 }) {
   const [isLoading, setIsLoading] = React.useState(false); // a state to control the submit button loading animation
   const [error, setError] = React.useState<string | null>(null); // a state to control the form error message
@@ -67,6 +73,7 @@ export function Login({
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      homeserver: "matrix.org",
       username: "",
       password: "",
     },
@@ -75,11 +82,19 @@ export function Login({
   async function onSubmit(values: z.infer<typeof formSchema>) {
     let response;
     try {
-      response = await login(values.username, values.password);
-      console.log("login response", response);
+      response = await register(
+        values.homeserver,
+        values.username,
+        values.password,
+      );
+      console.log("register response", response);
     } catch (error) {
-      console.error("Error logging in:", error);
-      setError("Invalid username or password");
+      console.error("Error registering:", error);
+      setError(
+        error instanceof Error
+          ? error.message
+          : "An error occurred during registration.",
+      );
       return;
     }
 
@@ -93,7 +108,7 @@ export function Login({
       {...props}
     >
       <CardHeader>
-        <CardTitle>Sign in</CardTitle>
+        <CardTitle>Create an account</CardTitle>
       </CardHeader>
       <CardContent>
         <Alert className="mb-4" variant="destructive" hidden={!error}>
@@ -105,12 +120,25 @@ export function Login({
           <form className="space-y-8">
             <FormField
               control={form.control}
+              name="homeserver"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Home server</FormLabel>
+                  <FormControl>
+                    <Input placeholder="matrix.org" {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
               name="username"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Username</FormLabel>
                   <FormControl>
-                    <Input placeholder="@user:matrix.org" {...field} />
+                    <Input placeholder="user" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
@@ -140,19 +168,19 @@ export function Login({
                 setIsLoading(false);
               }}
             >
-              {isLoading ? <Loader className="animate-spin" /> : "Sign in"}
+              {isLoading ? <Loader className="animate-spin" /> : "Register"}
             </Button>
           </form>
         </Form>
       </CardContent>
       <CardFooter className="justify-center">
         <p className="text-sm text-muted-foreground">
-          Have no account?{" "}
+          Already have an account?{" "}
           <Link
-            to="/register"
+            to="/login"
             className="border-accent-foreground border-b-1 hover:border-b-2"
           >
-            Create an account
+            Sign in
           </Link>
         </p>
       </CardFooter>

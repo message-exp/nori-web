@@ -1,5 +1,19 @@
 # nori-web
 
+## Getting Started
+
+### Setup developing environment
+
+1. Install Node.js (v22 or later) and pnpm.
+
+2. Run `pnpm install` to install dependencies.
+
+3. Run `pnpm prepare` to setup git hook.
+
+4. To start the dev server, run `pnpm dev`.
+
+---
+
 # Welcome to React Router!
 
 A modern, production-ready template for building full-stack React applications using React Router.

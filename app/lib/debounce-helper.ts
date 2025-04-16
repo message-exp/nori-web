@@ -1,8 +1,11 @@
 // Debounce helper for async functions
-export function debouncePromise<T>(fn: (...args: any[]) => Promise<T>, delay: number) {
+export function debouncePromise<T, Args extends unknown[]>(
+  fn: (...args: Args) => Promise<T>,
+  delay: number,
+) {
   let timer: ReturnType<typeof setTimeout>;
 
-  return (...args: any[]): Promise<T> => {
+  return (...args: Args): Promise<T> => {
     if (timer) {
       clearTimeout(timer);
     }
