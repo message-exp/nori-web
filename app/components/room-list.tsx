@@ -24,7 +24,7 @@ export function RoomList({
               key={chat.id}
               className={cn(
                 "flex items-center gap-3 rounded-lg p-2 text-left",
-                selectedChat === chat.id ? "bg-accent" : "hover:bg-muted"
+                selectedChat === chat.id ? "bg-accent" : "hover:bg-muted",
               )}
               onClick={() => setSelectedChat(chat.id)}
             >
@@ -60,7 +60,9 @@ export function RoomList({
                     {chat.lastMessage}
                   </span>
                   {chat.unread > 0 && (
-                    <span className="ml-2 flex h-5 items-center justify-center rounded-full bg-primary px-1.5 text-xs text-primary-foreground"> {/* min-w-5 */}
+                    <span className="ml-2 flex h-5 items-center justify-center rounded-full bg-primary px-1.5 text-xs text-primary-foreground">
+                      {" "}
+                      {/* min-w-5 */}
                       {chat.unread}
                     </span>
                   )}
