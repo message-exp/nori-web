@@ -13,11 +13,11 @@ export function RoomList({
   setSelectedChat: (chatId: string) => void;
 }) {
   return (
-    <div className="flex flex-col">
-      <div className="h-full p-4">
+    <div className="flex flex-col h-screen">
+      <div className="p-4">
         <h2 className="text-xl font-semibold">Messages</h2>
       </div>
-      <ScrollArea className="h-[calc(100vh-60px)]">
+      <ScrollArea className="flex-1 h-[calc(100vh-60px)]">
         <div className="flex flex-col gap-1 p-2">
           {chats.map((chat) => (
             <button
