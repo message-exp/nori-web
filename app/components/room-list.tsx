@@ -1,6 +1,8 @@
+import { useEffect } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { ScrollArea } from "~/components/ui/scroll-area";
 import type { Chat } from "~/lib/example";
+import { getRoomList } from "~/lib/matrix-api/room-list";
 import { cn } from "~/lib/utils";
 
 export function RoomList({
@@ -12,6 +14,19 @@ export function RoomList({
   selectedChat: string | null;
   setSelectedChat: (chatId: string) => void;
 }) {
+  useEffect(() => {
+    const fetchRooms = async () => {
+      try {
+        const rooms = await getRoomList();
+        console.log("完整 Matrix 房間資料：", rooms);
+      } catch (err) {
+        console.error("取得房間清單失敗", err);
+      }
+    };
+
+    fetchRooms();
+  }, []);
+
   return (
     <div className="flex flex-col h-screen">
       <div className="p-4">
