@@ -23,7 +23,7 @@ export default function Home() {
         </ResizablePanel>
         <ResizableHandle />
         <ResizablePanel defaultSize={75}>
-          <RoomChat chats={chats} selectedChat={selectedChat} />
+          <RoomChat selectedChat={selectedChat} />
         </ResizablePanel>
       </ResizablePanelGroup>
     </div>

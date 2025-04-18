@@ -2,40 +2,41 @@ import { MessageSquare, Search, Settings } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
-import type { Chat } from "~/lib/example";
+import { client } from "~/lib/matrix-api/client";
 
-export function RoomChat({
-  chats,
-  selectedChat,
-}: {
-  chats: Chat[];
-  selectedChat: string | null;
-}) {
-  return selectedChat ? (
+export function RoomChat({ selectedChat }: { selectedChat: string | null }) {
+  const room = client.client.getRoom(selectedChat || undefined);
+
+  return room ? (
     <div className="flex h-full flex-col">
       <div className="flex items-center justify-between border-b p-4">
         <div className="flex items-center gap-3">
           <Avatar>
             <AvatarImage
-              src={chats.find((c) => c.id === selectedChat)?.avatar || ""}
-              alt={chats.find((c) => c.id === selectedChat)?.name || ""}
+              src={
+                room?.getAvatarUrl(
+                  client.client.getHomeserverUrl(), // baseUrl
+                  128, // width
+                  128, // height
+                  "crop", // resizeMethod
+                ) || undefined
+              }
+              alt={room?.name || ""}
             />
             <AvatarFallback>
-              {(chats.find((c) => c.id === selectedChat)?.name || "")
+              {(room?.name || "")
                 .split(" ")
                 .map((n) => n[0])
                 .join("")}
             </AvatarFallback>
           </Avatar>
           <div>
-            <h3 className="font-medium">
-              {chats.find((c) => c.id === selectedChat)?.name}
-            </h3>
-            <p className="text-sm text-muted-foreground">
-              {chats.find((c) => c.id === selectedChat)?.online
+            <h3 className="font-medium">{room?.name}</h3>
+            {/* <p className="text-sm text-muted-foreground">
+              {room?.online
                 ? "Online"
                 : "Offline"}
-            </p>
+            </p> */}
           </div>
         </div>
         <div className="flex gap-1">
