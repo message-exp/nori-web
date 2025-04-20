@@ -18,9 +18,12 @@ export async function login(
   }
 
   // create a new client to connect to the home server of the user
-  await client.newClient({
-    baseUrl: baseUrl,
-  });
+  await client.newClient(
+    {
+      baseUrl: baseUrl,
+    },
+    false,
+  );
 
   // log in to the home server, get tokens
   const response = await client.client.loginRequest({

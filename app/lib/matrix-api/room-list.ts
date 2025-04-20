@@ -1,12 +1,10 @@
 import { client } from "./client";
-import { ClientEvent, type Room } from "matrix-js-sdk";
+import type { Room } from "matrix-js-sdk";
 
 export async function getRoomList(): Promise<Room[]> {
   if (!client.client) {
     throw new Error("Matrix client is not initialized");
   }
-
-  // await client.sync()
 
   const allRooms = client.client.getRooms();
 

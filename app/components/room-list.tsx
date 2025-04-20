@@ -5,15 +5,17 @@ import type { Chat } from "~/lib/example";
 import { getRoomList } from "~/lib/matrix-api/room-list";
 import { cn } from "~/lib/utils";
 
-export function RoomList({
-  chats,
+interface RoomListProps {
+  readonly rooms: Chat[];
+  readonly selectedChat: string | null;
+  readonly setSelectedChat: (chatId: string) => void;
+}
+
+export const RoomList: React.FC<RoomListProps> = ({
+  rooms,
   selectedChat,
   setSelectedChat,
-}: {
-  chats: Chat[];
-  selectedChat: string | null;
-  setSelectedChat: (chatId: string) => void;
-}) {
+}) => {
   useEffect(() => {
     const fetchRooms = async () => {
       try {
@@ -34,51 +36,51 @@ export function RoomList({
       </div>
       <ScrollArea className="flex-1 h-[calc(100vh-60px)]">
         <div className="flex flex-col gap-1 p-2">
-          {chats.map((chat) => (
+          {rooms.map((room) => (
             <button
-              key={chat.id}
+              key={room.id}
               className={cn(
                 "flex items-center gap-3 rounded-lg p-2 text-left",
-                selectedChat === chat.id ? "bg-accent" : "hover:bg-muted",
+                selectedChat === room.id ? "bg-accent" : "hover:bg-muted",
               )}
-              onClick={() => setSelectedChat(chat.id)}
+              onClick={() => setSelectedChat(room.id)}
             >
               <div className="relative">
                 <Avatar>
-                  {chat.avatar ? (
+                  {room.avatar ? (
                     <AvatarImage
-                      src={chat.avatar || "/placeholder.svg"}
-                      alt={chat.name}
+                      src={room.avatar || "/placeholder.svg"}
+                      alt={room.name}
                     />
                   ) : (
                     <AvatarFallback>
-                      {chat.name
+                      {room.name
                         .split(" ")
                         .map((n) => n[0])
                         .join("")}
                     </AvatarFallback>
                   )}
                 </Avatar>
-                {chat.online && (
+                {room.online && (
                   <span className="absolute bottom-0 right-0 block h-2.5 w-2.5 rounded-full bg-green-500 ring-2 ring-background" />
                 )}
               </div>
               <div className="flex-1 overflow-hidden">
                 <div className="flex items-center justify-between">
-                  <span className="font-medium">{chat.name}</span>
+                  <span className="font-medium">{room.name}</span>
                   <span className="text-xs text-muted-foreground">
-                    {chat.time}
+                    {room.time}
                   </span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="truncate text-sm text-muted-foreground">
-                    {chat.lastMessage}
+                    {room.lastMessage}
                   </span>
-                  {chat.unread > 0 && (
+                  {room.unread > 0 && (
                     <span className="ml-2 flex h-5 items-center justify-center rounded-full bg-primary px-1.5 text-xs text-primary-foreground">
                       {" "}
                       {/* min-w-5 */}
-                      {chat.unread}
+                      {room.unread}
                     </span>
                   )}
                 </div>
@@ -91,4 +93,4 @@ export function RoomList({
     //   )}
     // </ResizablePanel>
   );
-}
+};
