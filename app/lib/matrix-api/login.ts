@@ -17,13 +17,10 @@ export async function login(
     return baseUrl;
   }
 
-  // create a new client to connect to the home server of the user
-  await client.newClient({
-    baseUrl: baseUrl,
-  });
+  const tempClient = sdk.createClient({ baseUrl });
 
   // log in to the home server, get tokens
-  const response = await client.client.loginRequest({
+  const response = await tempClient.loginRequest({
     type: "m.login.password",
     identifier: {
       type: "m.id.user",
