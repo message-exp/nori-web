@@ -1,4 +1,5 @@
 import { MessageSquare, Search, Settings } from "lucide-react";
+import { useEffect } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
 import { Input } from "~/components/ui/input";
@@ -6,6 +7,14 @@ import { client } from "~/lib/matrix-api/client";
 
 export function RoomChat({ selectedChat }: { selectedChat: string | null }) {
   const room = client.client.getRoom(selectedChat || undefined);
+  const events = room?.getLiveTimeline().getEvents();
+  console.log("events", events);
+
+  useEffect(() => {
+    const room = client.client.getRoom(selectedChat || undefined);
+    const events = room?.getLiveTimeline().getEvents();
+    console.log("events", events);
+  }, [selectedChat]);
 
   return room ? (
     <div className="flex h-full flex-col">
@@ -60,6 +69,13 @@ export function RoomChat({ selectedChat }: { selectedChat: string | null }) {
             This is a demo interface. In a real application, messages would be
             displayed in this area.
           </p>
+        </div>
+        <div className="mt-4">
+          {events?.map((event) => (
+            <div key={event.getId()} className="mb-2">
+              <p>{event.getContent().body}</p>
+            </div>
+          ))}
         </div>
       </div>
       <div className="border-t p-4">
