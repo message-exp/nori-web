@@ -6,24 +6,26 @@ import {
   ResizablePanel,
   ResizablePanelGroup,
 } from "~/components/ui/resizable";
-import { chats } from "~/lib/example";
+import { chats as mockChats } from "~/lib/example"; // 只給 RoomChat 用
 
 export default function Home() {
-  const [selectedChat, setSelectedChat] = useState<string | null>("1");
+  const [selectedChat, setSelectedChat] = useState<string | null>(null);
+
+  // TODO: remove this after RoomChat finished
+  const [selectedMockId] = useState<string | null>("1");
 
   return (
     <div className="h-screen">
       <ResizablePanelGroup direction="horizontal" className="h-full">
         <ResizablePanel defaultSize={25} maxSize={40} className="flex flex-col">
           <RoomList
-            chats={chats}
             selectedChat={selectedChat}
             setSelectedChat={setSelectedChat}
           />
         </ResizablePanel>
         <ResizableHandle />
         <ResizablePanel defaultSize={75}>
-          <RoomChat selectedChat={selectedChat} />
+          <RoomChat chats={mockChats} selectedChat={selectedMockId} />
         </ResizablePanel>
       </ResizablePanelGroup>
     </div>
