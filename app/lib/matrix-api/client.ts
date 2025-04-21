@@ -21,7 +21,6 @@ class Client {
 
   async sync(): Promise<void> {
     // TODO: complete and validate this function
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     console.log("client start sync");
 
     return new Promise((resolve, reject) => {

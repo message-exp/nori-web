@@ -10,10 +10,10 @@ export async function getRoomList(): Promise<Room[]> {
 
   console.log("All room: ", allRooms);
 
-  // 僅保留「普通房間」：不是 Space、Thread 等特殊房型
+  // only kepp "normal text room", remove spaces / threads and other special room types
   const filteredRooms = allRooms.filter((room) => {
-    const type = room.getType(); // 如果是 m.space 等會被排除
-    return !type;
+    const type = room.getType();
+    return !type; // only keep default room type (not including m.space)
   });
 
   return filteredRooms;
