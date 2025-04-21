@@ -19,9 +19,12 @@ export async function register(
   }
 
   // create a temporary client to connect to the home server of the user
-  await client.newClient({
-    baseUrl: baseUrl,
-  });
+  await client.newClient(
+    {
+      baseUrl: baseUrl,
+    },
+    false,
+  );
 
   // register the user
   const response = await client.client.register(
