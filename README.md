@@ -19,8 +19,8 @@
 3. To get started with mobile app, run:
 
    ```sh
-   cargo tauri android init
-   cargo tauri ios init
+   pnpm tauri android init
+   pnpm tauri ios init
    ```
 
 ### Start the App
@@ -34,19 +34,19 @@ pnpm dev
 For Desktop development, run:
 
 ```sh
-cargo tauri dev
+pnpm tauri dev
 ```
 
 For Android development, run:
 
 ```sh
-cargo tauri android dev
+pnpm tauri android dev
 ```
 
 For iOS development, run:
 
 ```sh
-cargo tauri ios dev
+pnpm tauri ios dev
 ```
 
 > [!WARNING]
