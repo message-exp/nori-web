@@ -77,6 +77,9 @@ importers:
       '@react-router/serve':
         specifier: ^7.5.0
         version: 7.5.0(react-router@7.5.0(react-dom@19.1.0(react@19.1.0))(react@19.1.0))(typescript@5.8.3)
+      '@types/js-cookie':
+        specifier: ^3.0.6
+        version: 3.0.6
       class-variance-authority:
         specifier: ^0.7.1
         version: 0.7.1
@@ -86,6 +89,9 @@ importers:
       isbot:
         specifier: ^5.1.25
         version: 5.1.25
+      js-cookie:
+        specifier: ^3.0.5
+        version: 3.0.5
       lucide-react:
         specifier: ^0.487.0
         version: 0.487.0(react@19.1.0)
@@ -1593,6 +1599,9 @@ packages:
 
   '@types/events@3.0.3':
     resolution: {integrity: sha512-trOc4AAUThEz9hapPtSd7wf5tiQKvTtu5b371UxXdTuqzIh0ArcRspRP0i0Viu+LXstIQ1z96t1nsPxT9ol01g==}
+
+  '@types/js-cookie@3.0.6':
+    resolution: {integrity: sha512-wkw9yd1kEXOPnvEeEV1Go1MmxtBJL0RR79aOTAApecWFVu7w0NNXNqhcWgvw2YgZDYadliXkl14pa3WXw5jlCQ==}
 
   '@types/json-schema@7.0.15':
     resolution: {integrity: sha512-5+fP8P8MFNC+AyZCDxrB2pkZFPGzqQWUzpSeuuVLvm8VMcorNYavBqoFcxK8bQz4Qsbn4oUEEem4wDLfcysGHA==}
@@ -4893,6 +4902,8 @@ snapshots:
   '@types/estree@1.0.7': {}
 
   '@types/events@3.0.3': {}
+
+  '@types/js-cookie@3.0.6': {}
 
   '@types/json-schema@7.0.15': {}
 
