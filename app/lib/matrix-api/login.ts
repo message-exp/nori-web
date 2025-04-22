@@ -5,7 +5,7 @@ import { client } from "./client";
 export async function login(
   userId: string,
   password: string,
-): Promise<sdk.LoginResponse | string> {
+): Promise<{ loginResponse: sdk.LoginResponse; baseUrl: string }> {
   // get base URL from host name
   const baseUrl = await getBaseUrl(userId);
   console.log("baseUrl", baseUrl);
@@ -14,7 +14,7 @@ export async function login(
     baseUrl === "FAIL_PROMPT" ||
     baseUrl === "FAIL_ERROR"
   ) {
-    return baseUrl;
+    throw new Error(`base URL ${baseUrl}`);
   }
 
   const tempClient = sdk.createClient({ baseUrl });
@@ -38,5 +38,5 @@ export async function login(
     userId: response.user_id,
   });
 
-  return response;
+  return { loginResponse: response, baseUrl };
 }
