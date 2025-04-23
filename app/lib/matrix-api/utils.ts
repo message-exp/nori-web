@@ -108,9 +108,9 @@ export async function getBaseUrl(
   return baseUrl;
 }
 
-export function splitUsername(username: string) {
+export function splitUserId(userId: string) {
   // @username:domain => { username: "username", domain: "domain" }
-  const parts = username.split(":");
+  const parts = userId.split(":");
   if (parts.length !== 2) {
     throw new Error("Invalid username format");
   }

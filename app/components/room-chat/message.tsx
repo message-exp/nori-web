@@ -1,7 +1,7 @@
 import * as sdk from "matrix-js-sdk";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { getUser, getUserAvatar } from "~/lib/matrix-api/user";
-import { splitUsername } from "~/lib/matrix-api/utils";
+import { splitUserId } from "~/lib/matrix-api/utils";
 
 interface MessageItemProps {
   message: sdk.MatrixEvent;
@@ -14,7 +14,7 @@ export function MessageItem({ message }: MessageItemProps) {
 
   const user = getUser(sender || "");
   const senderUsername =
-    user?.displayName || splitUsername(sender || "").username;
+    user?.displayName || splitUserId(sender || "").username;
 
   return (
     <div className="">
