@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { RoomChat } from "~/components/room-chat";
+import { RoomChat } from "~/components/room-chat/room-chat";
 import { RoomList } from "~/components/room-list";
 import {
   ResizableHandle,
