@@ -4,6 +4,7 @@ import { getRoomMessages } from "~/lib/matrix-api/room";
 
 export function useRoomMessages(room: sdk.Room | null | undefined) {
   const [messages, setMessages] = useState<sdk.MatrixEvent[]>([]);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (!room) {
@@ -12,32 +13,40 @@ export function useRoomMessages(room: sdk.Room | null | undefined) {
     }
 
     // Initial load
-    const initialMessages = getRoomMessages(room);
-    setMessages(initialMessages);
+    setLoading(true);
+    getRoomMessages(room, 20)
+      .then((initialMessages) => {
+        setMessages(initialMessages);
+        setLoading(false);
+      })
+      .catch((error) => {
+        console.error("Failed to load messages:", error);
+        setLoading(false);
+      });
 
     // Listen for new messages
     const handleRoomTimeline = (
       event: sdk.MatrixEvent,
-      roomState: sdk.RoomState,
-      toStartOfTimeline: boolean,
-      removed: boolean,
-      data: { liveEvent: boolean },
+      roomArg: sdk.Room | undefined,
+      toStartOfTimeline?: boolean,
+      removed?: boolean,
+      data?: sdk.IRoomTimelineData,
     ) => {
       if (
-        event.getRoomId() === room.roomId &&
+        event.getRoomId() === room?.roomId &&
         event.getType() === "m.room.message" &&
-        data.liveEvent
+        data?.liveEvent
       ) {
         setMessages((current) => [...current, event]);
       }
     };
 
-    room.on("Room.timeline", handleRoomTimeline);
+    room.on(sdk.RoomEvent.Timeline, handleRoomTimeline);
 
     return () => {
-      room.removeListener("Room.timeline", handleRoomTimeline);
+      room.removeListener(sdk.RoomEvent.Timeline, handleRoomTimeline);
     };
   }, [room]);
 
-  return messages;
+  return { messages, loading };
 }

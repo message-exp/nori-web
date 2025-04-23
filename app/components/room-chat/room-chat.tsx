@@ -1,5 +1,5 @@
-import { MessageSquare, Search, Settings } from "lucide-react";
-import { useEffect, useState } from "react";
+import { MessageSquare } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
 import { MessageItem } from "~/components/room-chat/message";
 import { MessageInput } from "~/components/room-chat/message-input";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
@@ -17,6 +17,7 @@ export function RoomChat({ selectedChat }: RoomChatProps) {
     client.client.getRoom(selectedChat || undefined),
   );
 
+  // selected room changes
   useEffect(() => {
     if (selectedChat && client.client) {
       const room = client.client.getRoom(selectedChat);
@@ -26,7 +27,15 @@ export function RoomChat({ selectedChat }: RoomChatProps) {
     }
   }, [selectedChat]);
 
-  const messages = useRoomMessages(room);
+  // get messages
+  const { messages, loading } = useRoomMessages(room);
+
+  // get to latest messages (scroll to bottom)
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  // Scroll to bottom when messages change
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [messages]);
 
   if (!selectedChat || !room) {
     return (
@@ -78,10 +87,14 @@ export function RoomChat({ selectedChat }: RoomChatProps) {
           </Button>
         </div> */}
       </div>
-      <div className="flex-1 p-4">
-        <ScrollArea className="flex-1 p-4">
-          <div className="space-y-4">
-            {messages.length > 0 ? (
+      <div className="flex-1 overflow-hidden">
+        <ScrollArea className="h-full">
+          <div className="space-y-4 p-4">
+            {loading ? (
+              <div className="flex justify-center text-muted-foreground">
+                <p>Loading...</p>
+              </div>
+            ) : messages.length > 0 ? (
               messages.map((message) => (
                 <MessageItem key={message.getId()} message={message} />
               ))
@@ -90,6 +103,7 @@ export function RoomChat({ selectedChat }: RoomChatProps) {
                 No messages yet
               </p>
             )}
+            <div ref={messagesEndRef} />
           </div>
         </ScrollArea>
       </div>
