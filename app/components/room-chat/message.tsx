@@ -29,7 +29,9 @@ export function MessageItem({ message }: MessageItemProps) {
           <div className="flex flex-row gap-2">
             <div className="font-medium text-xs">{senderUsername}</div>
             <div className="text-xs text-muted-foreground">
-              {new Date(timestamp || "").toLocaleString()}
+              {timestamp
+                ? new Date(timestamp).toLocaleString()
+                : "Invalid time"}
             </div>
           </div>
           <div className="bg-card p-3 rounded-lg w-fit">
