@@ -1,3 +1,4 @@
+import { Send } from "lucide-react";
 import { useState } from "react";
 import { client } from "~/lib/matrix-api/client";
 
@@ -38,9 +39,9 @@ export function MessageInput({ roomId }: MessageInputProps) {
       />
       <button
         onClick={sendMessage}
-        className="bg-primary text-primary-foreground px-4 rounded-md"
+        className="bg-primary text-primary-foreground px-2 rounded-md"
       >
-        Send
+        <Send />
       </button>
     </div>
   );
