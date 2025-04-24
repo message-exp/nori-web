@@ -1,5 +1,8 @@
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Plus } from "lucide-react";
 import React from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 import { Button } from "~/components/ui/button";
 import {
   Dialog,
@@ -9,8 +12,15 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "~/components/ui/dialog";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
-import { Label } from "~/components/ui/label";
 import {
   Tooltip,
   TooltipContent,
@@ -18,8 +28,27 @@ import {
   TooltipTrigger,
 } from "~/components/ui/tooltip";
 
+const formSchema = z.object({
+  name: z.string().min(1),
+  topic: z.string().optional(),
+});
+
 export function CreateRoomDialog() {
   const [open, setOpen] = React.useState(false);
+
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      name: "",
+      topic: "",
+    },
+  });
+
+  function onSubmit(values: z.infer<typeof formSchema>) {
+    // Do something with the form values.
+    // ✅ This will be type-safe and validated.
+    console.log(values);
+  }
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -38,35 +67,84 @@ export function CreateRoomDialog() {
         </TooltipProvider>
       </DialogTrigger>
       <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Create a room</DialogTitle>
-        </DialogHeader>
-        <div className="grid gap-4 py-4">
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="name" className="block w-full text-right">
-              Name
-            </Label>
-            <Input id="name" placeholder="Room name" className="col-span-3" />
-          </div>
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="topic" className="block w-full text-right">
-              Topic
-            </Label>
-            <Input id="topic" placeholder="(Optional)" className="col-span-3" />
-          </div>
-        </div>
-        <DialogFooter>
-          <Button
-            variant="outline"
-            onClick={() => {
-              setOpen(false);
-              // TODO: Reset form
-            }}
-          >
-            Cancel
-          </Button>
-          <Button type="submit">Create</Button>
-        </DialogFooter>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)}>
+            <DialogHeader>
+              <DialogTitle>Create a room</DialogTitle>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+              <FormField
+                control={form.control}
+                name="name"
+                render={({ field }) => (
+                  <FormItem>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <FormLabel className="text-right">Name</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="Room name"
+                          className="col-span-3"
+                          {...field}
+                        />
+                      </FormControl>
+                    </div>
+                    {/* <div className="grid grid-cols-4 items-center gap-4">
+                      <div></div>
+                      <FormDescription className="col-span-3">
+                        This is your public display name.
+                      </FormDescription>
+                    </div> */}
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <div></div>
+                      <FormMessage className="col-span-3" />
+                    </div>
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="topic"
+                render={({ field }) => (
+                  <FormItem>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <FormLabel className="text-right">Topic</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="Optional"
+                          className="col-span-3"
+                          {...field}
+                        />
+                      </FormControl>
+                    </div>
+                    {/* <div className="grid grid-cols-4 items-center gap-4">
+                      <div></div>
+                      <FormDescription className="col-span-3">
+                        This is your public display name.
+                      </FormDescription>
+                    </div> */}
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <div></div>
+                      <FormMessage className="col-span-3" />
+                    </div>
+                  </FormItem>
+                )}
+              />
+            </div>
+            <DialogFooter>
+              <Button
+                variant="outline"
+                onClick={(e) => {
+                  e.preventDefault();
+                  form.reset();
+                  setOpen(false);
+                }}
+              >
+                Cancel
+              </Button>
+              <Button type="submit">Create</Button>
+            </DialogFooter>
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   );
