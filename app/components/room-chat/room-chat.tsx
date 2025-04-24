@@ -95,9 +95,11 @@ export function RoomChat({ selectedChat }: RoomChatProps) {
                 <p>Loading...</p>
               </div>
             ) : messages.length > 0 ? (
-              messages.map((message) => (
-                <MessageItem key={message.getId()} message={message} />
-              ))
+              [...messages]
+                .reverse()
+                .map((message) => (
+                  <MessageItem key={message.getId()} message={message} />
+                ))
             ) : (
               <p className="text-center text-muted-foreground">
                 No messages yet
