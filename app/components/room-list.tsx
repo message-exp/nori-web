@@ -12,6 +12,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "~/components/ui/tooltip";
+import { CreateRoomDialog } from "./create-room-dialog";
 
 interface RoomListProps {
   readonly selectedChat: string | null;
@@ -29,18 +30,7 @@ export const RoomList: React.FC<RoomListProps> = ({
       <div className="p-4 pr-2">
         <div className="flex items-center justify-between">
           <h2 className="text-xl font-semibold">Messages</h2>
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger>
-                <Button variant="ghost" size="icon">
-                  <Plus />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Create room</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
+          <CreateRoomDialog />
         </div>
       </div>
       <ScrollArea className="flex-1 h-[calc(100vh-60px)]">
