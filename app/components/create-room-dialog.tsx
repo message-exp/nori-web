@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Plus } from "lucide-react";
+import { Loader, Plus } from "lucide-react";
 import React from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -27,6 +27,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "~/components/ui/tooltip";
+import { createRoom } from "~/lib/matrix-api/room";
 
 const formSchema = z.object({
   name: z.string().min(1),
@@ -35,6 +36,7 @@ const formSchema = z.object({
 
 export function CreateRoomDialog() {
   const [open, setOpen] = React.useState(false);
+  const [isLoading, setIsLoading] = React.useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -45,9 +47,12 @@ export function CreateRoomDialog() {
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    // Do something with the form values.
-    // ✅ This will be type-safe and validated.
-    console.log(values);
+    setIsLoading(true);
+    console.log("create room:", values);
+    createRoom({ name: values.name, topic: values.topic });
+    form.reset();
+    setIsLoading(false);
+    setOpen(false);
   }
 
   return (
@@ -141,7 +146,9 @@ export function CreateRoomDialog() {
               >
                 Cancel
               </Button>
-              <Button type="submit">Create</Button>
+              <Button type="submit" disabled={isLoading}>
+                {isLoading ? <Loader className="animate-spin" /> : "Create"}
+              </Button>
             </DialogFooter>
           </form>
         </Form>

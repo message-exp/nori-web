@@ -1,5 +1,5 @@
 import { client } from "./client";
-import type { Room } from "matrix-js-sdk";
+import type { ICreateRoomOpts, Room } from "matrix-js-sdk";
 
 export function getRoom(roomId: string | null): Room | null {
   if (!client.client) {
@@ -9,4 +9,10 @@ export function getRoom(roomId: string | null): Room | null {
     return null;
   }
   return client.client.getRoom(roomId);
+}
+
+export async function createRoom(
+  options: ICreateRoomOpts,
+): Promise<{ room_id: string }> {
+  return await client.client?.createRoom(options);
 }
