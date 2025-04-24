@@ -1,4 +1,5 @@
 import * as sdk from "matrix-js-sdk";
+import { client } from "~/lib/matrix-api/client";
 
 export async function getRoomMessages(
   room: sdk.Room,
@@ -29,4 +30,8 @@ export async function getRoomMessages(
     console.error("Error fetching more messages:", error);
     return events.reverse(); // Return what we have if fetching more fails
   }
+}
+
+export async function sendTextMessage(roomId: string, body: string) {
+  return await client.client.sendTextMessage(roomId, body);
 }

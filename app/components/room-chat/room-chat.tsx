@@ -6,6 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { ScrollArea } from "~/components/ui/scroll-area";
 import { useRoomMessages } from "~/hooks/use-room-messages";
 import { client } from "~/lib/matrix-api/client";
+import { getRoom } from "~/lib/matrix-api/room";
 import { getRoomAvatar } from "~/lib/matrix-api/utils";
 
 interface RoomChatProps {
@@ -13,14 +14,12 @@ interface RoomChatProps {
 }
 
 export function RoomChat({ selectedChat }: RoomChatProps) {
-  const [room, setRoom] = useState(
-    client.client.getRoom(selectedChat || undefined),
-  );
+  const [room, setRoom] = useState(getRoom(selectedChat));
 
   // selected room changes
   useEffect(() => {
     if (selectedChat && client.client) {
-      const room = client.client.getRoom(selectedChat);
+      const room = getRoom(selectedChat);
       setRoom(room || null);
     } else {
       setRoom(null);

@@ -1,6 +1,7 @@
 import { Send } from "lucide-react";
 import { useState } from "react";
 import { client } from "~/lib/matrix-api/client";
+import { sendTextMessage } from "~/lib/matrix-api/room-messages";
 
 interface MessageInputProps {
   roomId: string;
@@ -13,7 +14,7 @@ export function MessageInput({ roomId }: MessageInputProps) {
     if (!message.trim() || !client.client) return;
 
     try {
-      await client.client.sendTextMessage(roomId, message);
+      await sendTextMessage(roomId, message);
       setMessage(""); // Clear input after sending
     } catch (error) {
       console.error("Failed to send message:", error);
