@@ -37,7 +37,7 @@ export function useRoomMessages(room: sdk.Room | null | undefined) {
         event.getType() === "m.room.message" &&
         data?.liveEvent
       ) {
-        setMessages((current) => [...current, event]);
+        setMessages((current) => [event, ...current]);
       }
     };
 
