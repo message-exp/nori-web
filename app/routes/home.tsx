@@ -1,18 +1,14 @@
 import { useState } from "react";
-import { RoomChat } from "~/components/room-chat";
+import { RoomChat } from "~/components/room-chat/room-chat";
 import { RoomList } from "~/components/room-list";
 import {
   ResizableHandle,
   ResizablePanel,
   ResizablePanelGroup,
 } from "~/components/ui/resizable";
-import { chats as mockChats } from "~/lib/example"; // 只給 RoomChat 用
 
 export default function Home() {
   const [selectedChat, setSelectedChat] = useState<string | null>(null);
-
-  // TODO: remove this after RoomChat finished
-  const [selectedMockId] = useState<string | null>("1");
 
   return (
     <div className="h-screen">
@@ -25,7 +21,7 @@ export default function Home() {
         </ResizablePanel>
         <ResizableHandle />
         <ResizablePanel defaultSize={75}>
-          <RoomChat chats={mockChats} selectedChat={selectedMockId} />
+          <RoomChat selectedChat={selectedChat} />
         </ResizablePanel>
       </ResizablePanelGroup>
     </div>
