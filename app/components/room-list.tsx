@@ -1,17 +1,9 @@
-import { Plus } from "lucide-react";
 import { NotificationCountType } from "matrix-js-sdk";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { ScrollArea } from "~/components/ui/scroll-area";
 import { useRoomList } from "~/hooks/use-room-list";
 import { getRoomAvatar } from "~/lib/matrix-api/utils";
 import { cn, getLatestMessageText } from "~/lib/utils";
-import { Button } from "~/components/ui/button";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "~/components/ui/tooltip";
 import { CreateRoomDialog } from "./create-room-dialog";
 
 interface RoomListProps {
