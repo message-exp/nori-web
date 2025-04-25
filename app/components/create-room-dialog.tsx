@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader, Plus } from "lucide-react";
+import { Loader } from "lucide-react";
 import React from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
@@ -21,12 +21,6 @@ import {
   FormMessage,
 } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "~/components/ui/tooltip";
 import { createRoom } from "~/lib/matrix-api/room";
 
 const formSchema = z.object({
@@ -34,7 +28,7 @@ const formSchema = z.object({
   topic: z.string().optional(),
 });
 
-export function CreateRoomDialog() {
+export function CreateRoomDialog({ children }: { children: React.ReactNode }) {
   const [open, setOpen] = React.useState(false);
   const [isLoading, setIsLoading] = React.useState(false);
 
@@ -56,20 +50,7 @@ export function CreateRoomDialog() {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger>
-        <TooltipProvider>
-          <Tooltip>
-            <TooltipTrigger>
-              <Button variant="ghost" size="icon">
-                <Plus />
-              </Button>
-            </TooltipTrigger>
-            <TooltipContent>
-              <p>Create room</p>
-            </TooltipContent>
-          </Tooltip>
-        </TooltipProvider>
-      </DialogTrigger>
+      <DialogTrigger>{children}</DialogTrigger>
       <DialogContent>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
