@@ -46,10 +46,10 @@ export function CreateRoomDialog() {
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
     console.log("create room:", values);
-    createRoom({ name: values.name, topic: values.topic });
+    await createRoom({ name: values.name, topic: values.topic });
     form.reset();
     setIsLoading(false);
     setOpen(false);
@@ -137,6 +137,7 @@ export function CreateRoomDialog() {
             </div>
             <DialogFooter>
               <Button
+                type="button"
                 variant="outline"
                 onClick={(e) => {
                   e.preventDefault();
