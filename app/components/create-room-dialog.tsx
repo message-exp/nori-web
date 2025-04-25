@@ -48,7 +48,6 @@ export function CreateRoomDialog() {
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
-    console.log("create room:", values);
     await createRoom({ name: values.name, topic: values.topic });
     form.reset();
     setIsLoading(false);

@@ -14,5 +14,8 @@ export function getRoom(roomId: string | null): Room | null {
 export async function createRoom(
   options: ICreateRoomOpts,
 ): Promise<{ room_id: string }> {
-  return await client.client?.createRoom(options);
+  if (!client.client) {
+    throw new Error("Matrix client is not initialized");
+  }
+  return await client.client.createRoom(options);
 }
