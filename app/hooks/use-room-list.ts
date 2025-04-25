@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { getRoomList } from "~/lib/matrix-api/room-list";
-import { Room } from "matrix-js-sdk";
+import { ClientEvent, Room } from "matrix-js-sdk";
+import { client } from "~/lib/matrix-api/client";
 
 export function useRoomList() {
   const [rooms, setRooms] = useState<Room[]>([]);
@@ -15,7 +16,15 @@ export function useRoomList() {
       }
     }
 
+    // initial load
     fetchRooms();
+
+    // Listen for new messages
+    client.client.on(ClientEvent.Room, fetchRooms);
+
+    return () => {
+      client.client.removeListener(ClientEvent.Room, fetchRooms);
+    };
   }, []);
 
   return rooms;

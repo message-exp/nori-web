@@ -1,9 +1,18 @@
+import { Plus } from "lucide-react";
 import { NotificationCountType } from "matrix-js-sdk";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
+import { Button } from "~/components/ui/button";
 import { ScrollArea } from "~/components/ui/scroll-area";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "~/components/ui/tooltip";
 import { useRoomList } from "~/hooks/use-room-list";
 import { getRoomAvatar } from "~/lib/matrix-api/utils";
 import { cn, getLatestMessageText } from "~/lib/utils";
+import { CreateRoomDialog } from "./create-room-dialog";
 
 interface RoomListProps {
   readonly selectedChat: string | null;
@@ -18,8 +27,24 @@ export const RoomList: React.FC<RoomListProps> = ({
 
   return (
     <div className="flex flex-col h-screen">
-      <div className="p-4">
-        <h2 className="text-xl font-semibold">Messages</h2>
+      <div className="p-4 pr-2">
+        <div className="flex items-center justify-between">
+          <h2 className="text-xl font-semibold">Messages</h2>
+          <CreateRoomDialog>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger>
+                  <Button variant="ghost" size="icon">
+                    <Plus />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Create room</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </CreateRoomDialog>
+        </div>
       </div>
       <ScrollArea className="flex-1 h-[calc(100vh-60px)]">
         <div className="flex flex-col gap-1 p-2">
