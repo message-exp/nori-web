@@ -7,7 +7,7 @@ import { Button } from "~/components/ui/button";
 import { ScrollArea } from "~/components/ui/scroll-area";
 import { useRoomMessages } from "~/hooks/use-room-messages";
 import { client } from "~/lib/matrix-api/client";
-import { getRoom } from "~/lib/matrix-api/room";
+import { getRoom, getRoomTopic } from "~/lib/matrix-api/room";
 import { getRoomAvatar } from "~/lib/matrix-api/utils";
 import { RoomSettingsDialog } from "./room-settings-dialog";
 
@@ -68,8 +68,15 @@ export function RoomChat({ selectedChat }: RoomChatProps) {
                 .join("")}
             </AvatarFallback>
           </Avatar>
-          <div>
-            <h3 className="font-medium">{room?.name}</h3>
+          <div className="flex flex-row gap-2">
+            <div>
+              <h3 className="font-medium">{room?.name}</h3>
+            </div>
+            <div>
+              <span className="text-sm text-muted-foreground">
+                {getRoomTopic(room)}
+              </span>
+            </div>
             {/* <p className="text-sm text-muted-foreground">
               {room?.online
                 ? "Online"
