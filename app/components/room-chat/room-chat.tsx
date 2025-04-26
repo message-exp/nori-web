@@ -10,6 +10,12 @@ import { client } from "~/lib/matrix-api/client";
 import { getRoom, getRoomTopic } from "~/lib/matrix-api/room";
 import { getRoomAvatar } from "~/lib/matrix-api/utils";
 import { RoomSettingsDialog } from "./room-settings-dialog";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "~/components/ui/tooltip";
 
 interface RoomChatProps {
   readonly selectedChat: string | null;
@@ -90,9 +96,18 @@ export function RoomChat({ selectedChat }: RoomChatProps) {
             <span className="sr-only">Search</span>
           </Button> */}
           <RoomSettingsDialog room={room}>
-            <Button variant="ghost" size="icon">
-              <Settings className="h-5 w-5" />
-            </Button>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger>
+                  <Button variant="ghost" size="icon">
+                    <Settings className="h-5 w-5" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Settings</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
           </RoomSettingsDialog>
         </div>
       </div>
