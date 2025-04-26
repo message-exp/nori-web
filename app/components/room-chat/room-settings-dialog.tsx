@@ -146,7 +146,7 @@ export function RoomSettingsDialog({
                 Cancel
               </Button>
               <Button type="submit" disabled={isLoading}>
-                {isLoading ? <Loader className="animate-spin" /> : "Create"}
+                {isLoading ? <Loader className="animate-spin" /> : "Update"}
               </Button>
             </DialogFooter>
           </form>
