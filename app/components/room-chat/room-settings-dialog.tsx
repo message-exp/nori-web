@@ -69,7 +69,7 @@ export function RoomSettingsDialog({
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger>{children}</DialogTrigger>
-      <DialogContent>
+      <DialogContent onOpenAutoFocus={(e) => e.preventDefault()}>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
             <DialogHeader>
