@@ -1,5 +1,5 @@
 import { client } from "./client";
-import { type ICreateRoomOpts, type Room } from "matrix-js-sdk";
+import { EventTimeline, type ICreateRoomOpts, type Room } from "matrix-js-sdk";
 
 export function getRoom(roomId: string | null): Room | null {
   if (!client.client) {
@@ -20,14 +20,25 @@ export async function createRoom(
   return await client.client.createRoom(options);
 }
 
-export function updateRoom(roomId: string, title: string, topic: string) {
+export async function updateRoom(roomId: string, title: string, topic: string) {
   if (!client.client) {
     throw new Error("Matrix client is not initialized");
   }
 
   // Update room name (title)
-  client.client.setRoomName(roomId, title);
+  await client.client.setRoomName(roomId, title);
 
   // Update room topic
-  client.client.setRoomTopic(roomId, topic);
+  await client.client.setRoomTopic(roomId, topic);
+}
+
+export function getRoomTopic(room: Room): string | null {
+  if (!room) {
+    return null;
+  }
+  const roomCurrentState = room
+    .getLiveTimeline()
+    .getState(EventTimeline.FORWARDS);
+  const topicEvent = roomCurrentState?.getStateEvents("m.room.topic", "");
+  return topicEvent ? topicEvent.getContent().topic : null;
 }

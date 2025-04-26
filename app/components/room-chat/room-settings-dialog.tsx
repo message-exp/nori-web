@@ -22,7 +22,7 @@ import {
   FormMessage,
 } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
-import { updateRoom } from "~/lib/matrix-api/room";
+import { getRoomTopic, updateRoom } from "~/lib/matrix-api/room";
 
 const formSchema = z.object({
   name: z.string().min(1),
@@ -42,15 +42,26 @@ export function RoomSettingsDialog({
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      name: "",
-      topic: "",
+      name: room.name || "",
+      topic: getRoomTopic(room) || "",
     },
   });
 
+  // Set default values when room changes
+  React.useEffect(() => {
+    form.reset({
+      name: room.name || "",
+      topic: getRoomTopic(room) || "",
+    });
+  }, [room, form]);
+
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
-    updateRoom(room.roomId, values.name, values.topic || "");
-    form.reset();
+    await updateRoom(room.roomId, values.name, values.topic || "");
+    form.reset({
+      name: room.name || "",
+      topic: getRoomTopic(room) || "",
+    });
     setIsLoading(false);
     setOpen(false);
   }
