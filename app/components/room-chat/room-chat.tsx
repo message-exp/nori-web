@@ -1,13 +1,21 @@
-import { MessageSquare } from "lucide-react";
+import { MessageSquare, UserRoundPlus } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { MessageItem } from "~/components/room-chat/message";
 import { MessageInput } from "~/components/room-chat/message-input";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
+import { Button } from "~/components/ui/button";
 import { ScrollArea } from "~/components/ui/scroll-area";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "~/components/ui/tooltip";
 import { useRoomMessages } from "~/hooks/use-room-messages";
 import { client } from "~/lib/matrix-api/client";
 import { getRoom } from "~/lib/matrix-api/room";
 import { getRoomAvatar } from "~/lib/matrix-api/utils";
+import { InviteUserDialog } from "./invite-user-dialog";
 
 interface RoomChatProps {
   readonly selectedChat: string | null;
@@ -75,16 +83,30 @@ export function RoomChat({ selectedChat }: RoomChatProps) {
             </p> */}
           </div>
         </div>
-        {/* <div className="flex gap-1">
-          <Button variant="ghost" size="icon">
+        <div className="flex gap-1">
+          {/* <Button variant="ghost" size="icon">
             <Search className="h-5 w-5" />
             <span className="sr-only">Search</span>
-          </Button>
-          <Button variant="ghost" size="icon">
+          </Button> */}
+          <InviteUserDialog>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger>
+                  <Button variant="ghost" size="icon">
+                    <UserRoundPlus className="h-5 w-5" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Invite</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </InviteUserDialog>
+          {/* <Button variant="ghost" size="icon">
             <Settings className="h-5 w-5" />
             <span className="sr-only">Settings</span>
-          </Button>
-        </div> */}
+          </Button> */}
+        </div>
       </div>
       <div className="flex-1 overflow-hidden">
         <ScrollArea className="h-full">
