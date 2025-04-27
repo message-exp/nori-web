@@ -19,3 +19,14 @@ export async function createRoom(
   }
   return await client.client.createRoom(options);
 }
+
+export async function inviteToRoom(
+  roomId: string,
+  userId: string,
+  reason?: string,
+) {
+  if (!client.client) {
+    throw new Error("Matrix client is not initialized");
+  }
+  await client.client.invite(roomId, userId, reason);
+}

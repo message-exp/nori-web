@@ -88,7 +88,7 @@ export function RoomChat({ selectedChat }: RoomChatProps) {
             <Search className="h-5 w-5" />
             <span className="sr-only">Search</span>
           </Button> */}
-          <InviteUserDialog>
+          <InviteUserDialog room={room}>
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger>

@@ -1,14 +1,10 @@
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader } from "lucide-react";
+import type { Room } from "matrix-js-sdk";
 import React from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 import { Button } from "~/components/ui/button";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "~/components/ui/command";
 import {
   Dialog,
   DialogContent,
@@ -17,16 +13,47 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "~/components/ui/dialog";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "~/components/ui/form";
+import { Input } from "~/components/ui/input";
+import { inviteToRoom } from "~/lib/matrix-api/room";
 
-export function InviteUserDialog({ children }: { children: React.ReactNode }) {
+const formSchema = z.object({
+  userId: z
+    .string()
+    .trim()
+    .refine((userId) => /^@[a-z0-9._=\-/+]+:.+/.test(userId), {
+      message: "Invalid user ID",
+    }),
+});
+
+export function InviteUserDialog({
+  children,
+  room,
+}: {
+  children: React.ReactNode;
+  room: Room;
+}) {
   const [open, setOpen] = React.useState(false);
   const [isLoading, setIsLoading] = React.useState(false);
-  const [selectedUsers, setSelectedUsers] = React.useState<any[]>([]);
 
-  async function invite() {
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      userId: "",
+    },
+  });
+
+  async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
-    // await createRoom({ name: values.name, topic: values.topic });
-    // form.reset();
+    await inviteToRoom(room.roomId, values.userId);
+    form.reset();
     setIsLoading(false);
     setOpen(false);
   }
@@ -34,59 +61,60 @@ export function InviteUserDialog({ children }: { children: React.ReactNode }) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger>{children}</DialogTrigger>
-      <DialogContent className="gap-0 p-0">
-        <DialogHeader className="px-4 pb-4 pt-5">
-          <DialogTitle>Invite to Room</DialogTitle>
-        </DialogHeader>
-        <Command className="overflow-hidden rounded-t-none border-t bg-transparent">
-          <CommandInput placeholder="Search user..." />
-          <CommandList>
-            <CommandEmpty>No user found.</CommandEmpty>
-            <CommandGroup className="p-2">
-              <CommandItem>Calendar</CommandItem>
-              <CommandItem>Search Emoji</CommandItem>
-              <CommandItem>Calculator</CommandItem>
-            </CommandGroup>
-          </CommandList>
-        </Command>
-        <DialogFooter className="flex items-center border-t p-4 sm:justify-between">
-          {/* {selectedUsers.length > 0 ? (
-            <div className="flex -space-x-2 overflow-hidden">
-              {selectedUsers.map((user) => (
-                <Avatar
-                  key={user.email}
-                  className="inline-block border-2 border-background"
-                >
-                  <AvatarImage src={user.avatar} />
-                  <AvatarFallback>{user.name[0]}</AvatarFallback>
-                </Avatar>
-              ))}
+      <DialogContent>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)}>
+            <DialogHeader>
+              <DialogTitle>Invite to Room</DialogTitle>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+              <FormField
+                control={form.control}
+                name="userId"
+                render={({ field }) => (
+                  <FormItem>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <FormLabel className="text-right">Username</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="@user:matrix.org"
+                          className="col-span-3"
+                          {...field}
+                        />
+                      </FormControl>
+                    </div>
+                    {/* <div className="grid grid-cols-4 items-center gap-4">
+                      <div></div>
+                      <FormDescription className="col-span-3">
+                        This is your public display name.
+                      </FormDescription>
+                    </div> */}
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <div></div>
+                      <FormMessage className="col-span-3" />
+                    </div>
+                  </FormItem>
+                )}
+              />
             </div>
-          ) : (
-            <p className="text-sm text-muted-foreground">
-              Select users to add to this thread.
-            </p>
-          )} */}
-          {/* <Button
-            disabled={selectedUsers.length < 2}
-            onClick={() => {
-              setOpen(false)
-            }}
-          >
-            Continue
-          </Button> */}
-
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => setOpen(false)}
-          >
-            Cancel
-          </Button>
-          <Button type="submit" disabled={isLoading}>
-            {isLoading ? <Loader className="animate-spin" /> : "Continue"}
-          </Button>
-        </DialogFooter>
+            <DialogFooter>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={(e) => {
+                  e.preventDefault();
+                  form.reset();
+                  setOpen(false);
+                }}
+              >
+                Cancel
+              </Button>
+              <Button type="submit" disabled={isLoading}>
+                {isLoading ? <Loader className="animate-spin" /> : "Invite"}
+              </Button>
+            </DialogFooter>
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   );
