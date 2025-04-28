@@ -42,3 +42,14 @@ export function getRoomTopic(room: Room): string | null {
   const topicEvent = roomCurrentState?.getStateEvents("m.room.topic", "");
   return topicEvent ? topicEvent.getContent().topic : null;
 }
+
+export async function inviteToRoom(
+  roomId: string,
+  userId: string,
+  reason?: string,
+) {
+  if (!client.client) {
+    throw new Error("Matrix client is not initialized");
+  }
+  await client.client.invite(roomId, userId, reason);
+}

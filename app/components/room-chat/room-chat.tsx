@@ -1,21 +1,22 @@
-import { MessageSquare, Settings } from "lucide-react";
+import { MessageSquare, Settings, UserRoundPlus } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { MessageItem } from "~/components/room-chat/message";
 import { MessageInput } from "~/components/room-chat/message-input";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
 import { ScrollArea } from "~/components/ui/scroll-area";
-import { useRoomMessages } from "~/hooks/use-room-messages";
-import { client } from "~/lib/matrix-api/client";
-import { getRoom, getRoomTopic } from "~/lib/matrix-api/room";
-import { getRoomAvatar } from "~/lib/matrix-api/utils";
-import { RoomSettingsDialog } from "./room-settings-dialog";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
 } from "~/components/ui/tooltip";
+import { useRoomMessages } from "~/hooks/use-room-messages";
+import { client } from "~/lib/matrix-api/client";
+import { getRoom, getRoomTopic } from "~/lib/matrix-api/room";
+import { getRoomAvatar } from "~/lib/matrix-api/utils";
+import { InviteUserDialog } from "./invite-user-dialog";
+import { RoomSettingsDialog } from "./room-settings-dialog";
 
 interface RoomChatProps {
   readonly selectedChat: string | null;
@@ -95,6 +96,20 @@ export function RoomChat({ selectedChat }: RoomChatProps) {
             <Search className="h-5 w-5" />
             <span className="sr-only">Search</span>
           </Button> */}
+          <InviteUserDialog room={room}>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger>
+                  <Button variant="ghost" size="icon">
+                    <UserRoundPlus className="h-5 w-5" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Invite</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </InviteUserDialog>
           <RoomSettingsDialog room={room}>
             <TooltipProvider>
               <Tooltip>
