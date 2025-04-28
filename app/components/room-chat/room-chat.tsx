@@ -1,4 +1,4 @@
-import { MessageSquare, UserRoundPlus } from "lucide-react";
+import { MessageSquare, Settings, UserRoundPlus } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { MessageItem } from "~/components/room-chat/message";
 import { MessageInput } from "~/components/room-chat/message-input";
@@ -13,9 +13,10 @@ import {
 } from "~/components/ui/tooltip";
 import { useRoomMessages } from "~/hooks/use-room-messages";
 import { client } from "~/lib/matrix-api/client";
-import { getRoom } from "~/lib/matrix-api/room";
+import { getRoom, getRoomTopic } from "~/lib/matrix-api/room";
 import { getRoomAvatar } from "~/lib/matrix-api/utils";
 import { InviteUserDialog } from "./invite-user-dialog";
+import { RoomSettingsDialog } from "./room-settings-dialog";
 
 interface RoomChatProps {
   readonly selectedChat: string | null;
@@ -74,8 +75,15 @@ export function RoomChat({ selectedChat }: RoomChatProps) {
                 .join("")}
             </AvatarFallback>
           </Avatar>
-          <div>
-            <h3 className="font-medium">{room?.name}</h3>
+          <div className="flex flex-row gap-2">
+            <div>
+              <h3 className="font-medium">{room?.name}</h3>
+            </div>
+            <div>
+              <span className="text-sm text-muted-foreground">
+                {getRoomTopic(room)}
+              </span>
+            </div>
             {/* <p className="text-sm text-muted-foreground">
               {room?.online
                 ? "Online"
@@ -102,10 +110,20 @@ export function RoomChat({ selectedChat }: RoomChatProps) {
               </Tooltip>
             </TooltipProvider>
           </InviteUserDialog>
-          {/* <Button variant="ghost" size="icon">
-            <Settings className="h-5 w-5" />
-            <span className="sr-only">Settings</span>
-          </Button> */}
+          <RoomSettingsDialog room={room}>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger>
+                  <Button variant="ghost" size="icon">
+                    <Settings className="h-5 w-5" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Settings</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </RoomSettingsDialog>
         </div>
       </div>
       <div className="flex-1 overflow-hidden">
