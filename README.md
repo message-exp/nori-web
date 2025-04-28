@@ -2,7 +2,7 @@
 
 ## Getting Started
 
-### Setup developing environment
+### Setup Developing Environment
 
 1. Install Node.js (v22 or later) and pnpm.
 
@@ -11,6 +11,13 @@
 3. Run `pnpm prepare` to setup git hook.
 
 4. To start the dev server, run `pnpm dev`.
+
+### Run Docker Image
+
+```sh
+docker build -t nori-web .
+docker run -d -p 3000:3000 --name nori-web nori-web
+```
 
 ---
 
