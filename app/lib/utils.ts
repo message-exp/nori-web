@@ -1,5 +1,6 @@
 import { clsx, type ClassValue } from "clsx";
-import type { Room } from "matrix-js-sdk";
+import Cookies from "js-cookie";
+import type { Room, LoginResponse } from "matrix-js-sdk";
 import { twMerge } from "tailwind-merge";
 
 export function cn(...inputs: ClassValue[]) {
@@ -25,4 +26,32 @@ export function getLatestMessageText(room: Room) {
   }
 
   return null; // 沒有找到符合條件的訊息
+}
+
+export function setLoginState(loginResponse: LoginResponse, baseUrl: string) {
+  Cookies.set("access_token", loginResponse.access_token, {
+    expires: 7,
+    sameSite: "Lax",
+    secure: true,
+  });
+  Cookies.set("refresh_token", loginResponse.refresh_token ?? "", {
+    expires: 7,
+    sameSite: "Lax",
+    secure: true,
+  });
+  Cookies.set("deviceId", loginResponse.device_id, {
+    expires: 7,
+    sameSite: "Lax",
+    secure: true,
+  });
+  Cookies.set("userId", loginResponse.user_id, {
+    expires: 7,
+    sameSite: "Lax",
+    secure: true,
+  });
+  Cookies.set("baseUrl", baseUrl, {
+    expires: 7,
+    sameSite: "Lax",
+    secure: true,
+  });
 }
