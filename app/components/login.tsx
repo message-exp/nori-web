@@ -27,6 +27,7 @@ import { login } from "~/lib/matrix-api/login";
 import { getBaseUrl } from "~/lib/matrix-api/utils";
 import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
 import { Link, useNavigate } from "react-router";
+import { setLoginState } from "~/lib/utils";
 
 const debouncedGetBaseUrl = debouncePromise(getBaseUrl, 1000); // 1 second cooldown
 
@@ -73,9 +74,9 @@ export function Login({
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    let response;
     try {
-      response = await login(values.username, values.password);
+      const response = await login(values.username, values.password);
+      setLoginState(response.loginResponse, response.baseUrl);
       console.log("login response", response);
     } catch (error) {
       console.error("Error logging in:", error);
@@ -84,7 +85,7 @@ export function Login({
     }
 
     // redirect to the home page
-    return navigate("/home");
+    navigate("/home");
   }
 
   return (
