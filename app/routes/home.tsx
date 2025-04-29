@@ -1,4 +1,3 @@
-import clsx from "clsx";
 import { useState } from "react";
 import { RoomChat } from "~/components/room-chat/room-chat";
 import { RoomList } from "~/components/room-list";
