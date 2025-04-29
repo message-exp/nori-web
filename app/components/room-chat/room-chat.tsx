@@ -29,7 +29,10 @@ interface RoomChatProps {
   readonly onBackClick?: () => void;
 }
 
-export function RoomChat({ selectedChat, onBackClick }: RoomChatProps) {
+export function RoomChat({
+  selectedChat,
+  onBackClick = () => {},
+}: RoomChatProps) {
   const isMobile = useIsMobile();
   const [room, setRoom] = useState(getRoom(selectedChat));
 
@@ -75,9 +78,7 @@ export function RoomChat({ selectedChat, onBackClick }: RoomChatProps) {
             <Button variant="ghost" size="icon" onClick={onBackClick}>
               <ChevronLeft className="h-5 w-5" />
             </Button>
-          ) : (
-            ""
-          )}
+          ) : null}
           <Avatar>
             <AvatarImage
               src={getRoomAvatar(room, room.client.baseUrl)}
