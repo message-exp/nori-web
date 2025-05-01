@@ -2,7 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { AlertCircle, Loader } from "lucide-react";
-import React from "react";
+import React, { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "~/components/ui/button";
@@ -27,8 +27,8 @@ import { login } from "~/lib/matrix-api/login";
 import { getBaseUrl } from "~/lib/matrix-api/utils";
 import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
 import { Link, useNavigate } from "react-router";
-import { setLoginState } from "~/lib/utils";
-
+import { setAuthCookies } from "~/lib/utils";
+import { refreshToken } from "~/lib/matrix-api/refresh-token";
 const debouncedGetBaseUrl = debouncePromise(getBaseUrl, 1000); // 1 second cooldown
 
 // define form schema
@@ -72,11 +72,19 @@ export function Login({
       password: "",
     },
   });
-
+  useEffect(() => {
+    const fetchData = async () => {
+      const refreshSuccess = await refreshToken();
+      if (refreshSuccess) {
+        navigate("/home");
+      }
+    };
+    fetchData();
+  }, []);
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
       const response = await login(values.username, values.password);
-      setLoginState(response.loginResponse, response.baseUrl);
+      setAuthCookies(response.loginResponse, response.baseUrl);
       console.log("login response", response);
     } catch (error) {
       console.error("Error logging in:", error);

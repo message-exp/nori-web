@@ -1,6 +1,6 @@
 import { clsx, type ClassValue } from "clsx";
 import Cookies from "js-cookie";
-import type { Room, LoginResponse } from "matrix-js-sdk";
+import type { Room, LoginResponse, RegisterResponse } from "matrix-js-sdk";
 import { twMerge } from "tailwind-merge";
 
 export function cn(...inputs: ClassValue[]) {
@@ -28,23 +28,30 @@ export function getLatestMessageText(room: Room) {
   return null; // 沒有找到符合條件的訊息
 }
 
-export function setLoginState(loginResponse: LoginResponse, baseUrl: string) {
-  Cookies.set("access_token", loginResponse.access_token, {
+export function setAuthCookies(
+  authResponse: LoginResponse | RegisterResponse,
+  baseUrl: string,
+) {
+  if (authResponse.access_token) {
+  }
+  Cookies.set("access_token", authResponse.access_token ?? "", {
     expires: 7,
     sameSite: "Lax",
     secure: true,
   });
-  Cookies.set("refresh_token", loginResponse.refresh_token ?? "", {
+  Cookies.set("refresh_token", authResponse.refresh_token ?? "", {
     expires: 7,
     sameSite: "Lax",
     secure: true,
   });
-  Cookies.set("deviceId", loginResponse.device_id, {
-    expires: 7,
-    sameSite: "Lax",
-    secure: true,
-  });
-  Cookies.set("userId", loginResponse.user_id, {
+  if (authResponse.device_id) {
+    Cookies.set("deviceId", authResponse.device_id, {
+      expires: 7,
+      sameSite: "Lax",
+      secure: true,
+    });
+  }
+  Cookies.set("userId", authResponse.user_id, {
     expires: 7,
     sameSite: "Lax",
     secure: true,
@@ -54,4 +61,20 @@ export function setLoginState(loginResponse: LoginResponse, baseUrl: string) {
     sameSite: "Lax",
     secure: true,
   });
+}
+
+export function getAuthCookies() {
+  const accessToken = Cookies.get("access_token");
+  const refreshToken = Cookies.get("refresh_token");
+  const deviceId = Cookies.get("deviceId");
+  const userId = Cookies.get("userId");
+  const baseUrl = Cookies.get("baseUrl");
+
+  return {
+    accessToken,
+    refreshToken,
+    deviceId,
+    userId,
+    baseUrl,
+  };
 }
