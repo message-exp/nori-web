@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader } from "lucide-react";
+import { AlertCircle, Loader } from "lucide-react";
 import type { Room } from "matrix-js-sdk";
 import React from "react";
 import { useForm } from "react-hook-form";
@@ -23,6 +23,7 @@ import {
 } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
 import { inviteToRoom } from "~/lib/matrix-api/room";
+import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
 
 const formSchema = z.object({
   userId: z
@@ -42,17 +43,13 @@ export function InviteUserDialog({
 }) {
   const [open, setOpen] = React.useState(false);
   const [isLoading, setIsLoading] = React.useState(false);
-
   const [submitError, setSubmitError] = React.useState<string | null>(null);
-  const [errorOpen, setErrorOpen] = React.useState(false);
-
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       userId: "",
     },
   });
-
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setSubmitError(null);
     setIsLoading(true);
@@ -62,88 +59,79 @@ export function InviteUserDialog({
       setOpen(false);
     } catch (err: any) {
       console.error(err);
-      setSubmitError(err.message || "邀請失敗，請稍後再試");
-      setErrorOpen(true);
+      setSubmitError("failed to invite user");
     } finally {
       setIsLoading(false);
     }
   }
 
   return (
-    <>
-      <Dialog open={open} onOpenChange={setOpen}>
-        <DialogTrigger>{children}</DialogTrigger>
-        <DialogContent>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)}>
-              <DialogHeader>
-                <DialogTitle>Invite to Room</DialogTitle>
-              </DialogHeader>
-              <div className="grid gap-4 py-4">
-                <FormField
-                  control={form.control}
-                  name="userId"
-                  render={({ field }) => (
-                    <FormItem>
-                      <div className="grid grid-cols-4 items-center gap-4">
-                        <FormLabel className="text-right">Username</FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="@user:matrix.org"
-                            className="col-span-3"
-                            {...field}
-                          />
-                        </FormControl>
-                      </div>
-                      {/* <div className="grid grid-cols-4 items-center gap-4">
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogTrigger>{children}</DialogTrigger>
+      <DialogContent>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)}>
+            <DialogHeader>
+              <DialogTitle>Invite to Room</DialogTitle>
+            </DialogHeader>
+            <Alert
+              variant="destructive"
+              className="mt-4 mb-4"
+              hidden={!submitError}
+            >
+              <AlertCircle className="h-4 w-4" />
+              <AlertTitle>Error!</AlertTitle>
+              <AlertDescription>{submitError}</AlertDescription>
+            </Alert>
+            <div className="grid gap-4 py-4">
+              <FormField
+                control={form.control}
+                name="userId"
+                render={({ field }) => (
+                  <FormItem>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <FormLabel className="text-right">Username</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="@user:matrix.org"
+                          className="col-span-3"
+                          {...field}
+                        />
+                      </FormControl>
+                    </div>
+                    {/* <div className="grid grid-cols-4 items-center gap-4">
                       <div></div>
                       <FormDescription className="col-span-3">
                         This is your public display name.
                       </FormDescription>
                     </div> */}
-                      <div className="grid grid-cols-4 items-center gap-4">
-                        <div></div>
-                        <FormMessage className="col-span-3" />
-                      </div>
-                    </FormItem>
-                  )}
-                />
-              </div>
-              <DialogFooter>
-                <Button
-                  type="button"
-                  variant="outline"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    form.reset();
-                    setOpen(false);
-                  }}
-                >
-                  Cancel
-                </Button>
-                <Button type="submit" disabled={isLoading}>
-                  {isLoading ? <Loader className="animate-spin" /> : "Invite"}
-                </Button>
-              </DialogFooter>
-            </form>
-          </Form>
-        </DialogContent>
-      </Dialog>
-
-      {/* 錯誤訊息確認框 */}
-      <Dialog open={errorOpen} onOpenChange={setErrorOpen}>
-        <DialogContent className="max-w-[90vw] w-full">
-          <DialogHeader>
-            <DialogTitle>invite failed</DialogTitle>
-          </DialogHeader>
-          <div className="py-2 text-red-600 whitespace-pre-wrap break-all">
-            {submitError}
-          </div>
-          <DialogFooter className="flex justify-end">
-            <Button onClick={() => setErrorOpen(false)}>okay</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <div></div>
+                      <FormMessage className="col-span-3" />
+                    </div>
+                  </FormItem>
+                )}
+              />
+            </div>
+            <DialogFooter>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={(e) => {
+                  e.preventDefault();
+                  form.reset();
+                  setOpen(false);
+                }}
+              >
+                Cancel
+              </Button>
+              <Button type="submit" disabled={isLoading}>
+                {isLoading ? <Loader className="animate-spin" /> : "Invite"}
+              </Button>
+            </DialogFooter>
+          </form>
+        </Form>
+      </DialogContent>
+    </Dialog>
   );
 }
