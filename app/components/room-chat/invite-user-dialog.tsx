@@ -58,13 +58,12 @@ export function InviteUserDialog({
       form.reset();
       setOpen(false);
     } catch (err: any) {
-      console.error(err);
-      setSubmitError("failed to invite user");
+      console.log(err.message);
+      setSubmitError("[" + err.httpStatus + "] failed to invite user");
     } finally {
       setIsLoading(false);
     }
   }
-
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger>{children}</DialogTrigger>
