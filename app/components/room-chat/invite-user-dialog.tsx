@@ -57,7 +57,7 @@ export function InviteUserDialog({
       await inviteToRoom(room.roomId, values.userId);
       form.reset();
       setOpen(false);
-    } catch (err: any) {
+    } catch (err) {
       console.log(err.message);
       setSubmitError("[" + err.httpStatus + "] failed to invite user");
     } finally {
