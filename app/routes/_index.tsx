@@ -7,8 +7,8 @@ import { ThemeToggle } from "~/components/theme-toggle";
 // eslint-disable-next-line no-empty-pattern
 export function meta({}: Route.MetaArgs) {
   return [
-    { title: "New React Router App" },
-    { name: "description", content: "Welcome to React Router!" },
+    { title: "nori" },
+    { name: "description", content: "Welcome to nori!" },
   ];
 }
 

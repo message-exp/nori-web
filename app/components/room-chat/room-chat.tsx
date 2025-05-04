@@ -1,4 +1,9 @@
-import { MessageSquare, Settings, UserRoundPlus } from "lucide-react";
+import {
+  ChevronLeft,
+  MessageSquare,
+  Settings,
+  UserRoundPlus,
+} from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { MessageItem } from "~/components/room-chat/message";
 import { MessageInput } from "~/components/room-chat/message-input";
@@ -11,6 +16,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "~/components/ui/tooltip";
+import { useIsMobile } from "~/hooks/use-mobile";
 import { useRoomMessages } from "~/hooks/use-room-messages";
 import { client } from "~/lib/matrix-api/client";
 import { getRoom, getRoomTopic } from "~/lib/matrix-api/room";
@@ -20,9 +26,14 @@ import { RoomSettingsDialog } from "./room-settings-dialog";
 
 interface RoomChatProps {
   readonly selectedChat: string | null;
+  readonly onBackClick?: () => void;
 }
 
-export function RoomChat({ selectedChat }: RoomChatProps) {
+export function RoomChat({
+  selectedChat,
+  onBackClick = () => {},
+}: RoomChatProps) {
+  const isMobile = useIsMobile();
   const [room, setRoom] = useState(getRoom(selectedChat));
 
   // selected room changes
@@ -63,6 +74,11 @@ export function RoomChat({ selectedChat }: RoomChatProps) {
     <div className="flex h-full flex-col">
       <div className="flex items-center justify-between border-b p-4">
         <div className="flex items-center gap-3">
+          {isMobile ? (
+            <Button variant="ghost" size="icon" onClick={onBackClick}>
+              <ChevronLeft className="h-5 w-5" />
+            </Button>
+          ) : null}
           <Avatar>
             <AvatarImage
               src={getRoomAvatar(room, room.client.baseUrl)}
