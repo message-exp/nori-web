@@ -73,11 +73,7 @@ export function InviteUserDialog({
             <DialogHeader>
               <DialogTitle>Invite to Room</DialogTitle>
             </DialogHeader>
-            <Alert
-              variant="destructive"
-              className="mt-4 mb-4"
-              hidden={!submitError}
-            >
+            <Alert variant="destructive" className="mt-4" hidden={!submitError}>
               <AlertCircle className="h-4 w-4" />
               <AlertTitle>Error!</AlertTitle>
               <AlertDescription>{submitError}</AlertDescription>
