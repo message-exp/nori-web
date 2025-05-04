@@ -100,7 +100,7 @@ export function RoomChat({ selectedChat }: RoomChatProps) {
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger>
-                  <Button variant="ghost" size="icon">
+                  <Button variant="ghost" size="icon" asChild>
                     <UserRoundPlus className="h-5 w-5" />
                   </Button>
                 </TooltipTrigger>
@@ -114,7 +114,7 @@ export function RoomChat({ selectedChat }: RoomChatProps) {
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger>
-                  <Button variant="ghost" size="icon">
+                  <Button variant="ghost" size="icon" asChild>
                     <Settings className="h-5 w-5" />
                   </Button>
                 </TooltipTrigger>

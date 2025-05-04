@@ -27,6 +27,7 @@ export async function login(
       user: userId,
     },
     password: password,
+    refresh_token: true,
   });
 
   // re-create a client

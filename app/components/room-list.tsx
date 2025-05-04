@@ -1,5 +1,6 @@
 import { Plus } from "lucide-react";
-import { NotificationCountType } from "matrix-js-sdk";
+import { NotificationCountType, ClientEvent } from "matrix-js-sdk";
+import type { Room } from "matrix-js-sdk";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
 import { ScrollArea } from "~/components/ui/scroll-area";
@@ -9,10 +10,14 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "~/components/ui/tooltip";
-import { useRoomList } from "~/hooks/use-room-list";
 import { getRoomAvatar } from "~/lib/matrix-api/utils";
 import { cn, getLatestMessageText } from "~/lib/utils";
 import { CreateRoomDialog } from "./create-room-dialog";
+import { useEffect, useState } from "react";
+import { getRoomList } from "~/lib/matrix-api/room-list";
+import { client } from "~/lib/matrix-api/client";
+import { useNavigate } from "react-router";
+import { refreshToken } from "~/lib/matrix-api/refresh-token";
 
 interface RoomListProps {
   readonly selectedChat: string | null;
@@ -23,7 +28,22 @@ export const RoomList: React.FC<RoomListProps> = ({
   selectedChat,
   setSelectedChat,
 }) => {
-  const rooms = useRoomList();
+  const [rooms, setRooms] = useState<Room[]>([]);
+  const navigate = useNavigate();
+  useEffect(() => {
+    const redirectIfAuthenticated = async () => {
+      const refreshStatus = await refreshToken();
+      console.log("refreshStatus", refreshStatus);
+      if (refreshStatus === "REFRESH_FAILED") {
+        navigate("/login");
+      }
+      setRooms(await getRoomList());
+      client.client.on(ClientEvent.Room, async () => {
+        setRooms(await getRoomList());
+      });
+    };
+    redirectIfAuthenticated();
+  }, []);
 
   return (
     <div className="flex flex-col h-screen">
@@ -33,8 +53,8 @@ export const RoomList: React.FC<RoomListProps> = ({
           <CreateRoomDialog>
             <TooltipProvider>
               <Tooltip>
-                <TooltipTrigger>
-                  <Button variant="ghost" size="icon">
+                <TooltipTrigger asChild>
+                  <Button variant="ghost" size="icon" asChild>
                     <Plus />
                   </Button>
                 </TooltipTrigger>

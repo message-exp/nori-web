@@ -4,17 +4,32 @@ import { getAuthCookies, setAuthCookies } from "~/lib/utils";
 
 export async function refreshToken(): Promise<string> {
   const authCookies = getAuthCookies();
-  if (authCookies.refreshToken) {
-    const response = await client.client.refreshToken(authCookies.refreshToken);
-    setAuthCookies(
-      {
-        refresh_token: response.refresh_token,
-        access_token: response.access_token,
-      } as sdk.LoginResponse,
-      authCookies.baseUrl ?? "",
-    );
-    return "REFRESH_SUCCESS";
+  if (
+    authCookies.refreshToken &&
+    authCookies.baseUrl &&
+    authCookies.userId &&
+    authCookies.deviceId &&
+    authCookies.accessToken
+  ) {
+    try {
+      const tempClient = sdk.createClient({ baseUrl: authCookies.baseUrl });
+      const response = await tempClient.refreshToken(authCookies.refreshToken);
+      await client.newClient({
+        baseUrl: authCookies.baseUrl,
+        deviceId: authCookies.deviceId,
+        accessToken: response.access_token,
+        refreshToken: response.refresh_token,
+        userId: authCookies.userId,
+      });
+
+      setAuthCookies(response, authCookies.baseUrl ?? "");
+      console.log("Refresh token success:", response);
+      return "REFRESH_SUCCESS";
+    } catch (error) {
+      console.error("Failed to refresh token:", error);
+      return "REFRESH_FAILED";
+    }
   } else {
-    return "REFRESH_FAIL";
+    return "REFRESH_FAILED";
   }
 }

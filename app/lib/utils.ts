@@ -1,6 +1,11 @@
 import { clsx, type ClassValue } from "clsx";
 import Cookies from "js-cookie";
-import type { Room, LoginResponse, RegisterResponse } from "matrix-js-sdk";
+import type {
+  Room,
+  LoginResponse,
+  RegisterResponse,
+  IRefreshTokenResponse,
+} from "matrix-js-sdk";
 import { twMerge } from "tailwind-merge";
 
 export function cn(...inputs: ClassValue[]) {
@@ -29,33 +34,35 @@ export function getLatestMessageText(room: Room) {
 }
 
 export function setAuthCookies(
-  authResponse: LoginResponse | RegisterResponse,
+  authResponse: LoginResponse | RegisterResponse | IRefreshTokenResponse,
   baseUrl: string,
 ) {
   if (authResponse.access_token) {
+    Cookies.set("access_token", authResponse.access_token ?? "", {
+      expires: 7,
+      sameSite: "Lax",
+      secure: true,
+    });
   }
-  Cookies.set("access_token", authResponse.access_token ?? "", {
-    expires: 7,
-    sameSite: "Lax",
-    secure: true,
-  });
   Cookies.set("refresh_token", authResponse.refresh_token ?? "", {
     expires: 7,
     sameSite: "Lax",
     secure: true,
   });
-  if (authResponse.device_id) {
+  if ("device_id" in authResponse && authResponse.device_id) {
     Cookies.set("deviceId", authResponse.device_id, {
       expires: 7,
       sameSite: "Lax",
       secure: true,
     });
   }
-  Cookies.set("userId", authResponse.user_id, {
-    expires: 7,
-    sameSite: "Lax",
-    secure: true,
-  });
+  if ("user_id" in authResponse && authResponse.user_id) {
+    Cookies.set("userId", authResponse.user_id, {
+      expires: 7,
+      sameSite: "Lax",
+      secure: true,
+    });
+  }
   Cookies.set("baseUrl", baseUrl, {
     expires: 7,
     sameSite: "Lax",
