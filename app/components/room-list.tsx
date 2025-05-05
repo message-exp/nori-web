@@ -18,6 +18,7 @@ import { getRoomList } from "~/lib/matrix-api/room-list";
 import { client } from "~/lib/matrix-api/client";
 import { useNavigate } from "react-router";
 import { refreshToken } from "~/lib/matrix-api/refresh-token";
+import { DialogTrigger } from "@radix-ui/react-dialog";
 
 interface RoomListProps {
   readonly selectedChat: string | null;
@@ -53,11 +54,14 @@ export const RoomList: React.FC<RoomListProps> = ({
           <CreateRoomDialog>
             <TooltipProvider>
               <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button variant="ghost" size="icon" asChild>
-                    <Plus />
-                  </Button>
-                </TooltipTrigger>
+                <DialogTrigger asChild>
+                  <TooltipTrigger asChild>
+                    <Button variant="ghost" size="icon">
+                      <Plus />
+                    </Button>
+                  </TooltipTrigger>
+                </DialogTrigger>
+
                 <TooltipContent>
                   <p>Create room</p>
                 </TooltipContent>

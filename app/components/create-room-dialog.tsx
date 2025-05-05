@@ -50,7 +50,7 @@ export function CreateRoomDialog({ children }: { children: React.ReactNode }) {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger>{children}</DialogTrigger>
+      {children}
       <DialogContent>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
