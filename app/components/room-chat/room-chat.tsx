@@ -116,11 +116,13 @@ export function RoomChat({ selectedChat }: RoomChatProps) {
           <RoomSettingsDialog room={room}>
             <TooltipProvider>
               <Tooltip>
-                <TooltipTrigger>
-                  <Button variant="ghost" size="icon" asChild>
-                    <Settings className="h-5 w-5" />
-                  </Button>
-                </TooltipTrigger>
+                <DialogTrigger asChild>
+                  <TooltipTrigger asChild>
+                    <Button variant="ghost" size="icon">
+                      <Settings className="h-5 w-5" />
+                    </Button>
+                  </TooltipTrigger>
+                </DialogTrigger>
                 <TooltipContent>
                   <p>Settings</p>
                 </TooltipContent>
