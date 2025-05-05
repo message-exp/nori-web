@@ -51,5 +51,6 @@ export async function inviteToRoom(
   if (!client.client) {
     throw new Error("Matrix client is not initialized");
   }
-  await client.client.invite(roomId, userId, reason);
+  const ret_message = await client.client.invite(roomId, userId, reason);
+  return ret_message;
 }
