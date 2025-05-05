@@ -6,7 +6,7 @@ export async function register(
   homeserver: string,
   username: string,
   password: string,
-): Promise<sdk.RegisterResponse | string> {
+): Promise<{ registerResponse: sdk.RegisterResponse; baseUrl: string }> {
   // get base URL from host name
   const baseUrl = await getBaseUrl(`@${username}:${homeserver}`);
   console.log("baseUrl", baseUrl);
@@ -15,19 +15,14 @@ export async function register(
     baseUrl === "FAIL_PROMPT" ||
     baseUrl === "FAIL_ERROR"
   ) {
-    return baseUrl;
+    throw new Error(`base URL ${baseUrl}`);
   }
 
   // create a temporary client to connect to the home server of the user
-  await client.newClient(
-    {
-      baseUrl: baseUrl,
-    },
-    false,
-  );
+  const tempClient = sdk.createClient({ baseUrl });
 
   // register the user
-  const response = await client.client.register(
+  const response = await tempClient.register(
     username,
     password,
     null, // No session ID initially
@@ -48,5 +43,5 @@ export async function register(
     userId: response.user_id,
   });
 
-  return response;
+  return { registerResponse: response, baseUrl };
 }
