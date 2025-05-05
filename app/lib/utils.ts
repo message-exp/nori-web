@@ -40,33 +40,33 @@ export function setAuthCookies(
   if (authResponse.access_token) {
     Cookies.set("access_token", authResponse.access_token ?? "", {
       expires: 7,
-      sameSite: "Lax",
-      secure: true,
+      sameSite: "strict",
+      secure: false,
     });
   }
   Cookies.set("refresh_token", authResponse.refresh_token ?? "", {
     expires: 7,
-    sameSite: "Lax",
-    secure: true,
+    sameSite: "strict",
+    secure: false,
   });
   if ("device_id" in authResponse && authResponse.device_id) {
     Cookies.set("deviceId", authResponse.device_id, {
       expires: 7,
-      sameSite: "Lax",
-      secure: true,
+      sameSite: "strict",
+      secure: false,
     });
   }
   if ("user_id" in authResponse && authResponse.user_id) {
     Cookies.set("userId", authResponse.user_id, {
       expires: 7,
-      sameSite: "Lax",
-      secure: true,
+      sameSite: "strict",
+      secure: false,
     });
   }
   Cookies.set("baseUrl", baseUrl, {
     expires: 7,
-    sameSite: "Lax",
-    secure: true,
+    sameSite: "strict",
+    secure: false,
   });
 }
 
