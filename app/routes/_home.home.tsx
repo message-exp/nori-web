@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { HomeSidebar } from "~/components/home-sidebar";
 import { RoomChat } from "~/components/room-chat/room-chat";
+import { RoomList } from "~/components/room-list";
 import {
   ResizableHandle,
   ResizablePanel,
@@ -33,14 +33,10 @@ export default function Home() {
         <>
           {showMobileList ? (
             <div className="h-full w-full transition-all duration-300">
-              <HomeSidebar
+              <RoomList
                 selectedChat={selectedChat}
                 setSelectedChat={handleSelectChat}
               />
-              {/* <RoomList
-                selectedChat={selectedChat}
-                setSelectedChat={handleSelectChat}
-              /> */}
             </div>
           ) : (
             <div className="h-full w-full transition-all duration-300">
@@ -58,14 +54,10 @@ export default function Home() {
             maxSize={40}
             className="flex flex-col"
           >
-            <HomeSidebar
+            <RoomList
               selectedChat={selectedChat}
               setSelectedChat={handleSelectChat}
             />
-            {/* <RoomList
-              selectedChat={selectedChat}
-              setSelectedChat={handleSelectChat}
-            /> */}
           </ResizablePanel>
           <ResizableHandle />
           <ResizablePanel defaultSize={75}>

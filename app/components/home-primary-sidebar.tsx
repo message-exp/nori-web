@@ -2,24 +2,26 @@ import { House, Inbox } from "lucide-react";
 import { RoomList } from "~/components/room-list";
 import { Button } from "~/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
-import { useState } from "react";
 
 interface HomeSidebarProps {
+  readonly selectedType: string | null;
+  readonly setSelectedType: (type: string) => void;
   readonly selectedChat: string | null;
   readonly setSelectedChat: (chatId: string) => void;
 }
 
-export function HomeSidebar({
+export function HomePrimarySidebar({
+  selectedType,
+  setSelectedType,
   selectedChat,
   setSelectedChat,
 }: HomeSidebarProps) {
-  const [selectedType, setSelectedType] = useState<string>("home");
-
   return (
     <div className="flex flex-row h-full">
       <div className="flex flex-col justify-between h-full p-2 border-r">
         <div className="flex flex-col gap-2">
           <Button
+            key="home"
             variant="outline"
             size="icon"
             className="size-12"
@@ -30,6 +32,7 @@ export function HomeSidebar({
         </div>
         <div className="flex flex-col gap-2">
           <Button
+            key="inbox"
             variant="outline"
             size="icon"
             className="size-12"
@@ -38,6 +41,7 @@ export function HomeSidebar({
             <Inbox className="size-6" />
           </Button>
           <Button
+            key="user"
             variant="outline"
             size="icon"
             className="size-12"
