@@ -23,6 +23,7 @@ import { getRoom, getRoomTopic } from "~/lib/matrix-api/room";
 import { getRoomAvatar } from "~/lib/matrix-api/utils";
 import { InviteUserDialog } from "./invite-user-dialog";
 import { RoomSettingsDialog } from "./room-settings-dialog";
+import { DialogTrigger } from "@radix-ui/react-dialog";
 
 interface RoomChatProps {
   readonly selectedChat: string | null;
@@ -115,11 +116,13 @@ export function RoomChat({
           <InviteUserDialog room={room}>
             <TooltipProvider>
               <Tooltip>
-                <TooltipTrigger>
-                  <Button variant="ghost" size="icon">
-                    <UserRoundPlus className="h-5 w-5" />
-                  </Button>
-                </TooltipTrigger>
+                <DialogTrigger asChild>
+                  <TooltipTrigger asChild>
+                    <Button variant="ghost" size="icon">
+                      <UserRoundPlus className="h-5 w-5" />
+                    </Button>
+                  </TooltipTrigger>
+                </DialogTrigger>
                 <TooltipContent>
                   <p>Invite</p>
                 </TooltipContent>
@@ -129,11 +132,13 @@ export function RoomChat({
           <RoomSettingsDialog room={room}>
             <TooltipProvider>
               <Tooltip>
-                <TooltipTrigger>
-                  <Button variant="ghost" size="icon">
-                    <Settings className="h-5 w-5" />
-                  </Button>
-                </TooltipTrigger>
+                <DialogTrigger asChild>
+                  <TooltipTrigger asChild>
+                    <Button variant="ghost" size="icon">
+                      <Settings className="h-5 w-5" />
+                    </Button>
+                  </TooltipTrigger>
+                </DialogTrigger>
                 <TooltipContent>
                   <p>Settings</p>
                 </TooltipContent>
