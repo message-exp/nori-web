@@ -13,7 +13,7 @@ export default function HomeLayout() {
   const navigate = useNavigate();
 
   if (isMobile && !showMobileList) {
-    return <Outlet />;
+    return <Outlet context={{ isMobile, showMobileList, setShowMobileList }} />;
   }
 
   return (
@@ -26,11 +26,7 @@ export default function HomeLayout() {
                 variant="outline"
                 size="icon"
                 className={clsx("size-12", isActive && "bg-accent")}
-                onClick={() =>
-                  navigate("/home", {
-                    state: { showMobileList, setShowMobileList },
-                  })
-                }
+                onClick={() => navigate("/home")}
               >
                 <House className="size-6" />
               </Button>
@@ -44,11 +40,7 @@ export default function HomeLayout() {
                 variant="outline"
                 size="icon"
                 className={clsx("size-12", isActive && "bg-accent")}
-                onClick={() =>
-                  navigate("/inbox", {
-                    state: { showMobileList, setShowMobileList },
-                  })
-                }
+                onClick={() => navigate("/inbox")}
               >
                 <Inbox className="size-6" />
               </Button>
@@ -60,11 +52,7 @@ export default function HomeLayout() {
                 variant="outline"
                 size="icon"
                 className={clsx("size-12", isActive && "bg-accent")}
-                onClick={() =>
-                  navigate("/user", {
-                    state: { showMobileList, setShowMobileList },
-                  })
-                }
+                onClick={() => navigate("/user")}
               >
                 {/* <UserRound className="size-6" /> */}
                 <Avatar className="rounded-sm">
@@ -77,7 +65,7 @@ export default function HomeLayout() {
         </div>
       </div>
       <div className="flex flex-col gap-2 w-full">
-        <Outlet />
+        <Outlet context={{ isMobile, showMobileList, setShowMobileList }} />
       </div>
     </div>
   );
