@@ -1,4 +1,3 @@
-import { useEffect } from "react";
 import { useNavigate, useOutletContext } from "react-router";
 import { RoomChat } from "~/components/room-chat/room-chat";
 import { RoomList } from "~/components/room-list";
@@ -19,14 +18,6 @@ export default function HomeIndex() {
     useOutletContext<HomeLayoutContext>();
   const navigate = useNavigate();
   const selectedChat = null;
-
-  useEffect(() => {
-    if (selectedChat) {
-      sessionStorage.setItem("selectedChat", selectedChat);
-    } else {
-      sessionStorage.removeItem("selectedChat");
-    }
-  }, [selectedChat]);
 
   // Custom handler for mobile selection that also hides the list
   const handleSelectChat = (roomId: string) => {
