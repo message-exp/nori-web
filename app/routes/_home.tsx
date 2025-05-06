@@ -1,7 +1,7 @@
 import clsx from "clsx";
 import { House, Inbox } from "lucide-react";
 import { useState } from "react";
-import { NavLink, Outlet, useNavigate } from "react-router";
+import { NavLink, Outlet } from "react-router";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
 import { useIsMobile } from "~/hooks/use-mobile";
@@ -9,8 +9,6 @@ import { useIsMobile } from "~/hooks/use-mobile";
 export default function HomeLayout() {
   const isMobile = useIsMobile();
   const [showMobileList, setShowMobileList] = useState(true);
-
-  const navigate = useNavigate();
 
   if (isMobile && !showMobileList) {
     return <Outlet context={{ isMobile, showMobileList, setShowMobileList }} />;
@@ -27,7 +25,6 @@ export default function HomeLayout() {
                 variant="outline"
                 size="icon"
                 className={clsx("size-12", isActive && "bg-accent")}
-                // onClick={() => navigate("/home")}
               >
                 <House className="size-6" />
               </Button>
@@ -42,7 +39,6 @@ export default function HomeLayout() {
                 variant="outline"
                 size="icon"
                 className={clsx("size-12", isActive && "bg-accent")}
-                // onClick={() => navigate("/inbox")}
               >
                 <Inbox className="size-6" />
               </Button>
@@ -55,7 +51,6 @@ export default function HomeLayout() {
                 variant="outline"
                 size="icon"
                 className={clsx("size-12", isActive && "bg-accent")}
-                // onClick={() => navigate("/user")}
               >
                 {/* <UserRound className="size-6" /> */}
                 <Avatar className="rounded-sm">
