@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { useOutletContext } from "react-router";
+import { useEffect } from "react";
+import { useNavigate, useOutletContext } from "react-router";
 import { RoomChat } from "~/components/room-chat/room-chat";
 import { RoomList } from "~/components/room-list";
 import {
@@ -7,7 +7,6 @@ import {
   ResizablePanel,
   ResizablePanelGroup,
 } from "~/components/ui/resizable";
-import { useIsMobile } from "~/hooks/use-mobile";
 
 type HomeLayoutContext = {
   isMobile: boolean;
@@ -15,13 +14,20 @@ type HomeLayoutContext = {
   setShowMobileList: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
-export default function Home() {
+type HomeRoomParams = {
+  room_id: string;
+};
+
+export default function HomeRoom({ params }: { params: HomeRoomParams }) {
   const { isMobile, showMobileList, setShowMobileList } =
     useOutletContext<HomeLayoutContext>();
 
-  const [selectedChat, setSelectedChat] = useState<string | null>(null);
-  // const isMobile = useIsMobile();
-  // const [showMobileList, setShowMobileList] = useState(true);
+  const navigate = useNavigate();
+
+  const selectedChat = params.room_id || null;
+  const setSelectedChat = (roomId: string | null) => {
+    navigate(`/home/${roomId}`);
+  };
 
   useEffect(() => {
     if (selectedChat) {

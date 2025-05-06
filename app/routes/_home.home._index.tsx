@@ -1,4 +1,7 @@
-import { useOutletContext } from "react-router";
+import { useEffect } from "react";
+import { useNavigate, useOutletContext } from "react-router";
+import { RoomChat } from "~/components/room-chat/room-chat";
+import { RoomList } from "~/components/room-list";
 import {
   ResizableHandle,
   ResizablePanel,
@@ -11,23 +14,38 @@ type HomeLayoutContext = {
   setShowMobileList: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
-export default function Inbox() {
+export default function HomeIndex() {
   const { isMobile, showMobileList, setShowMobileList } =
     useOutletContext<HomeLayoutContext>();
 
-  // // Custom handler for mobile selection that also hides the list
-  // const handleSelectChat = (roomId: string) => {
-  //   setSelectedChat(roomId);
-  //   if (isMobile) {
-  //     setShowMobileList(false);
-  //   }
-  // };
+  const navigate = useNavigate();
 
-  // const showMobileLeftPanel = () => {
-  //   if (isMobile) {
-  //     setShowMobileList(true);
-  //   }
-  // };
+  const selectedChat = null;
+  const setSelectedChat = (roomId: string | null) => {
+    navigate(`/home/${roomId}`);
+  };
+
+  useEffect(() => {
+    if (selectedChat) {
+      sessionStorage.setItem("selectedChat", selectedChat);
+    } else {
+      sessionStorage.removeItem("selectedChat");
+    }
+  }, [selectedChat]);
+
+  // Custom handler for mobile selection that also hides the list
+  const handleSelectChat = (roomId: string) => {
+    setSelectedChat(roomId);
+    if (isMobile) {
+      setShowMobileList(false);
+    }
+  };
+
+  const showMobileLeftPanel = () => {
+    if (isMobile) {
+      setShowMobileList(true);
+    }
+  };
 
   return (
     <div className="h-screen">
@@ -35,18 +53,17 @@ export default function Inbox() {
         <>
           {showMobileList ? (
             <div className="h-full w-full transition-all duration-300">
-              {/* <RoomList
+              <RoomList
                 selectedChat={selectedChat}
                 setSelectedChat={handleSelectChat}
-              /> */}
-              inbox
+              />
             </div>
           ) : (
             <div className="h-full w-full transition-all duration-300">
-              {/* <RoomChat
+              <RoomChat
                 selectedChat={selectedChat}
                 onBackClick={showMobileLeftPanel}
-              /> */}
+              />
             </div>
           )}
         </>
@@ -57,18 +74,17 @@ export default function Inbox() {
             maxSize={40}
             className="flex flex-col"
           >
-            {/* <RoomList
+            <RoomList
               selectedChat={selectedChat}
               setSelectedChat={handleSelectChat}
-            /> */}
-            inbox
+            />
           </ResizablePanel>
           <ResizableHandle />
           <ResizablePanel defaultSize={75}>
-            {/* <RoomChat
+            <RoomChat
               selectedChat={selectedChat}
               onBackClick={showMobileLeftPanel}
-            /> */}
+            />
           </ResizablePanel>
         </ResizablePanelGroup>
       )}
