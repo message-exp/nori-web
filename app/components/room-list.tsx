@@ -14,6 +14,8 @@ import { getRoomAvatar } from "~/lib/matrix-api/utils";
 import { cn, getLatestMessageText } from "~/lib/utils";
 import { CreateRoomDialog } from "./create-room-dialog";
 
+import { InviteList } from "./invite-list";
+
 interface RoomListProps {
   readonly selectedChat: string | null;
   readonly setSelectedChat: (chatId: string) => void;
@@ -46,6 +48,7 @@ export const RoomList: React.FC<RoomListProps> = ({
           </CreateRoomDialog>
         </div>
       </div>
+      <InviteList />
       <ScrollArea className="flex-1 h-[calc(100vh-60px)]">
         <div className="flex flex-col gap-1 p-2">
           {rooms.map((room) => (
