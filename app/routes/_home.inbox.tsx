@@ -16,38 +16,17 @@ export default function Inbox() {
   const { isMobile, showMobileList, setShowMobileList } =
     useOutletContext<HomeLayoutContext>();
 
-  // // Custom handler for mobile selection that also hides the list
-  // const handleSelectChat = (roomId: string) => {
-  //   setSelectedChat(roomId);
-  //   if (isMobile) {
-  //     setShowMobileList(false);
-  //   }
-  // };
-
-  // const showMobileLeftPanel = () => {
-  //   if (isMobile) {
-  //     setShowMobileList(true);
-  //   }
-  // };
-
   return (
     <div className="h-screen">
       {isMobile ? ( // Mobile Layout - Use non-resizable divs for full width control
         <>
           {showMobileList ? (
             <div className="h-full w-full transition-all duration-300">
-              {/* <RoomList
-                selectedChat={selectedChat}
-                setSelectedChat={handleSelectChat}
-              /> */}
               inbox
             </div>
           ) : (
             <div className="h-full w-full transition-all duration-300">
-              {/* <RoomChat
-                selectedChat={selectedChat}
-                onBackClick={showMobileLeftPanel}
-              /> */}
+              content
             </div>
           )}
         </>
@@ -58,19 +37,10 @@ export default function Inbox() {
             maxSize={40}
             className="flex flex-col"
           >
-            {/* <RoomList
-              selectedChat={selectedChat}
-              setSelectedChat={handleSelectChat}
-            /> */}
             inbox
           </ResizablePanel>
           <ResizableHandle />
-          <ResizablePanel defaultSize={75}>
-            {/* <RoomChat
-              selectedChat={selectedChat}
-              onBackClick={showMobileLeftPanel}
-            /> */}
-          </ResizablePanel>
+          <ResizablePanel defaultSize={75}>content</ResizablePanel>
         </ResizablePanelGroup>
       )}
     </div>

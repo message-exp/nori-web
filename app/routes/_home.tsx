@@ -27,7 +27,7 @@ export default function HomeLayout() {
                 variant="outline"
                 size="icon"
                 className={clsx("size-12", isActive && "bg-accent")}
-                onClick={() => navigate("/home")}
+                // onClick={() => navigate("/home")}
               >
                 <House className="size-6" />
               </Button>
@@ -42,7 +42,7 @@ export default function HomeLayout() {
                 variant="outline"
                 size="icon"
                 className={clsx("size-12", isActive && "bg-accent")}
-                onClick={() => navigate("/inbox")}
+                // onClick={() => navigate("/inbox")}
               >
                 <Inbox className="size-6" />
               </Button>
@@ -55,7 +55,7 @@ export default function HomeLayout() {
                 variant="outline"
                 size="icon"
                 className={clsx("size-12", isActive && "bg-accent")}
-                onClick={() => navigate("/user")}
+                // onClick={() => navigate("/user")}
               >
                 {/* <UserRound className="size-6" /> */}
                 <Avatar className="rounded-sm">

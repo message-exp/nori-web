@@ -17,13 +17,8 @@ type HomeLayoutContext = {
 export default function HomeIndex() {
   const { isMobile, showMobileList, setShowMobileList } =
     useOutletContext<HomeLayoutContext>();
-
   const navigate = useNavigate();
-
   const selectedChat = null;
-  const setSelectedChat = (roomId: string | null) => {
-    navigate(`/home/${roomId}`);
-  };
 
   useEffect(() => {
     if (selectedChat) {
@@ -35,7 +30,7 @@ export default function HomeIndex() {
 
   // Custom handler for mobile selection that also hides the list
   const handleSelectChat = (roomId: string) => {
-    setSelectedChat(roomId);
+    navigate(`/home/${roomId}`);
     if (isMobile) {
       setShowMobileList(false);
     }
