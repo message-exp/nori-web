@@ -21,6 +21,7 @@ export default function HomeLayout() {
       <div className="flex flex-col justify-between h-full p-2 border-r">
         <div className="flex flex-col gap-2">
           <NavLink to="/home">
+            {/* eslint-disable-next-line @typescript-eslint/no-unused-vars */}
             {({ isActive, isPending, isTransitioning }) => (
               <Button
                 variant="outline"
@@ -35,6 +36,7 @@ export default function HomeLayout() {
         </div>
         <div className="flex flex-col gap-2">
           <NavLink to="/inbox">
+            {/* eslint-disable-next-line @typescript-eslint/no-unused-vars */}
             {({ isActive, isPending, isTransitioning }) => (
               <Button
                 variant="outline"
@@ -47,6 +49,7 @@ export default function HomeLayout() {
             )}
           </NavLink>
           <NavLink to="/user">
+            {/* eslint-disable-next-line @typescript-eslint/no-unused-vars */}
             {({ isActive, isPending, isTransitioning }) => (
               <Button
                 variant="outline"

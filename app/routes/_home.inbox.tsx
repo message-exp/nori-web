@@ -12,6 +12,7 @@ type HomeLayoutContext = {
 };
 
 export default function Inbox() {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { isMobile, showMobileList, setShowMobileList } =
     useOutletContext<HomeLayoutContext>();
 
