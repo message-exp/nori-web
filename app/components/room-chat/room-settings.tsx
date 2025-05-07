@@ -7,6 +7,13 @@ import { useNavigate } from "react-router";
 import { z } from "zod";
 import { Button } from "~/components/ui/button";
 import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "~/components/ui/card";
+import {
   Form,
   FormControl,
   FormField,
@@ -15,7 +22,6 @@ import {
   FormMessage,
 } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
-import { useIsMobile } from "~/hooks/use-mobile";
 import { getRoomTopic, updateRoom } from "~/lib/matrix-api/room";
 
 const formSchema = z.object({
@@ -26,7 +32,6 @@ const formSchema = z.object({
 export default function RoomSettings({ room }: { room: Room }) {
   console.log("RoomSettings", room);
   const navigate = useNavigate();
-  const isMobile = useIsMobile();
   const [isLoading, setIsLoading] = React.useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -53,19 +58,19 @@ export default function RoomSettings({ room }: { room: Room }) {
   }
 
   return (
-    <div className="h-screen">
-      {isMobile ? ( // Mobile Layout
-        <div className="p-4">
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-              <div className="flex flex-row align-middle gap-2">
-                <Button variant="ghost" size="icon" onClick={back}>
-                  <ChevronLeft className="h-8 w-8" />
-                </Button>
-                <div>
-                  <h2 className="text-2xl font-bold">Room Settings</h2>
-                </div>
-              </div>
+    <div className="h-full flex items-center justify-center">
+      <Card className="w-full sm:w-1/2">
+        <CardHeader>
+          <div className="flex flex-row items-center gap-2">
+            <Button variant="ghost" size="icon" onClick={back}>
+              <ChevronLeft className="h-8 w-8" />
+            </Button>
+            <CardTitle>Room Settings</CardTitle>
+          </div>
+        </CardHeader>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+            <CardContent className="flex flex-col gap-4">
               <FormField
                 control={form.control}
                 name="name"
@@ -92,57 +97,15 @@ export default function RoomSettings({ room }: { room: Room }) {
                   </FormItem>
                 )}
               />
+            </CardContent>
+            <CardFooter>
               <Button type="submit" disabled={isLoading}>
                 {isLoading ? <Loader className="animate-spin" /> : "Save"}
               </Button>
-            </form>
-          </Form>
-        </div>
-      ) : (
-        <div className="p-4">
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-              <div className="flex flex-row align-middle gap-2">
-                <Button variant="ghost" size="icon" onClick={back}>
-                  <ChevronLeft className="h-8 w-8" />
-                </Button>
-                <div>
-                  <h2 className="text-2xl font-bold">Room Settings</h2>
-                </div>
-              </div>
-              <FormField
-                control={form.control}
-                name="name"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-right">Name</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Room name" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="topic"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel className="text-right">Topic</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Optional" {...field} />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <Button type="submit" disabled={isLoading}>
-                {isLoading ? <Loader className="animate-spin" /> : "Save"}
-              </Button>
-            </form>
-          </Form>
-        </div>
-      )}
+            </CardFooter>
+          </form>
+        </Form>
+      </Card>
     </div>
   );
 }

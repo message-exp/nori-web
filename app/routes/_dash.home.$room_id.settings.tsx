@@ -1,8 +1,10 @@
-import { MessageSquare } from "lucide-react";
+import { ChevronLeft, MessageSquare } from "lucide-react";
 import { Room } from "matrix-js-sdk";
 import { useState } from "react";
 import { useNavigate } from "react-router";
 import RoomSettings from "~/components/room-chat/room-settings";
+import { Button } from "~/components/ui/button";
+import { Card, CardContent, CardHeader } from "~/components/ui/card";
 import { initClient } from "~/lib/matrix-api/init-client";
 import { getRoom } from "~/lib/matrix-api/room";
 
@@ -24,16 +26,27 @@ export default function RoomSettingsPage({
 
   if (!room) {
     return (
-      <div className="h-screen">
-        <div className="flex h-full items-center justify-center">
-          <div className="text-center">
-            <MessageSquare className="mx-auto h-12 w-12 text-muted-foreground" />
-            <h3 className="mt-4 text-lg font-medium">No chat selected</h3>
-            <p className="mt-2 text-sm text-muted-foreground">
-              Select a chat from the sidebar to start messaging
-            </p>
-          </div>
-        </div>
+      <div className="h-screen flex items-center justify-center">
+        <Card className="w-full sm:w-1/2">
+          <CardHeader>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => navigate("/home")}
+            >
+              <ChevronLeft className="h-8 w-8" />
+            </Button>
+          </CardHeader>
+          <CardContent className="mb-12">
+            <div className="text-center">
+              <MessageSquare className="mx-auto h-12 w-12 text-muted-foreground" />
+              <h3 className="mt-4 text-lg font-medium">No chat selected</h3>
+              <p className="mt-2 text-sm text-muted-foreground">
+                Select a chat from the sidebar to start messaging
+              </p>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     );
   }
