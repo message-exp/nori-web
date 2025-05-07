@@ -35,6 +35,11 @@ export const RoomList: React.FC<RoomListProps> = ({
     client.client.on(ClientEvent.Room, async () => {
       setRooms(await getRoomList());
     });
+    return () => {
+      client.client.removeListener(ClientEvent.Room, async () => {
+        setRooms(await getRoomList());
+      });
+    };
   });
 
   return (
