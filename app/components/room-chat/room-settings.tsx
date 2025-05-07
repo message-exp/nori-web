@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader } from "lucide-react";
+import { ChevronLeft, Loader } from "lucide-react";
 import type { Room } from "matrix-js-sdk";
 import React from "react";
 import { useForm } from "react-hook-form";
@@ -37,6 +37,10 @@ export default function RoomSettings({ room }: { room: Room }) {
     },
   });
 
+  function back() {
+    navigate(`/home/${room.roomId}`);
+  }
+
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
     await updateRoom(room.roomId, values.name, values.topic || "");
@@ -45,31 +49,45 @@ export default function RoomSettings({ room }: { room: Room }) {
       topic: getRoomTopic(room) || "",
     });
     setIsLoading(false);
-    navigate(`/home/${room.roomId}`);
+    back();
   }
 
   return (
     <div className="h-screen">
       {isMobile ? ( // Mobile Layout
-        <div>
+        <div className="p-4">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-              <h1 className="text-2xl font-bold">Room Settings</h1>
+              <div className="flex flex-row align-middle gap-2">
+                <Button variant="ghost" size="icon" onClick={back}>
+                  <ChevronLeft className="h-8 w-8" />
+                </Button>
+                <div>
+                  <h2 className="text-2xl font-bold">Room Settings</h2>
+                </div>
+              </div>
               <FormField
                 control={form.control}
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <div className="grid grid-cols-4 items-center gap-4">
-                      <FormLabel className="text-right">Name</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="Room name"
-                          className="col-span-3"
-                          {...field}
-                        />
-                      </FormControl>
-                    </div>
+                    <FormLabel className="text-right">Name</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Room name" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="topic"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-right">Topic</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Optional" {...field} />
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -81,42 +99,39 @@ export default function RoomSettings({ room }: { room: Room }) {
           </Form>
         </div>
       ) : (
-        // <>
-        //   {showMobileList ? (
-        //     <div className="h-full w-full transition-all duration-300">
-        //       <RoomList
-        //         selectedChat={selectedChat}
-        //         setSelectedChat={handleSelectChat}
-        //       />
-        //     </div>
-        //   ) : (
-        //     <div className="h-full w-full transition-all duration-300">
-        //       <RoomChat
-        //         selectedChat={selectedChat}
-        //         onBackClick={showMobileLeftPanel}
-        //       />
-        //     </div>
-        //   )}
-        // </>
-        <div>
+        <div className="p-4">
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-              <h1 className="text-2xl font-bold">Room Settings</h1>
+              <div className="flex flex-row align-middle gap-2">
+                <Button variant="ghost" size="icon" onClick={back}>
+                  <ChevronLeft className="h-8 w-8" />
+                </Button>
+                <div>
+                  <h2 className="text-2xl font-bold">Room Settings</h2>
+                </div>
+              </div>
               <FormField
                 control={form.control}
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <div className="grid grid-cols-4 items-center gap-4">
-                      <FormLabel className="text-right">Name</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="Room name"
-                          className="col-span-3"
-                          {...field}
-                        />
-                      </FormControl>
-                    </div>
+                    <FormLabel className="text-right">Name</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Room name" {...field} />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
+                name="topic"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-right">Topic</FormLabel>
+                    <FormControl>
+                      <Input placeholder="Optional" {...field} />
+                    </FormControl>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -127,25 +142,6 @@ export default function RoomSettings({ room }: { room: Room }) {
             </form>
           </Form>
         </div>
-        // <ResizablePanelGroup direction="horizontal" className="h-full">
-        //   <ResizablePanel
-        //     defaultSize={25}
-        //     maxSize={40}
-        //     className="flex flex-col"
-        //   >
-        //     <RoomList
-        //       selectedChat={selectedChat}
-        //       setSelectedChat={handleSelectChat}
-        //     />
-        //   </ResizablePanel>
-        //   <ResizableHandle />
-        //   <ResizablePanel defaultSize={75}>
-        //     <RoomChat
-        //       selectedChat={selectedChat}
-        //       onBackClick={showMobileLeftPanel}
-        //     />
-        //   </ResizablePanel>
-        // </ResizablePanelGroup>
       )}
     </div>
   );
