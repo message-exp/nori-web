@@ -19,6 +19,7 @@ import { client } from "~/lib/matrix-api/client";
 import { useNavigate } from "react-router";
 import { refreshToken } from "~/lib/matrix-api/refresh-token";
 import { DialogTrigger } from "@radix-ui/react-dialog";
+import { initClient } from "~/lib/matrix-api/init-client";
 
 interface RoomListProps {
   readonly selectedChat: string | null;
@@ -29,22 +30,15 @@ export const RoomList: React.FC<RoomListProps> = ({
   selectedChat,
   setSelectedChat,
 }) => {
-  const [rooms, setRooms] = useState<Room[]>([]);
   const navigate = useNavigate();
-  useEffect(() => {
-    const redirectIfAuthenticated = async () => {
-      const refreshStatus = await refreshToken();
-      console.log("refreshStatus", refreshStatus);
-      if (refreshStatus === "REFRESH_FAILED") {
-        navigate("/login");
-      }
+  const [rooms, setRooms] = useState<Room[]>([]);
+
+  initClient(async () => {
+    setRooms(await getRoomList());
+    client.client.on(ClientEvent.Room, async () => {
       setRooms(await getRoomList());
-      client.client.on(ClientEvent.Room, async () => {
-        setRooms(await getRoomList());
-      });
-    };
-    redirectIfAuthenticated();
-  }, []);
+    });
+  });
 
   return (
     <div className="flex flex-col h-screen">
