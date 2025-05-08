@@ -85,3 +85,12 @@ export function getAuthCookies() {
     baseUrl,
   };
 }
+
+export function removeAuthCookies() {
+  // 移除所有認證相關的 cookies
+  Cookies.remove("access_token");
+  Cookies.remove("refresh_token");
+  Cookies.remove("deviceId");
+  Cookies.remove("userId");
+  Cookies.remove("baseUrl");
+}
