@@ -1,8 +1,8 @@
 import { useEffect, useState } from "react";
 import { getCurrentUser } from "~/lib/matrix-api/user"; // 請確保路徑正確
 import { Button } from "~/components/ui/button";
-import { Link } from "react-router";
-import { ChevronLeft } from "lucide-react";
+import { Link, useNavigate } from "react-router";
+import { ChevronLeft, Loader } from "lucide-react";
 import type { User as UserType } from "matrix-js-sdk";
 import {
   AlertDialog,
@@ -17,7 +17,9 @@ import { logout } from "~/lib/matrix-api/logout";
 
 export default function User() {
   const [userData, setUserData] = useState<UserType>();
-  const [loading, setLoading] = useState(true);
+  const [loadingUserData, setLoadingUserData] = useState(true);
+  const [loadingLogout, setLoadingLogout] = useState(false);
+  const navigate = useNavigate();
 
   useEffect(() => {
     async function fetchUserData() {
@@ -30,7 +32,7 @@ export default function User() {
       } catch (error) {
         console.error("Error fetching user data:", error);
       } finally {
-        setLoading(false);
+        setLoadingUserData(false);
       }
     }
 
@@ -38,12 +40,15 @@ export default function User() {
   }, []);
 
   const handleLogout = async () => {
+    setLoadingLogout(true);
     const success = await logout();
     if (success) {
       console.log("logout successful");
+      navigate("/login");
     } else {
       console.log("logout failed");
     }
+    setLoadingLogout(false);
   };
 
   return (
@@ -57,7 +62,7 @@ export default function User() {
       </div>
 
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
-        {loading ? (
+        {loadingUserData ? (
           <div className="flex justify-center items-center h-40">
             <p>Loading user data...</p>
           </div>
@@ -75,7 +80,11 @@ export default function User() {
                 <AlertDialogFooter>
                   <AlertDialogCancel>No</AlertDialogCancel>
                   <AlertDialogAction onClick={handleLogout}>
-                    Yes
+                    {loadingLogout ? (
+                      <Loader className="animate-spin" />
+                    ) : (
+                      "Yes"
+                    )}
                   </AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>
