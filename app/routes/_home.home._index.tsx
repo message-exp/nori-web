@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useNavigate, useOutletContext } from "react-router";
 import { RoomChat } from "~/components/room-chat/room-chat";
 import { RoomList } from "~/components/room-list";
@@ -20,7 +21,12 @@ export default function HomeIndex() {
   const setSelectedChat = (roomId: string) => {
     navigate(`/home/${roomId}`);
   };
-  setShowMobileList(true); // show sidebar on mobile
+
+  useEffect(() => {
+    if (isMobile) {
+      setShowMobileList(true); // show sidebar on mobile
+    }
+  }, [isMobile]);
 
   return (
     <div className="h-screen">
