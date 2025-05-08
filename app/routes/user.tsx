@@ -13,6 +13,7 @@ import {
   AlertDialogHeader,
   AlertDialogTrigger,
 } from "~/components/ui/alert-dialog";
+import { logout } from "~/lib/matrix-api/logout";
 
 export default function User() {
   const [userData, setUserData] = useState<UserType>();
@@ -35,6 +36,15 @@ export default function User() {
 
     fetchUserData();
   }, []);
+
+  const handleLogout = async () => {
+    const success = await logout();
+    if (success) {
+      console.log("logout successful");
+    } else {
+      console.log("logout failed");
+    }
+  };
 
   return (
     <div className="container mx-auto p-4 h-screen">
@@ -64,7 +74,9 @@ export default function User() {
                 <AlertDialogHeader>Are you sure to log out?</AlertDialogHeader>
                 <AlertDialogFooter>
                   <AlertDialogCancel>No</AlertDialogCancel>
-                  <AlertDialogAction>Yes</AlertDialogAction>
+                  <AlertDialogAction onClick={handleLogout}>
+                    Yes
+                  </AlertDialogAction>
                 </AlertDialogFooter>
               </AlertDialogContent>
             </AlertDialog>
