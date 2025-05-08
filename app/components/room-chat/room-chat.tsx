@@ -22,7 +22,8 @@ import { client } from "~/lib/matrix-api/client";
 import { getRoom, getRoomTopic } from "~/lib/matrix-api/room";
 import { getRoomAvatar } from "~/lib/matrix-api/utils";
 import { InviteUserDialog } from "./invite-user-dialog";
-import { RoomSettingsDialog } from "./room-settings-dialog";
+import { DialogTrigger } from "@radix-ui/react-dialog";
+import { useNavigate } from "react-router";
 
 interface RoomChatProps {
   readonly selectedChat: string | null;
@@ -33,6 +34,7 @@ export function RoomChat({
   selectedChat,
   onBackClick = () => {},
 }: RoomChatProps) {
+  const navigate = useNavigate();
   const isMobile = useIsMobile();
   const [room, setRoom] = useState(getRoom(selectedChat));
 
@@ -115,31 +117,37 @@ export function RoomChat({
           <InviteUserDialog room={room}>
             <TooltipProvider>
               <Tooltip>
-                <TooltipTrigger>
-                  <Button variant="ghost" size="icon">
-                    <UserRoundPlus className="h-5 w-5" />
-                  </Button>
-                </TooltipTrigger>
+                <DialogTrigger asChild>
+                  <TooltipTrigger asChild>
+                    <Button variant="ghost" size="icon">
+                      <UserRoundPlus className="h-5 w-5" />
+                    </Button>
+                  </TooltipTrigger>
+                </DialogTrigger>
                 <TooltipContent>
                   <p>Invite</p>
                 </TooltipContent>
               </Tooltip>
             </TooltipProvider>
           </InviteUserDialog>
-          <RoomSettingsDialog room={room}>
-            <TooltipProvider>
-              <Tooltip>
-                <TooltipTrigger>
-                  <Button variant="ghost" size="icon">
-                    <Settings className="h-5 w-5" />
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Settings</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          </RoomSettingsDialog>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => {
+                    navigate(`/home/${room.roomId}/settings`);
+                  }}
+                >
+                  <Settings className="h-5 w-5" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Settings</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         </div>
       </div>
       <div className="flex-1 overflow-hidden">

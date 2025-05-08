@@ -1,5 +1,8 @@
+import { DialogTrigger } from "@radix-ui/react-dialog";
 import { Plus } from "lucide-react";
-import { NotificationCountType } from "matrix-js-sdk";
+import type { Room } from "matrix-js-sdk";
+import { ClientEvent, NotificationCountType } from "matrix-js-sdk";
+import { useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
 import { ScrollArea } from "~/components/ui/scroll-area";
@@ -9,7 +12,9 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "~/components/ui/tooltip";
-import { useRoomList } from "~/hooks/use-room-list";
+import { client } from "~/lib/matrix-api/client";
+import { initClient } from "~/lib/matrix-api/init-client";
+import { getRoomList } from "~/lib/matrix-api/room-list";
 import { getRoomAvatar } from "~/lib/matrix-api/utils";
 import { cn, getLatestMessageText } from "~/lib/utils";
 import { CreateRoomDialog } from "./create-room-dialog";
@@ -25,7 +30,19 @@ export const RoomList: React.FC<RoomListProps> = ({
   selectedChat,
   setSelectedChat,
 }) => {
-  const rooms = useRoomList();
+  const [rooms, setRooms] = useState<Room[]>([]);
+
+  initClient(async () => {
+    setRooms(await getRoomList());
+    client.client.on(ClientEvent.Room, async () => {
+      setRooms(await getRoomList());
+    });
+    return () => {
+      client.client.removeListener(ClientEvent.Room, async () => {
+        setRooms(await getRoomList());
+      });
+    };
+  });
 
   return (
     <div className="flex flex-col h-screen">
@@ -35,11 +52,13 @@ export const RoomList: React.FC<RoomListProps> = ({
           <CreateRoomDialog>
             <TooltipProvider>
               <Tooltip>
-                <TooltipTrigger>
-                  <Button variant="ghost" size="icon">
-                    <Plus />
-                  </Button>
-                </TooltipTrigger>
+                <DialogTrigger asChild>
+                  <TooltipTrigger asChild>
+                    <Button variant="ghost" size="icon">
+                      <Plus />
+                    </Button>
+                  </TooltipTrigger>
+                </DialogTrigger>
                 <TooltipContent>
                   <p>Create room</p>
                 </TooltipContent>

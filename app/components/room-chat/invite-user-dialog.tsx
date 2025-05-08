@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader } from "lucide-react";
+import { AlertCircle, Loader } from "lucide-react";
 import type { Room } from "matrix-js-sdk";
 import React from "react";
 import { useForm } from "react-hook-form";
@@ -11,7 +11,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "~/components/ui/dialog";
 import {
   Form,
@@ -23,6 +22,7 @@ import {
 } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
 import { inviteToRoom } from "~/lib/matrix-api/room";
+import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
 
 const formSchema = z.object({
   userId: z
@@ -42,31 +42,41 @@ export function InviteUserDialog({
 }) {
   const [open, setOpen] = React.useState(false);
   const [isLoading, setIsLoading] = React.useState(false);
-
+  const [submitError, setSubmitError] = React.useState<string | null>(null);
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       userId: "",
     },
   });
-
   async function onSubmit(values: z.infer<typeof formSchema>) {
+    setSubmitError(null);
     setIsLoading(true);
-    await inviteToRoom(room.roomId, values.userId);
-    form.reset();
-    setIsLoading(false);
-    setOpen(false);
+    try {
+      await inviteToRoom(room.roomId, values.userId);
+      form.reset();
+      setOpen(false);
+    } catch (err) {
+      console.log(err.message);
+      setSubmitError("[" + err.httpStatus + "] failed to invite user");
+    } finally {
+      setIsLoading(false);
+    }
   }
-
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger>{children}</DialogTrigger>
+      {children}
       <DialogContent>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)}>
             <DialogHeader>
               <DialogTitle>Invite to Room</DialogTitle>
             </DialogHeader>
+            <Alert variant="destructive" className="mt-4" hidden={!submitError}>
+              <AlertCircle className="h-4 w-4" />
+              <AlertTitle>Error!</AlertTitle>
+              <AlertDescription>{submitError}</AlertDescription>
+            </Alert>
             <div className="grid gap-4 py-4">
               <FormField
                 control={form.control}
