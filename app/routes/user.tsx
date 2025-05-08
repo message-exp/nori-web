@@ -4,6 +4,15 @@ import { Button } from "~/components/ui/button";
 import { Link } from "react-router";
 import { ChevronLeft } from "lucide-react";
 import type { User as UserType } from "matrix-js-sdk";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTrigger,
+} from "~/components/ui/alert-dialog";
 
 export default function User() {
   const [userData, setUserData] = useState<UserType>();
@@ -43,9 +52,23 @@ export default function User() {
             <p>Loading user data...</p>
           </div>
         ) : (
-          <h1 className="text-3xl font-bold mb-6">
-            {userData?.rawDisplayName}
-          </h1>
+          <>
+            <h1 className="text-3xl font-bold mb-6">
+              {userData?.rawDisplayName}
+            </h1>
+            <AlertDialog>
+              <AlertDialogTrigger asChild>
+                <Button>Log out</Button>
+              </AlertDialogTrigger>
+              <AlertDialogContent>
+                <AlertDialogHeader>Are you sure to log out?</AlertDialogHeader>
+                <AlertDialogFooter>
+                  <AlertDialogCancel>No</AlertDialogCancel>
+                  <AlertDialogAction>Yes</AlertDialogAction>
+                </AlertDialogFooter>
+              </AlertDialogContent>
+            </AlertDialog>
+          </>
         )}
       </div>
     </div>
