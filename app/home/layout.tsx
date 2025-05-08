@@ -2,16 +2,20 @@ import clsx from "clsx";
 import { House, Inbox } from "lucide-react";
 import { useState } from "react";
 import { NavLink, Outlet } from "react-router";
-import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
-import { Button } from "~/components/ui/button";
-import { useIsMobile } from "~/hooks/use-mobile";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { useIsMobile } from "@/hooks/use-mobile";
 
-export default function HomeLayout() {
+export default function HomeLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   const isMobile = useIsMobile();
   const [showMobileList, setShowMobileList] = useState(true);
 
   if (isMobile && !showMobileList) {
-    return <Outlet context={{ isMobile, showMobileList, setShowMobileList }} />;
+    return <div className="h-screen w-screen">{children}</div>;
   }
 
   return (
@@ -62,9 +66,7 @@ export default function HomeLayout() {
           </NavLink>
         </div>
       </div>
-      <div className="flex flex-col gap-2 w-full">
-        <Outlet context={{ isMobile, showMobileList, setShowMobileList }} />
-      </div>
+      <div className="flex flex-col gap-2 w-full">{children}</div>
     </div>
   );
 }

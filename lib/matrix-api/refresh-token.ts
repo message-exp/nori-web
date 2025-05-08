@@ -1,6 +1,6 @@
 import * as sdk from "matrix-js-sdk";
 import { client } from "./client";
-import { getAuthCookies, setAuthCookies } from "~/lib/utils";
+import { getAuthCookies, setAuthCookies } from "@/lib/utils";
 
 export async function refreshToken(): Promise<string> {
   const authCookies = getAuthCookies();

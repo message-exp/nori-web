@@ -1,7 +1,7 @@
 import { House, Inbox } from "lucide-react";
-import { RoomList } from "~/components/room-list";
-import { Button } from "~/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
+import { RoomList } from "@/components/room-list";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 interface HomeSidebarProps {
   readonly selectedType: string | null;

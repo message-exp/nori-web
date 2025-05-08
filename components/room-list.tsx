@@ -1,24 +1,24 @@
-import { Plus } from "lucide-react";
-import { NotificationCountType, ClientEvent } from "matrix-js-sdk";
-import type { Room } from "matrix-js-sdk";
-import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
-import { Button } from "~/components/ui/button";
-import { ScrollArea } from "~/components/ui/scroll-area";
+import { CreateRoomDialog } from "@/components/create-room-dialog";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import {
   Tooltip,
   TooltipContent,
   TooltipProvider,
   TooltipTrigger,
-} from "~/components/ui/tooltip";
-import { getRoomAvatar } from "~/lib/matrix-api/utils";
-import { cn, getLatestMessageText } from "~/lib/utils";
-import { CreateRoomDialog } from "./create-room-dialog";
-import { useEffect, useState } from "react";
-import { getRoomList } from "~/lib/matrix-api/room-list";
-import { client } from "~/lib/matrix-api/client";
-import { useNavigate } from "react-router";
-import { refreshToken } from "~/lib/matrix-api/refresh-token";
+} from "@/components/ui/tooltip";
+import { client } from "@/lib/matrix-api/client";
+import { refreshToken } from "@/lib/matrix-api/refresh-token";
+import { getRoomList } from "@/lib/matrix-api/room-list";
+import { getRoomAvatar } from "@/lib/matrix-api/utils";
+import { cn, getLatestMessageText } from "@/lib/utils";
 import { DialogTrigger } from "@radix-ui/react-dialog";
+import { Plus } from "lucide-react";
+import type { Room } from "matrix-js-sdk";
+import { ClientEvent, NotificationCountType } from "matrix-js-sdk";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 interface RoomListProps {
   readonly selectedChat: string | null;
@@ -30,13 +30,14 @@ export const RoomList: React.FC<RoomListProps> = ({
   setSelectedChat,
 }) => {
   const [rooms, setRooms] = useState<Room[]>([]);
-  const navigate = useNavigate();
+  const router = useRouter();
+
   useEffect(() => {
     const redirectIfAuthenticated = async () => {
       const refreshStatus = await refreshToken();
       console.log("refreshStatus", refreshStatus);
       if (refreshStatus === "REFRESH_FAILED") {
-        navigate("/login");
+        router.push("/login");
       }
       setRooms(await getRoomList());
       client.client.on(ClientEvent.Room, async () => {

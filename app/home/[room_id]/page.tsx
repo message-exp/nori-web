@@ -1,11 +1,12 @@
-import { useNavigate, useOutletContext } from "react-router";
-import { RoomChat } from "~/components/room-chat/room-chat";
-import { RoomList } from "~/components/room-list";
+import { useOutletContext } from "react-router";
+import { RoomChat } from "@/components/room-chat/room-chat";
+import { RoomList } from "@/components/room-list";
 import {
   ResizableHandle,
   ResizablePanel,
   ResizablePanelGroup,
-} from "~/components/ui/resizable";
+} from "@/components/ui/resizable";
+import { useRouter } from "next/navigation";
 
 type HomeLayoutContext = {
   isMobile: boolean;
@@ -13,15 +14,24 @@ type HomeLayoutContext = {
   setShowMobileList: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
-export default function HomeIndex() {
+type HomeRoomParams = {
+  room_id: string;
+};
+
+export default function HomeRoom({ params }: { params: HomeRoomParams }) {
   const { isMobile, showMobileList, setShowMobileList } =
     useOutletContext<HomeLayoutContext>();
-  const navigate = useNavigate();
-  const selectedChat = null;
+
+  const router = useRouter();
+
+  const selectedChat = params.room_id || null;
+  const setSelectedChat = (roomId: string | null) => {
+    router.push(`/home/${roomId}`);
+  };
 
   // Custom handler for mobile selection that also hides the list
   const handleSelectChat = (roomId: string) => {
-    navigate(`/home/${roomId}`);
+    setSelectedChat(roomId);
     if (isMobile) {
       setShowMobileList(false);
     }

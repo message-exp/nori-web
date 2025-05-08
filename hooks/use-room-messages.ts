@@ -1,6 +1,6 @@
 import * as sdk from "matrix-js-sdk";
 import { useEffect, useState } from "react";
-import { getRoomMessages } from "~/lib/matrix-api/room-messages";
+import { getRoomMessages } from "@/lib/matrix-api/room-messages";
 
 export function useRoomMessages(room: sdk.Room | null | undefined) {
   const [messages, setMessages] = useState<sdk.MatrixEvent[]>([]);

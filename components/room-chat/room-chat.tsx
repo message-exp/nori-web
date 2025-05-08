@@ -1,3 +1,22 @@
+import { InviteUserDialog } from "@/components/room-chat/invite-user-dialog";
+import { MessageItem } from "@/components/room-chat/message";
+import { MessageInput } from "@/components/room-chat/message-input";
+import { RoomSettingsDialog } from "@/components/room-chat/room-settings-dialog";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { DialogTrigger } from "@/components/ui/dialog";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { useIsMobile } from "@/hooks/use-mobile";
+import { useRoomMessages } from "@/hooks/use-room-messages";
+import { client } from "@/lib/matrix-api/client";
+import { getRoom, getRoomTopic } from "@/lib/matrix-api/room";
+import { getRoomAvatar } from "@/lib/matrix-api/utils";
 import {
   ChevronLeft,
   MessageSquare,
@@ -5,25 +24,6 @@ import {
   UserRoundPlus,
 } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { MessageItem } from "~/components/room-chat/message";
-import { MessageInput } from "~/components/room-chat/message-input";
-import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
-import { Button } from "~/components/ui/button";
-import { ScrollArea } from "~/components/ui/scroll-area";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "~/components/ui/tooltip";
-import { useIsMobile } from "~/hooks/use-mobile";
-import { useRoomMessages } from "~/hooks/use-room-messages";
-import { client } from "~/lib/matrix-api/client";
-import { getRoom, getRoomTopic } from "~/lib/matrix-api/room";
-import { getRoomAvatar } from "~/lib/matrix-api/utils";
-import { InviteUserDialog } from "./invite-user-dialog";
-import { RoomSettingsDialog } from "./room-settings-dialog";
-import { DialogTrigger } from "@radix-ui/react-dialog";
 
 interface RoomChatProps {
   readonly selectedChat: string | null;

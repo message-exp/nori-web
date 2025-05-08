@@ -1,17 +1,11 @@
-import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader } from "lucide-react";
-import type { Room } from "matrix-js-sdk";
-import React from "react";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { Button } from "~/components/ui/button";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "~/components/ui/dialog";
+} from "@/components/ui/dialog";
 import {
   Form,
   FormControl,
@@ -19,9 +13,15 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "~/components/ui/form";
-import { Input } from "~/components/ui/input";
-import { getRoomTopic, updateRoom } from "~/lib/matrix-api/room";
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { getRoomTopic, updateRoom } from "@/lib/matrix-api/room";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Loader } from "lucide-react";
+import type { Room } from "matrix-js-sdk";
+import React from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 
 const formSchema = z.object({
   name: z.string().min(1),

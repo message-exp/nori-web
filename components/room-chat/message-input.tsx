@@ -3,11 +3,11 @@ import { Send } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { Button } from "~/components/ui/button";
-import { Form, FormControl, FormField, FormItem } from "~/components/ui/form";
-import { Input } from "~/components/ui/input";
-import { client } from "~/lib/matrix-api/client";
-import { sendTextMessage } from "~/lib/matrix-api/room-messages";
+import { Button } from "@/components/ui/button";
+import { Form, FormControl, FormField, FormItem } from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { client } from "@/lib/matrix-api/client";
+import { sendTextMessage } from "@/lib/matrix-api/room-messages";
 
 const formSchema = z.object({
   text: z.string().trim(),

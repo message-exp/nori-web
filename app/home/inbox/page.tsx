@@ -3,7 +3,7 @@ import {
   ResizableHandle,
   ResizablePanel,
   ResizablePanelGroup,
-} from "~/components/ui/resizable";
+} from "@/components/ui/resizable";
 
 type HomeLayoutContext = {
   isMobile: boolean;

@@ -1,5 +1,5 @@
 import * as sdk from "matrix-js-sdk";
-import { client } from "~/lib/matrix-api/client";
+import { client } from "@/lib/matrix-api/client";
 
 export async function getRoomMessages(
   room: sdk.Room,

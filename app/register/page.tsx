@@ -1,5 +1,5 @@
-import { Register } from "~/components/register";
-import { ThemeToggle } from "~/components/theme-toggle";
+import { Register } from "@/components/register";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 export default function RegisterPage() {
   return (

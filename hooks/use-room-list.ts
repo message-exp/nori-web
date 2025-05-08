@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
-import { getRoomList } from "~/lib/matrix-api/room-list";
+import { getRoomList } from "@/lib/matrix-api/room-list";
 import { ClientEvent, Room } from "matrix-js-sdk";
-import { client } from "~/lib/matrix-api/client";
+import { client } from "@/lib/matrix-api/client";
 
 export function useRoomList() {
   const [rooms, setRooms] = useState<Room[]>([]);
