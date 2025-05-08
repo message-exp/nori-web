@@ -28,6 +28,8 @@ export default function User() {
         console.log("Current user data:", currentUser); // 開發調試用
         if (currentUser) {
           setUserData(currentUser);
+        } else {
+          navigate("/login");
         }
       } catch (error) {
         console.error("Error fetching user data:", error);
