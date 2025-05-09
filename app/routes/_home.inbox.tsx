@@ -4,7 +4,7 @@ import {
   ResizablePanel,
   ResizablePanelGroup,
 } from "~/components/ui/resizable";
-
+import { InviteList } from "~/components/invite-list";
 type HomeLayoutContext = {
   isMobile: boolean;
   showMobileList: boolean;
@@ -38,6 +38,7 @@ export default function Inbox() {
             className="flex flex-col"
           >
             inbox
+            <InviteList />
           </ResizablePanel>
           <ResizableHandle />
           <ResizablePanel defaultSize={75}>content</ResizablePanel>
