@@ -1,12 +1,32 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import * as sdk from "matrix-js-sdk";
 import { Button } from "~/components/ui/button";
-import { useInvites } from "~/hooks/use-invites";
-import { acceptInvite, rejectInvite } from "~/lib/matrix-api/invite";
+import {
+  getInvites,
+  acceptInvite,
+  rejectInvite,
+} from "~/lib/matrix-api/invite";
 import { client } from "~/lib/matrix-api/client";
+import type { Room } from "matrix-js-sdk";
 
 export const InviteList: React.FC = () => {
-  const { invites, refresh } = useInvites();
+  const [invites, setInvites] = useState<Room[]>([]);
+
+  // 取目前 invite 的房間
+  const refresh = () => {
+    setInvites(getInvites());
+  };
+
+  useEffect(() => {
+    refresh();
+    client.client?.on(sdk.ClientEvent.Sync, refresh);
+    client.client?.on(sdk.RoomEvent.Timeline, refresh);
+    return () => {
+      client.client?.removeListener(sdk.ClientEvent.Sync, refresh);
+      client.client?.removeListener(sdk.RoomEvent.Timeline, refresh);
+    };
+  }, []);
+
   if (invites.length === 0) return null;
 
   return (
