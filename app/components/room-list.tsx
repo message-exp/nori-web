@@ -32,19 +32,17 @@ export const RoomList: React.FC<RoomListProps> = ({
 
   initClient(async () => {
     setRooms(await getRoomList());
-    client.client.on(ClientEvent.Room, async () => {
+    const handleRoomEvent = async () => {
       setRooms(await getRoomList());
-    });
-    client.client.on(ClientEvent.Sync, async () => {
+    };
+    const handleSyncEvent = async () => {
       setRooms(await getRoomList());
-    });
+    };
+    client.client.on(ClientEvent.Room, handleRoomEvent);
+    client.client.on(ClientEvent.Sync, handleSyncEvent);
     return () => {
-      client.client.removeListener(ClientEvent.Room, async () => {
-        setRooms(await getRoomList());
-      });
-      client.client.removeListener(ClientEvent.Sync, async () => {
-        setRooms(await getRoomList());
-      });
+      client.client.removeListener(ClientEvent.Room, handleRoomEvent);
+      client.client.removeListener(ClientEvent.Sync, handleSyncEvent);
     };
   });
 
