@@ -19,8 +19,6 @@ import { getRoomAvatar } from "~/lib/matrix-api/utils";
 import { cn, getLatestMessageText } from "~/lib/utils";
 import { CreateRoomDialog } from "./create-room-dialog";
 
-import { InviteList } from "./invite-list";
-
 interface RoomListProps {
   readonly selectedChat: string | null;
   readonly setSelectedChat: (chatId: string) => void;
