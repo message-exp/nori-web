@@ -67,7 +67,6 @@ export const RoomList: React.FC<RoomListProps> = ({
           </CreateRoomDialog>
         </div>
       </div>
-      <InviteList />
       <ScrollArea className="flex-1 h-[calc(100vh-60px)]">
         <div className="flex flex-col gap-1 p-2">
           {rooms.map((room) => (

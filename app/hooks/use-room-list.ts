@@ -21,9 +21,11 @@ export function useRoomList() {
 
     // Listen for new messages
     client.client.on(ClientEvent.Room, fetchRooms);
+    client.client.on(ClientEvent.Sync, fetchRooms);
 
     return () => {
       client.client.removeListener(ClientEvent.Room, fetchRooms);
+      client.client.on(ClientEvent.Sync, fetchRooms);
     };
   }, []);
 
