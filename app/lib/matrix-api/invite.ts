@@ -1,7 +1,7 @@
-import * as sdk from "matrix-js-sdk";
+import type { Room } from "matrix-js-sdk";
 import { client } from "./client";
 
-export function getInvites(): sdk.Room[] {
+export function getInvites(): Room[] {
   if (!client.client) return [];
   return client.client
     .getRooms()
