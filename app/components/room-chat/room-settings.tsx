@@ -1,5 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ChevronLeft, Loader, Trash2 } from "lucide-react";
+import { ChevronLeft, DoorOpen, Loader } from "lucide-react";
 import type { Room } from "matrix-js-sdk";
 import React from "react";
 import { useForm } from "react-hook-form";
@@ -41,9 +41,9 @@ const formSchema = z.object({
 export default function RoomSettings({ room }: { room: Room }) {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = React.useState(false);
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = React.useState(false);
-  const [deleteConfirmation, setDeleteConfirmation] = React.useState("");
-  const [isDeleting, setIsDeleting] = React.useState(false);
+  const [isLeaveDialogOpen, setIsLeaveDialogOpen] = React.useState(false);
+  const [leaveConfirmation, setLeaveConfirmation] = React.useState("");
+  const [isLeaving, setIsLeaving] = React.useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -68,21 +68,21 @@ export default function RoomSettings({ room }: { room: Room }) {
     back();
   }
 
-  async function handleDeleteRoom() {
-    if (deleteConfirmation !== `delete ${room.name}`) {
+  async function handleLeaveRoom() {
+    if (leaveConfirmation !== `leave ${room.name}`) {
       return;
     }
 
-    setIsDeleting(true);
+    setIsLeaving(true);
     try {
       // 這裡需要添加刪除房間的API調用
-      // await deleteRoom(room.roomId);
+      // await leaveRoom(room.roomId);
       navigate("/home");
     } catch (error) {
-      console.error("Failed to delete room:", error);
+      console.error("Failed to leave room:", error);
     } finally {
-      setIsDeleting(false);
-      setIsDeleteDialogOpen(false);
+      setIsLeaving(false);
+      setIsLeaveDialogOpen(false);
     }
   }
 
@@ -151,55 +151,53 @@ export default function RoomSettings({ room }: { room: Room }) {
               </div>
               <Button
                 variant="destructive"
-                onClick={() => setIsDeleteDialogOpen(true)}
+                onClick={() => setIsLeaveDialogOpen(true)}
               >
-                <Trash2 className="h-4 w-4 mr-2" /> Leave Room
+                <DoorOpen className="h-4 w-4 mr-2" /> Leave Room
               </Button>
             </div>
           </div>
         </CardContent>
       </Card>
 
-      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
+      <Dialog open={isLeaveDialogOpen} onOpenChange={setIsLeaveDialogOpen}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Delete Room</DialogTitle>
+            <DialogTitle>Leave Room</DialogTitle>
             <DialogDescription>
-              This action cannot be undone. This will permanently delete the
+              This action cannot be undone. This will permanently Leave the
               room.
             </DialogDescription>
           </DialogHeader>
           <div className="py-4">
             <p className="mb-2">
               Please type{" "}
-              <span className="font-medium">{`delete ${room.name}`}</span> to
+              <span className="font-medium">{`leave ${room.name}`}</span> to
               confirm:
             </p>
             <Input
-              value={deleteConfirmation}
-              onChange={(e) => setDeleteConfirmation(e.target.value)}
-              placeholder={`delete ${room.name}`}
+              value={leaveConfirmation}
+              onChange={(e) => setLeaveConfirmation(e.target.value)}
+              placeholder={`leave ${room.name}`}
             />
           </div>
           <DialogFooter>
             <Button
               variant="outline"
-              onClick={() => setIsDeleteDialogOpen(false)}
+              onClick={() => setIsLeaveDialogOpen(false)}
             >
               Cancel
             </Button>
             <Button
               variant="destructive"
-              onClick={handleDeleteRoom}
-              disabled={
-                deleteConfirmation !== `delete ${room.name}` || isDeleting
-              }
+              onClick={handleLeaveRoom}
+              disabled={leaveConfirmation !== `leave ${room.name}` || isLeaving}
             >
-              {isDeleting ? (
+              {isLeaving ? (
                 <Loader className="animate-spin h-4 w-4 mr-2" />
               ) : (
                 <>
-                  <Trash2 className="h-4 w-4 mr-2" /> Delete
+                  <DoorOpen className="h-4 w-4 mr-2" /> Leave
                 </>
               )}
             </Button>
