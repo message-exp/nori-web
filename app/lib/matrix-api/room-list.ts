@@ -12,8 +12,7 @@ export async function getRoomList(): Promise<Room[]> {
 
   // only kepp "normal text room", remove spaces / threads and other special room types
   const filteredRooms = allRooms.filter((room) => {
-    const type = room.getType();
-    return !type; // only keep default room type (not including m.space)
+    return room.getMyMembership() === "join" && !room.getType();
   });
 
   return filteredRooms;
