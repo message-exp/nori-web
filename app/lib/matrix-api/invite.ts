@@ -2,7 +2,7 @@ import type { Room } from "matrix-js-sdk";
 import { client } from "./client";
 
 export function getInvites(): Room[] {
-  if (!client.client) return [];
+  if (!client.client) throw new Error("Matrix client is not initialized");
   return client.client
     .getRooms()
     .filter((r) => r.getMyMembership() === "invite");
