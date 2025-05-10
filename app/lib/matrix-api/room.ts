@@ -54,3 +54,17 @@ export async function inviteToRoom(
   const ret_message = await client.client.invite(roomId, userId, reason);
   return ret_message;
 }
+
+export async function leaveRoom(roomId: string): Promise<void> {
+  if (!client.client) {
+    throw new Error("Matrix client is not initialized");
+  }
+
+  try {
+    await client.client.leave(roomId);
+    console.log(`Successfully left room: ${roomId}`);
+  } catch (error) {
+    console.error(`Failed to leave room ${roomId}:`, error);
+    throw new Error(`Failed to leave room: ${error}`);
+  }
+}

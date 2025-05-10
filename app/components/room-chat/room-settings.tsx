@@ -22,7 +22,7 @@ import {
   FormMessage,
 } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
-import { getRoomTopic, updateRoom } from "~/lib/matrix-api/room";
+import { getRoomTopic, leaveRoom, updateRoom } from "~/lib/matrix-api/room";
 import { Separator } from "../ui/separator";
 import {
   Dialog,
@@ -75,8 +75,7 @@ export default function RoomSettings({ room }: { room: Room }) {
 
     setIsLeaving(true);
     try {
-      // 這裡需要添加刪除房間的API調用
-      // await leaveRoom(room.roomId);
+      await leaveRoom(room.roomId);
       navigate("/home");
     } catch (error) {
       console.error("Failed to leave room:", error);
