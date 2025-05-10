@@ -142,16 +142,20 @@ export default function RoomSettings({ room }: { room: Room }) {
             <h3 className="text-lg font-medium text-destructive">
               Danger Zone
             </h3>
-            <p className="text-sm text-muted-foreground">
-              Once you delete a room, there is no going back. Please be certain.
-            </p>
-            <Button
-              variant="destructive"
-              onClick={() => setIsDeleteDialogOpen(true)}
-              className="w-full mt-2"
-            >
-              <Trash2 className="h-4 w-4 mr-2" /> Delete Room
-            </Button>
+            <div className="flex items-center justify-between border border-destructive/20 rounded-md p-4 mt-2">
+              <div className="space-y-1">
+                <p className="font-medium">Leave Room</p>
+                <p className="text-sm text-muted-foreground">
+                  You will no longer have access to this room after leaving.
+                </p>
+              </div>
+              <Button
+                variant="destructive"
+                onClick={() => setIsDeleteDialogOpen(true)}
+              >
+                <Trash2 className="h-4 w-4 mr-2" /> Leave Room
+              </Button>
+            </div>
           </div>
         </CardContent>
       </Card>
