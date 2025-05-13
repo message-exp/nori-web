@@ -1,4 +1,4 @@
-import { ChevronLeft, MessageSquare } from "lucide-react";
+import { ChevronLeft, Loader2 } from "lucide-react";
 import { Room } from "matrix-js-sdk";
 import { useState } from "react";
 import { useNavigate } from "react-router";
@@ -39,10 +39,10 @@ export default function RoomSettingsPage({
           </CardHeader>
           <CardContent className="mb-12">
             <div className="text-center">
-              <MessageSquare className="mx-auto h-12 w-12 text-muted-foreground" />
-              <h3 className="mt-4 text-lg font-medium">No chat selected</h3>
+              <Loader2 className="mx-auto h-12 w-12 text-muted-foreground animate-spin" />
+              <h3 className="mt-4 text-lg font-medium">Loading...</h3>
               <p className="mt-2 text-sm text-muted-foreground">
-                Select a chat from the sidebar to start messaging
+                Please wait while we retrieve your settings
               </p>
             </div>
           </CardContent>
