@@ -193,7 +193,7 @@ export default function RoomSettings({ room }: { room: Room }) {
               disabled={leaveConfirmation !== `leave ${room.name}` || isLeaving}
             >
               {isLeaving ? (
-                <Loader className="animate-spin h-4 w-4 mr-2" />
+                <Loader className="animate-spin h-4 w-4" />
               ) : (
                 <>
                   <DoorOpen className="h-4 w-4 mr-2" /> Leave
