@@ -4,6 +4,7 @@ import { useState } from "react";
 import { NavLink, Outlet } from "react-router";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
+import { RoomProvider } from "~/contexts/room-context";
 import { useIsMobile } from "~/hooks/use-mobile";
 
 export default function HomeLayout() {
@@ -11,7 +12,11 @@ export default function HomeLayout() {
   const [showMobileList, setShowMobileList] = useState(true);
 
   if (isMobile && !showMobileList) {
-    return <Outlet context={{ isMobile, showMobileList, setShowMobileList }} />;
+    return (
+      <RoomProvider>
+        <Outlet context={{ isMobile, showMobileList, setShowMobileList }} />
+      </RoomProvider>
+    );
   }
 
   return (
@@ -63,7 +68,9 @@ export default function HomeLayout() {
         </div>
       </div>
       <div className="flex flex-col gap-2 w-full">
-        <Outlet context={{ isMobile, showMobileList, setShowMobileList }} />
+        <RoomProvider>
+          <Outlet context={{ isMobile, showMobileList, setShowMobileList }} />
+        </RoomProvider>
       </div>
     </div>
   );

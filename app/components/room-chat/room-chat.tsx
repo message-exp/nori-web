@@ -1,10 +1,12 @@
+import { DialogTrigger } from "@radix-ui/react-dialog";
 import {
   ChevronLeft,
   MessageSquare,
   Settings,
   UserRoundPlus,
 } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { memo, useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router";
 import { MessageItem } from "~/components/room-chat/message";
 import { MessageInput } from "~/components/room-chat/message-input";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
@@ -16,37 +18,33 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "~/components/ui/tooltip";
+import { useRoomContext } from "~/contexts/room-context";
 import { useIsMobile } from "~/hooks/use-mobile";
 import { useRoomMessages } from "~/hooks/use-room-messages";
 import { client } from "~/lib/matrix-api/client";
 import { getRoom, getRoomTopic } from "~/lib/matrix-api/room";
 import { getRoomAvatar } from "~/lib/matrix-api/utils";
 import { InviteUserDialog } from "./invite-user-dialog";
-import { DialogTrigger } from "@radix-ui/react-dialog";
-import { useNavigate } from "react-router";
 
 interface RoomChatProps {
-  readonly selectedChat: string | null;
   readonly onBackClick?: () => void;
 }
 
-export function RoomChat({
-  selectedChat,
-  onBackClick = () => {},
-}: RoomChatProps) {
+export const RoomChat = memo(({ onBackClick = () => {} }: RoomChatProps) => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
-  const [room, setRoom] = useState(getRoom(selectedChat));
+  const { selectedRoomId } = useRoomContext();
+  const [room, setRoom] = useState(getRoom(selectedRoomId));
 
   // selected room changes
   useEffect(() => {
-    if (selectedChat && client.client) {
-      const room = getRoom(selectedChat);
+    if (selectedRoomId && client.client) {
+      const room = getRoom(selectedRoomId);
       setRoom(room || null);
     } else {
       setRoom(null);
     }
-  }, [selectedChat]);
+  }, [selectedRoomId]);
 
   // get messages
   const { messages, loading } = useRoomMessages(room);
@@ -58,7 +56,7 @@ export function RoomChat({
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  if (!selectedChat || !room) {
+  if (!selectedRoomId || !room) {
     return (
       <div className="flex h-full items-center justify-center">
         <div className="text-center">
@@ -173,8 +171,8 @@ export function RoomChat({
         </ScrollArea>
       </div>
       <div className="border-t p-4">
-        <MessageInput roomId={selectedChat} />
+        <MessageInput roomId={selectedRoomId} />
       </div>
     </div>
   );
-}
+});
