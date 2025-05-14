@@ -1,10 +1,11 @@
-import clsx from "clsx";
+"use client";
+
 import { House, Inbox } from "lucide-react";
 import { useState } from "react";
-import { NavLink, Outlet } from "react-router";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { useIsMobile } from "@/hooks/use-mobile";
+import Link from "next/link";
 
 export default function HomeLayout({
   children,
@@ -22,48 +23,27 @@ export default function HomeLayout({
     <div className="flex flex-row h-screen">
       <div className="flex flex-col justify-between h-full p-2 border-r">
         <div className="flex flex-col gap-2">
-          <NavLink to="/home">
-            {/* eslint-disable-next-line @typescript-eslint/no-unused-vars */}
-            {({ isActive, isPending, isTransitioning }) => (
-              <Button
-                variant="outline"
-                size="icon"
-                className={clsx("size-12", isActive && "bg-accent")}
-              >
-                <House className="size-6" />
-              </Button>
-            )}
-          </NavLink>
+          <Link href="/home">
+            <Button variant="outline" size="icon" className="size-12">
+              <House className="size-6" />
+            </Button>
+          </Link>
         </div>
         <div className="flex flex-col gap-2">
-          <NavLink to="/inbox">
-            {/* eslint-disable-next-line @typescript-eslint/no-unused-vars */}
-            {({ isActive, isPending, isTransitioning }) => (
-              <Button
-                variant="outline"
-                size="icon"
-                className={clsx("size-12", isActive && "bg-accent")}
-              >
-                <Inbox className="size-6" />
-              </Button>
-            )}
-          </NavLink>
-          <NavLink to="/user">
-            {/* eslint-disable-next-line @typescript-eslint/no-unused-vars */}
-            {({ isActive, isPending, isTransitioning }) => (
-              <Button
-                variant="outline"
-                size="icon"
-                className={clsx("size-12", isActive && "bg-accent")}
-              >
-                {/* <UserRound className="size-6" /> */}
-                <Avatar className="rounded-sm">
-                  <AvatarImage src="https://github.com/shadcn.png" />
-                  <AvatarFallback className="rounded-sm">CN</AvatarFallback>
-                </Avatar>
-              </Button>
-            )}
-          </NavLink>
+          <Link href="/inbox">
+            <Button variant="outline" size="icon" className="size-12">
+              <Inbox className="size-6" />
+            </Button>
+          </Link>
+          <Link href="/user">
+            <Button variant="outline" size="icon" className="size-12">
+              {/* <UserRound className="size-6" /> */}
+              <Avatar className="rounded-sm">
+                <AvatarImage src="https://github.com/shadcn.png" />
+                <AvatarFallback className="rounded-sm">CN</AvatarFallback>
+              </Avatar>
+            </Button>
+          </Link>
         </div>
       </div>
       <div className="flex flex-col gap-2 w-full">{children}</div>

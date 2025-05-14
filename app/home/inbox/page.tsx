@@ -1,20 +1,25 @@
-import { useOutletContext } from "react-router";
+"use client";
+
+// import { useOutletContext } from "react-router";
 import {
   ResizableHandle,
   ResizablePanel,
   ResizablePanelGroup,
 } from "@/components/ui/resizable";
+import React from "react";
 
-type HomeLayoutContext = {
-  isMobile: boolean;
-  showMobileList: boolean;
-  setShowMobileList: React.Dispatch<React.SetStateAction<boolean>>;
-};
+// type HomeLayoutContext = {
+//   isMobile: boolean;
+//   showMobileList: boolean;
+//   setShowMobileList: React.Dispatch<React.SetStateAction<boolean>>;
+// };
 
 export default function Inbox() {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { isMobile, showMobileList, setShowMobileList } =
-    useOutletContext<HomeLayoutContext>();
+  // const { isMobile, showMobileList, setShowMobileList } =
+  //   useOutletContext<HomeLayoutContext>();
+  const isMobile = false;
+  const [showMobileList, setShowMobileList] = React.useState(true);
 
   return (
     <div className="h-screen">

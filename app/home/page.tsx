@@ -1,4 +1,6 @@
-import { useOutletContext } from "react-router";
+"use client";
+
+// import { useOutletContext } from "react-router";
 import { RoomChat } from "@/components/room-chat/room-chat";
 import { RoomList } from "@/components/room-list";
 import {
@@ -7,16 +9,20 @@ import {
   ResizablePanelGroup,
 } from "@/components/ui/resizable";
 import { useRouter } from "next/navigation";
+import React from "react";
 
-type HomeLayoutContext = {
-  isMobile: boolean;
-  showMobileList: boolean;
-  setShowMobileList: React.Dispatch<React.SetStateAction<boolean>>;
-};
+// type HomeLayoutContext = {
+//   isMobile: boolean;
+//   showMobileList: boolean;
+//   setShowMobileList: React.Dispatch<React.SetStateAction<boolean>>;
+// };
 
 export default function HomeIndex() {
-  const { isMobile, showMobileList, setShowMobileList } =
-    useOutletContext<HomeLayoutContext>();
+  // const { isMobile, showMobileList, setShowMobileList } =
+  //   useOutletContext<HomeLayoutContext>();
+  const isMobile = false;
+  const [showMobileList, setShowMobileList] = React.useState(true);
+
   const router = useRouter();
   const selectedChat = null;
 
