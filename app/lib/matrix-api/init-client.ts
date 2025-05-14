@@ -7,6 +7,7 @@ export function initClient(onAuthSuccess: () => void) {
 
   useEffect(() => {
     const redirectIfAuthenticated = async () => {
+      console.log("init client");
       const refreshStatus = await refreshToken();
       console.log("refreshStatus", refreshStatus);
       if (refreshStatus === "REFRESH_FAILED") {
