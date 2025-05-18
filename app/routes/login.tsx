@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router";
 import { Login } from "~/components/login";
 import { ThemeToggle } from "~/components/theme-toggle";
-import { checkClientState, refreshToken } from "~/lib/matrix-api/refresh-token";
+import { checkClientState } from "~/lib/matrix-api/refresh-token";
 
 export default function LoginPage() {
   const navigate = useNavigate();
