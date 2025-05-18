@@ -25,6 +25,7 @@ export default function RoomSettingsPage({
       const clientState = await checkClientState();
       if (!clientState) {
         console.error("client state is not ok");
+        navigate("/login");
         return;
       }
       setRoom(getRoom(params.room_id));
