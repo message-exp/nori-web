@@ -37,22 +37,29 @@ export async function refreshToken(): Promise<string> {
 export async function checkClientState(): Promise<boolean> {
   const clientCookiesState = await client.restoreClient(false);
   if (!clientCookiesState) {
+    console.log("check client state fail: cant restore client");
     return false;
   }
+  console.log("check client state successful");
 
   try {
+    let needSync = true;
     let whoamiResponse;
+
     try {
       whoamiResponse = await client.client.whoami();
     } catch (whoamiError) {
       console.error("error during whoami call, refresh token:", whoamiError);
       const refreshTokenResponse = await refreshToken();
       console.log("refreshed finished, result: ", refreshTokenResponse);
+
       if (refreshTokenResponse === "REFRESH_SUCCESS") {
         // 如果刷新成功，再次嘗試獲取用戶ID
         try {
           whoamiResponse = await client.client.whoami();
           console.log("second whoami response: ", whoamiResponse?.user_id);
+          // refreshToken 後不需要再執行 sync
+          needSync = false;
         } catch (secondWhoamiError) {
           console.error("Error during second whoami call:", secondWhoamiError);
           return false;
@@ -67,7 +74,12 @@ export async function checkClientState(): Promise<boolean> {
     }
 
     console.log("client state check passed, return true");
-    await client.sync();
+
+    // 只有當未執行 refreshToken 時才進行同步
+    if (needSync) {
+      await client.sync();
+    }
+
     return true;
   } catch (error) {
     console.error("Error checking client state:", error);
