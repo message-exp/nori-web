@@ -75,7 +75,6 @@ export function Login({
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
       const response = await login(values.username, values.password);
-      setAuthCookies(response.loginResponse, response.baseUrl);
       console.log("login response", response);
     } catch (error) {
       console.error("Error logging in:", error);

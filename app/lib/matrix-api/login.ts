@@ -1,6 +1,7 @@
 import * as sdk from "matrix-js-sdk";
 import { getBaseUrl } from "./utils";
 import { client } from "./client";
+import { setAuthCookies } from "../utils";
 
 export async function login(
   userId: string,
@@ -29,6 +30,8 @@ export async function login(
     password: password,
     refresh_token: true,
   });
+
+  setAuthCookies(response, baseUrl);
 
   // re-create a client
   await client.newClient({
