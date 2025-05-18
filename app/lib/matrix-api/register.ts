@@ -1,6 +1,7 @@
 import * as sdk from "matrix-js-sdk";
 import { getBaseUrl } from "./utils";
 import { client } from "./client";
+import { setAuthCookies } from "../utils";
 
 export async function register(
   homeserver: string,
@@ -33,6 +34,8 @@ export async function register(
     undefined, // guestAccessToken (optional)
     false, // inhibitLogin - false to allow automatic login
   );
+
+  setAuthCookies(response, baseUrl);
 
   // re-create a client
   await client.newClient({

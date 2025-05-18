@@ -27,7 +27,6 @@ import { login } from "~/lib/matrix-api/login";
 import { getBaseUrl } from "~/lib/matrix-api/utils";
 import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
 import { Link, useNavigate } from "react-router";
-import { setAuthCookies } from "~/lib/utils";
 const debouncedGetBaseUrl = debouncePromise(getBaseUrl, 1000); // 1 second cooldown
 
 // define form schema
