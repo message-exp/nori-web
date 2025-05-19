@@ -14,6 +14,7 @@ import {
   AlertDialogTrigger,
 } from "~/components/ui/alert-dialog";
 import { logout } from "~/lib/matrix-api/logout";
+import { checkClientState } from "~/lib/matrix-api/refresh-token";
 
 export default function User() {
   const [userData, setUserData] = useState<UserType>();
@@ -23,13 +24,17 @@ export default function User() {
 
   useEffect(() => {
     async function fetchUserData() {
+      const clientState = await checkClientState();
+      if (!clientState) {
+        console.error("client state is not ok");
+        navigate("/login");
+        return;
+      }
       try {
         const currentUser = await getCurrentUser();
         console.log("Current user data:", currentUser); // 開發調試用
         if (currentUser) {
           setUserData(currentUser);
-        } else {
-          navigate("/login");
         }
       } catch (error) {
         console.error("Error fetching user data:", error);

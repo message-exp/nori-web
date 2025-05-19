@@ -3,7 +3,7 @@ import { ClientEvent } from "matrix-js-sdk";
 import React, { createContext, useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import { client } from "~/lib/matrix-api/client";
-import { initClient } from "~/lib/matrix-api/init-client";
+import { checkClientState } from "~/lib/matrix-api/refresh-token";
 import { getRoomList } from "~/lib/matrix-api/room-list";
 
 type RoomContextType = {
@@ -23,36 +23,32 @@ export function RoomProvider({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     const fetchRooms = async () => {
-      try {
-        const refreshStatus = await initClient();
-        if (refreshStatus === "REFRESH_FAILED") {
-          navigate("/login");
-          return;
-        }
-
-        setRooms(await getRoomList());
-
-        const handleRoomEvent = async () => {
-          setRooms(await getRoomList());
-        };
-
-        const handleSyncEvent = async () => {
-          setRooms(await getRoomList());
-        };
-
-        client.client.on(ClientEvent.Room, handleRoomEvent);
-        client.client.on(ClientEvent.Sync, handleSyncEvent);
-
-        setLoading(false);
-
-        return () => {
-          client.client.removeListener(ClientEvent.Room, handleRoomEvent);
-          client.client.removeListener(ClientEvent.Sync, handleSyncEvent);
-        };
-      } catch (error) {
-        console.error("Error initializing client:", error);
-        setLoading(false);
+      const clientState = await checkClientState();
+      if (!clientState) {
+        console.error("client state is not ok");
+        navigate("/login");
+        return;
       }
+
+      setRooms(await getRoomList());
+
+      const handleRoomEvent = async () => {
+        setRooms(await getRoomList());
+      };
+
+      const handleSyncEvent = async () => {
+        setRooms(await getRoomList());
+      };
+
+      client.client.on(ClientEvent.Room, handleRoomEvent);
+      client.client.on(ClientEvent.Sync, handleSyncEvent);
+
+      setLoading(false);
+
+      return () => {
+        client.client.removeListener(ClientEvent.Room, handleRoomEvent);
+        client.client.removeListener(ClientEvent.Sync, handleSyncEvent);
+      };
     };
 
     fetchRooms();
