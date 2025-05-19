@@ -22,6 +22,14 @@ export function RoomProvider({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate();
 
   useEffect(() => {
+    const handleRoomEvent = async () => {
+      setRooms(await getRoomList());
+    };
+
+    const handleSyncEvent = async () => {
+      setRooms(await getRoomList());
+    };
+
     const fetchRooms = async () => {
       const clientState = await checkClientState();
       if (!clientState) {
@@ -32,26 +40,18 @@ export function RoomProvider({ children }: { children: React.ReactNode }) {
 
       setRooms(await getRoomList());
 
-      const handleRoomEvent = async () => {
-        setRooms(await getRoomList());
-      };
-
-      const handleSyncEvent = async () => {
-        setRooms(await getRoomList());
-      };
-
       client.client.on(ClientEvent.Room, handleRoomEvent);
       client.client.on(ClientEvent.Sync, handleSyncEvent);
 
       setLoading(false);
-
-      return () => {
-        client.client.removeListener(ClientEvent.Room, handleRoomEvent);
-        client.client.removeListener(ClientEvent.Sync, handleSyncEvent);
-      };
     };
 
     fetchRooms();
+
+    return () => {
+      client.client.removeListener(ClientEvent.Room, handleRoomEvent);
+      client.client.removeListener(ClientEvent.Sync, handleSyncEvent);
+    };
   }, [navigate]);
 
   return (
