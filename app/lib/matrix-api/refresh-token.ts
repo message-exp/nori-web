@@ -73,13 +73,16 @@ export async function checkClientState(): Promise<boolean> {
       return false;
     }
 
-    console.log("client state check passed, return true");
-
-    // 只有當未執行 refreshToken 時才進行同步
+    // 只有當未執行 refreshToken 時才進行同步，忽略同步錯誤（如超時），以免影響客戶端狀態檢查
     if (needSync) {
-      await client.sync();
+      try {
+        await client.sync();
+      } catch (syncError) {
+        console.error("Sync timeout or error during client sync:", syncError);
+      }
     }
 
+    console.log("client state check passed");
     return true;
   } catch (error) {
     console.error("Error checking client state:", error);
