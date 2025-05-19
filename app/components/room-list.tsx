@@ -2,7 +2,7 @@ import { DialogTrigger } from "@radix-ui/react-dialog";
 import { Plus } from "lucide-react";
 import type { Room } from "matrix-js-sdk";
 import { ClientEvent, NotificationCountType } from "matrix-js-sdk";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
 import { ScrollArea } from "~/components/ui/scroll-area";
@@ -13,11 +13,12 @@ import {
   TooltipTrigger,
 } from "~/components/ui/tooltip";
 import { client } from "~/lib/matrix-api/client";
-import { initClient } from "~/lib/matrix-api/init-client";
 import { getRoomList } from "~/lib/matrix-api/room-list";
 import { getRoomAvatar } from "~/lib/matrix-api/utils";
 import { cn, getLatestMessageText } from "~/lib/utils";
 import { CreateRoomDialog } from "./create-room-dialog";
+import { checkClientState } from "~/lib/matrix-api/refresh-token";
+import { useNavigate } from "react-router";
 
 interface RoomListProps {
   readonly selectedChat: string | null;
@@ -29,22 +30,31 @@ export const RoomList: React.FC<RoomListProps> = ({
   setSelectedChat,
 }) => {
   const [rooms, setRooms] = useState<Room[]>([]);
-
-  initClient(async () => {
-    setRooms(await getRoomList());
-    const handleRoomEvent = async () => {
+  const navigate = useNavigate();
+  useEffect(() => {
+    const initRoomList = async () => {
+      const clientState = await checkClientState();
+      if (!clientState) {
+        console.error("client state is not ok");
+        navigate("/login");
+        return;
+      }
       setRooms(await getRoomList());
+      const handleRoomEvent = async () => {
+        setRooms(await getRoomList());
+      };
+      const handleSyncEvent = async () => {
+        setRooms(await getRoomList());
+      };
+      client.client.on(ClientEvent.Room, handleRoomEvent);
+      client.client.on(ClientEvent.Sync, handleSyncEvent);
+      return () => {
+        client.client.removeListener(ClientEvent.Room, handleRoomEvent);
+        client.client.removeListener(ClientEvent.Sync, handleSyncEvent);
+      };
     };
-    const handleSyncEvent = async () => {
-      setRooms(await getRoomList());
-    };
-    client.client.on(ClientEvent.Room, handleRoomEvent);
-    client.client.on(ClientEvent.Sync, handleSyncEvent);
-    return () => {
-      client.client.removeListener(ClientEvent.Room, handleRoomEvent);
-      client.client.removeListener(ClientEvent.Sync, handleSyncEvent);
-    };
-  });
+    initRoomList();
+  }, []);
 
   return (
     <div className="flex flex-col h-screen">

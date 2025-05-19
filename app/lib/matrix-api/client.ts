@@ -1,4 +1,5 @@
 import * as sdk from "matrix-js-sdk";
+import { getAuthCookies } from "../utils";
 
 class Client {
   client: sdk.MatrixClient;
@@ -16,6 +17,34 @@ class Client {
     await this.startClient();
     if (isSyncNeed) {
       await this.sync();
+    }
+  }
+
+  async restoreClient(isSyncNeed: boolean = true): Promise<boolean> {
+    console.log("restoring client from cookies");
+    const { accessToken, userId, deviceId, baseUrl } = getAuthCookies();
+
+    // 檢查必要的認證資訊是否都存在
+    if (!accessToken || !userId || !deviceId || !baseUrl) {
+      console.log("missing auth info in cookies, cannot restore client");
+      return false;
+    }
+
+    // 使用 cookies 中的認證資訊創建新的 client
+    const opts: sdk.ICreateClientOpts = {
+      baseUrl,
+      accessToken,
+      userId,
+      deviceId,
+    };
+
+    try {
+      await this.newClient(opts, isSyncNeed);
+      console.log("client restored successfully");
+      return true;
+    } catch (error) {
+      console.error("Failed to restore client:", error);
+      return false;
     }
   }
 

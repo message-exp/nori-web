@@ -27,7 +27,6 @@ import { register } from "~/lib/matrix-api/register";
 import { getBaseUrl } from "~/lib/matrix-api/utils";
 import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
 import { Link, useNavigate } from "react-router";
-import { setAuthCookies } from "~/lib/utils";
 const debouncedGetBaseUrl = debouncePromise(getBaseUrl, 1000); // 1 second cooldown
 
 // define form schema
@@ -86,7 +85,6 @@ export function Register({
         values.username,
         values.password,
       );
-      setAuthCookies(response.registerResponse, response.baseUrl);
       console.log("register response", response);
     } catch (error) {
       console.error("Error registering:", error);

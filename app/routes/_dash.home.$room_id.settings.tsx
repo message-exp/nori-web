@@ -1,11 +1,11 @@
 import { ChevronLeft, Loader2 } from "lucide-react";
 import { Room } from "matrix-js-sdk";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import RoomSettings from "~/components/room-chat/room-settings";
 import { Button } from "~/components/ui/button";
 import { Card, CardContent, CardHeader } from "~/components/ui/card";
-import { initClient } from "~/lib/matrix-api/init-client";
+import { checkClientState } from "~/lib/matrix-api/refresh-token";
 import { getRoom } from "~/lib/matrix-api/room";
 
 type HomeRoomParams = {
@@ -20,9 +20,18 @@ export default function RoomSettingsPage({
   const navigate = useNavigate();
   const [room, setRoom] = useState<Room | null>(null);
 
-  initClient(() => {
-    setRoom(getRoom(params.room_id));
-  });
+  useEffect(() => {
+    const initRoomSetting = async () => {
+      const clientState = await checkClientState();
+      if (!clientState) {
+        console.error("client state is not ok");
+        navigate("/login");
+        return;
+      }
+      setRoom(getRoom(params.room_id));
+    };
+    initRoomSetting();
+  }, []);
 
   if (!room) {
     return (
