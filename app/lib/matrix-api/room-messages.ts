@@ -47,7 +47,7 @@ export async function getRoomMessages(
   // Only keep the latest version of each message
   events = Array.from(eventMap.values());
 
-  // Sort from oldest to newest (ascending)
+  // Sort from newest to oldest
   events = events.sort((a, b) => b.getTs() - a.getTs());
 
   // If we already have enough messages, return them
@@ -86,7 +86,7 @@ export async function getRoomMessages(
     return events.slice(-limit);
   } catch (error) {
     console.error("Error fetching more messages:", error);
-    return events.sort((a, b) => b.getTs() - a.getTs());
+    return events.sort((a, b) => b.getTs() - a.getTs()).slice(-limit);
   }
 }
 

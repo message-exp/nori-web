@@ -13,8 +13,6 @@ interface MatrixEventWithOriginalTs extends sdk.MatrixEvent {
 }
 
 export function MessageItem({ message }: MessageItemProps) {
-  console.log("MessageItem", message);
-
   const content = message.getContent();
   const sender = message.getSender();
   // const timestamp = message.getDate();
