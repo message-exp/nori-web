@@ -8,16 +8,30 @@ interface MessageItemProps {
   message: sdk.MatrixEvent;
 }
 
+interface MatrixEventWithOriginalTs extends sdk.MatrixEvent {
+  _originalTs?: number;
+}
+
 export function MessageItem({ message }: MessageItemProps) {
   console.log("MessageItem", message);
 
   const content = message.getContent();
   const sender = message.getSender();
-  const timestamp = message.getDate();
+  // const timestamp = message.getDate();
 
   const user = getUser(sender || "");
   const senderUsername =
     user?.displayName || splitUserId(sender || "").username;
+
+  // Get original and edited timestamps
+  const originalTs =
+    (message as MatrixEventWithOriginalTs)._originalTs ||
+    (content["m.relates_to"] && content["m.relates_to"].event_id
+      ? undefined
+      : message.getTs());
+  const editedTs = (message as MatrixEventWithOriginalTs)._originalTs
+    ? message.getTs()
+    : undefined;
 
   return (
     <div className="">
@@ -32,10 +46,18 @@ export function MessageItem({ message }: MessageItemProps) {
           <div className="flex flex-row gap-2">
             <div className="font-medium text-xs">{senderUsername}</div>
             <div className="text-xs text-muted-foreground">
-              {timestamp
-                ? new Date(timestamp).toLocaleString()
+              {originalTs
+                ? new Date(originalTs).toLocaleString()
                 : "Invalid time"}
             </div>
+            {editedTs && (
+              <span className="text-xs text-muted-foreground italic">
+                edited&nbsp;
+                <span title={new Date(editedTs).toLocaleString()}>
+                  ({new Date(editedTs).toLocaleTimeString()})
+                </span>
+              </span>
+            )}
           </div>
           <div className="bg-card p-3 rounded-lg w-fit">
             {/* reference: https://spec.matrix.org/v1.14/client-server-api/#mroommessage-msgtypes */}
