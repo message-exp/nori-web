@@ -2,7 +2,7 @@ import * as sdk from "matrix-js-sdk";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { getUser, getUserAvatar } from "~/lib/matrix-api/user";
 import { splitUserId } from "~/lib/matrix-api/utils";
-import TextMessage from "~/components/message/message-text";
+import TextMessage from "~/components/message/text-message";
 
 interface MessageItemProps {
   message: sdk.MatrixEvent;
