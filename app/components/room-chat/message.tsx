@@ -2,12 +2,15 @@ import * as sdk from "matrix-js-sdk";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { getUser, getUserAvatar } from "~/lib/matrix-api/user";
 import { splitUserId } from "~/lib/matrix-api/utils";
+import TextMessage from "~/components/message/message-text";
 
 interface MessageItemProps {
   message: sdk.MatrixEvent;
 }
 
 export function MessageItem({ message }: MessageItemProps) {
+  console.log("MessageItem", message);
+
   const content = message.getContent();
   const sender = message.getSender();
   const timestamp = message.getDate();
@@ -35,7 +38,26 @@ export function MessageItem({ message }: MessageItemProps) {
             </div>
           </div>
           <div className="bg-card p-3 rounded-lg w-fit">
-            <div className="text-sm">{content.body}</div>
+            {/* reference: https://spec.matrix.org/v1.14/client-server-api/#mroommessage-msgtypes */}
+            {content.msgtype === "m.text" ? (
+              <TextMessage content={content} />
+            ) : content.msgtype === "m.emote" ? (
+              <></>
+            ) : content.msgtype === "m.notice" ? (
+              <></>
+            ) : content.msgtype === "m.image" ? (
+              <></>
+            ) : content.msgtype === "m.file" ? (
+              <></>
+            ) : content.msgtype === "m.audio" ? (
+              <></>
+            ) : content.msgtype === "m.video" ? (
+              <></>
+            ) : content.msgtype === "m.location" ? (
+              <></>
+            ) : (
+              <></>
+            )}
           </div>
         </div>
       </div>

@@ -26,6 +26,7 @@ export async function getRoomMessages(
       .getEvents()
       .filter((event) => event.getType() === "m.room.message");
     return events.slice(-limit).reverse(); // Most recent last
+    // TODO: handle edited messages
   } catch (error) {
     console.error("Error fetching more messages:", error);
     return events.reverse(); // Return what we have if fetching more fails
