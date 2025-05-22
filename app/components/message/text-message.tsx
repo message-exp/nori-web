@@ -3,7 +3,7 @@ import type { IContent } from "matrix-js-sdk";
 // reference: https://spec.matrix.org/v1.14/client-server-api/#mroommessage-msgtypes
 
 export default function TextMessage({ content }: { content: IContent }) {
-  return content.formatted_body ? (
+  return content.format === "org.matrix.custom.html" ? (
     // TODO: limit HTML tags
     <div
       className="text-sm"
