@@ -37,7 +37,7 @@ export default function HomeIndex() {
     <div className="h-screen">
       {isMobile ? (
         <div className="h-full w-full transition-all duration-300">
-          <RoomList />
+          <RoomList loading={loading} />
         </div>
       ) : (
         <ResizablePanelGroup direction="horizontal" className="h-full">
@@ -46,7 +46,7 @@ export default function HomeIndex() {
             maxSize={40}
             className="flex flex-col"
           >
-            <RoomList />
+            <RoomList loading={loading} />
           </ResizablePanel>
           <ResizableHandle />
           <ResizablePanel defaultSize={75}>

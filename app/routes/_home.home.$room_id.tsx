@@ -55,7 +55,7 @@ export default function HomeRoom() {
             maxSize={40}
             className="flex flex-col"
           >
-            <RoomList />
+            <RoomList loading={loading} />
           </ResizablePanel>
           <ResizableHandle />
           <ResizablePanel defaultSize={75}>
