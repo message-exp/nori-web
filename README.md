@@ -19,6 +19,10 @@ docker build -t nori-web .
 docker run -d -p 3000:3000 --name nori-web nori-web
 ```
 
+### Developer Tools
+
+To use React Scan (a tool to monitor re-rendering and the performance of the app), checkout app/root.tsx and uncomment the script tag.
+
 ---
 
 # Welcome to React Router!
