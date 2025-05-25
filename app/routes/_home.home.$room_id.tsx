@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 import { useNavigate, useOutletContext, useParams } from "react-router";
 import { RoomChat } from "~/components/room-chat/room-chat";
 import { RoomList } from "~/components/room-list";
@@ -20,6 +20,7 @@ export default function HomeRoom() {
   const navigate = useNavigate();
   const { room_id } = useParams(); // Get the room_id from URL params
   const { setSelectedRoomId, loading } = useRoomContext();
+  const navigateHome = useCallback(() => navigate("/home"), []);
 
   // Sync URL param with selected room ID
   useEffect(() => {
@@ -46,7 +47,7 @@ export default function HomeRoom() {
     <div className="h-screen">
       {isMobile ? (
         <div className="h-full w-full transition-all duration-300">
-          <RoomChat onBackClick={() => navigate("/home")} />
+          <RoomChat onBackClick={navigateHome} />
         </div>
       ) : (
         <ResizablePanelGroup direction="horizontal" className="h-full">
