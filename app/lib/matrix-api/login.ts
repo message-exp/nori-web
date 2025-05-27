@@ -1,21 +1,23 @@
 import * as sdk from "matrix-js-sdk";
-import { getBaseUrl } from "./utils";
-import { client } from "./client";
-import { setAuthCookies } from "../utils";
+import { client } from "~/lib/matrix-api/client";
+import { checkBaseUrl } from "~/lib/matrix-api/utils";
+import { setAuthCookies } from "~/lib/utils";
 
 export async function login(
+  baseUrl: string,
   userId: string,
   password: string,
 ): Promise<{ loginResponse: sdk.LoginResponse; baseUrl: string }> {
-  // get base URL from host name
-  const baseUrl = await getBaseUrl(userId);
-  console.log("baseUrl", baseUrl);
+  // check if the base URL is valid
+  const checkBaseUrlRes = await checkBaseUrl(baseUrl);
+
+  console.log("checkBaseUrlRes", checkBaseUrlRes);
   if (
-    baseUrl === "IGNORE" ||
-    baseUrl === "FAIL_PROMPT" ||
-    baseUrl === "FAIL_ERROR"
+    checkBaseUrlRes === "IGNORE" ||
+    checkBaseUrlRes === "FAIL_PROMPT" ||
+    checkBaseUrlRes === "FAIL_ERROR"
   ) {
-    throw new Error(`base URL ${baseUrl}`);
+    throw new Error(`base URL ${checkBaseUrlRes}`);
   }
 
   const tempClient = sdk.createClient({ baseUrl });

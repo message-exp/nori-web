@@ -18,6 +18,22 @@ export async function getBaseUrl(
   // TODO: 2: Extract the hostname from the server name as described by the [grammar](https://spec.matrix.org/v1.14/appendices/#server-name).
   const hostName = serverName;
 
+  return checkBaseUrl(hostName);
+}
+
+/**
+ * Check if the base URL is valid
+ * @param url base url. e.g. `matrix.org`
+ * @returns base URL | "IGNORE" | "FAIL_PROMPT" | "FAIL_ERROR"
+ */
+export async function checkBaseUrl(
+  url: string,
+): Promise<string | "IGNORE" | "FAIL_PROMPT" | "FAIL_ERROR"> {
+  // reference: https://spec.matrix.org/v1.14/client-server-api/#well-known-uri
+
+  // continue from step 2 above (function `getBaseUrl`)
+  const hostName = url;
+
   // 3: Make a GET request to https://hostname/.well-known/matrix/client
   let response;
   try {
