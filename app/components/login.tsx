@@ -24,22 +24,21 @@ import {
 import { Input } from "~/components/ui/input";
 import { debouncePromise } from "~/lib/debounce-helper";
 import { login } from "~/lib/matrix-api/login";
-import { getBaseUrl } from "~/lib/matrix-api/utils";
+import { checkBaseUrl } from "~/lib/matrix-api/utils";
 import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
 import { Link, useNavigate } from "react-router";
-const debouncedGetBaseUrl = debouncePromise(getBaseUrl, 1000); // 1 second cooldown
+const debouncedCheckBaseUrl = debouncePromise(checkBaseUrl, 1000); // 1 second cooldown
 
 // define form schema
 const formSchema = z.object({
-  username: z
+  baseUrl: z
     .string()
-    .trim()
     .min(1)
     .max(255)
     .refine(
       // check whether the domain in the user ID in valid
-      async (username) => {
-        const baseUrl = await debouncedGetBaseUrl(username);
+      async (url) => {
+        const baseUrl = await debouncedCheckBaseUrl(url);
         return (
           baseUrl !== "IGNORE" &&
           baseUrl !== "FAIL_PROMPT" &&
@@ -48,6 +47,7 @@ const formSchema = z.object({
       },
       { message: "The domain is invalid." },
     ),
+  username: z.string().trim().min(1).max(255),
   password: z.string().min(1),
 });
 
@@ -66,6 +66,7 @@ export function Login({
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      baseUrl: "matrix.org",
       username: "",
       password: "",
     },
@@ -73,7 +74,11 @@ export function Login({
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
-      const response = await login(values.username, values.password);
+      const response = await login(
+        values.baseUrl,
+        values.username,
+        values.password,
+      );
       console.log("login response", response);
     } catch (error) {
       console.error("Error logging in:", error);
@@ -103,12 +108,25 @@ export function Login({
           <form className="space-y-8">
             <FormField
               control={form.control}
+              name="baseUrl"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Home Server URL</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
               name="username"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Username</FormLabel>
                   <FormControl>
-                    <Input placeholder="@user:matrix.org" {...field} />
+                    <Input placeholder="username" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
