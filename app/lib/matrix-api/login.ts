@@ -9,15 +9,15 @@ export async function login(
   password: string,
 ): Promise<{ loginResponse: sdk.LoginResponse; baseUrl: string }> {
   // check if the base URL is valid
-  baseUrl = await checkBaseUrl(baseUrl);
+  const checkBaseUrlRes = await checkBaseUrl(baseUrl);
 
-  console.log("baseUrl", baseUrl);
+  console.log("checkBaseUrlRes", checkBaseUrlRes);
   if (
-    baseUrl === "IGNORE" ||
-    baseUrl === "FAIL_PROMPT" ||
-    baseUrl === "FAIL_ERROR"
+    checkBaseUrlRes === "IGNORE" ||
+    checkBaseUrlRes === "FAIL_PROMPT" ||
+    checkBaseUrlRes === "FAIL_ERROR"
   ) {
-    throw new Error(`base URL ${baseUrl}`);
+    throw new Error(`base URL ${checkBaseUrlRes}`);
   }
 
   const tempClient = sdk.createClient({ baseUrl });
