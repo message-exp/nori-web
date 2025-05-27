@@ -52,6 +52,13 @@ pnpm tauri ios dev
 > [!WARNING]
 > iOS development requires Xcode and is macOS only.
 
+### Run Docker Image
+
+```sh
+docker build -t nori-web .
+docker run -d -p 3000:3000 --name nori-web nori-web
+```
+
 ---
 
 # Welcome to React Router!

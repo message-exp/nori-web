@@ -27,7 +27,6 @@ import { register } from "~/lib/matrix-api/register";
 import { getBaseUrl } from "~/lib/matrix-api/utils";
 import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
 import { Link, useNavigate } from "react-router";
-
 const debouncedGetBaseUrl = debouncePromise(getBaseUrl, 1000); // 1 second cooldown
 
 // define form schema
@@ -80,9 +79,8 @@ export function Register({
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    let response;
     try {
-      response = await register(
+      const response = await register(
         values.homeserver,
         values.username,
         values.password,
@@ -99,7 +97,7 @@ export function Register({
     }
 
     // redirect to the home page
-    return navigate("/home");
+    navigate("/home");
   }
 
   return (

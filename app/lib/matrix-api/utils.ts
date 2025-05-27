@@ -1,3 +1,7 @@
+import { getHttpUriForMxc } from "matrix-js-sdk/src/content-repo";
+import type { Room } from "matrix-js-sdk";
+import { EventTimeline } from "matrix-js-sdk/src/models/event-timeline";
+
 /**
  * Get base URL from user ID
  * @param userId user id. format: `@user:domain`
@@ -102,4 +106,26 @@ export async function getBaseUrl(
 
   // success; use homeserver base url
   return baseUrl;
+}
+
+export function splitUserId(userId: string) {
+  // @username:domain => { username: "username", domain: "domain" }
+  const parts = userId.split(":");
+  if (parts.length !== 2) {
+    throw new Error("Invalid username format");
+  }
+  return {
+    username: parts[0].startsWith("@") ? parts[0].substring(1) : parts[0],
+    domain: parts[1],
+  };
+}
+
+export function getRoomAvatar(room: Room, baseUrl: string): string | undefined {
+  const state = room.getLiveTimeline().getState(EventTimeline.FORWARDS);
+  if (!state) return undefined;
+  const avatarEvent = state.getStateEvents("m.room.avatar", "");
+  const mxcUrl = avatarEvent?.getContent()?.url;
+  return mxcUrl
+    ? getHttpUriForMxc(baseUrl, mxcUrl, 40, 40, "scale")
+    : undefined;
 }

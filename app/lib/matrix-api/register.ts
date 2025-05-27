@@ -1,12 +1,13 @@
 import * as sdk from "matrix-js-sdk";
 import { getBaseUrl } from "./utils";
 import { client } from "./client";
+import { setAuthCookies } from "../utils";
 
 export async function register(
   homeserver: string,
   username: string,
   password: string,
-): Promise<sdk.RegisterResponse | string> {
+): Promise<{ registerResponse: sdk.RegisterResponse; baseUrl: string }> {
   // get base URL from host name
   const baseUrl = await getBaseUrl(`@${username}:${homeserver}`);
   console.log("baseUrl", baseUrl);
@@ -15,16 +16,14 @@ export async function register(
     baseUrl === "FAIL_PROMPT" ||
     baseUrl === "FAIL_ERROR"
   ) {
-    return baseUrl;
+    throw new Error(`base URL ${baseUrl}`);
   }
 
   // create a temporary client to connect to the home server of the user
-  await client.newClient({
-    baseUrl: baseUrl,
-  });
+  const tempClient = sdk.createClient({ baseUrl });
 
   // register the user
-  const response = await client.client.register(
+  const response = await tempClient.register(
     username,
     password,
     null, // No session ID initially
@@ -36,6 +35,8 @@ export async function register(
     false, // inhibitLogin - false to allow automatic login
   );
 
+  setAuthCookies(response, baseUrl);
+
   // re-create a client
   await client.newClient({
     baseUrl: baseUrl,
@@ -45,5 +46,5 @@ export async function register(
     userId: response.user_id,
   });
 
-  return response;
+  return { registerResponse: response, baseUrl };
 }

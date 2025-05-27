@@ -1,11 +1,12 @@
 import * as sdk from "matrix-js-sdk";
 import { getBaseUrl } from "./utils";
 import { client } from "./client";
+import { setAuthCookies } from "../utils";
 
 export async function login(
   userId: string,
   password: string,
-): Promise<sdk.LoginResponse | string> {
+): Promise<{ loginResponse: sdk.LoginResponse; baseUrl: string }> {
   // get base URL from host name
   const baseUrl = await getBaseUrl(userId);
   console.log("baseUrl", baseUrl);
@@ -14,23 +15,23 @@ export async function login(
     baseUrl === "FAIL_PROMPT" ||
     baseUrl === "FAIL_ERROR"
   ) {
-    return baseUrl;
+    throw new Error(`base URL ${baseUrl}`);
   }
 
-  // create a new client to connect to the home server of the user
-  await client.newClient({
-    baseUrl: baseUrl,
-  });
+  const tempClient = sdk.createClient({ baseUrl });
 
   // log in to the home server, get tokens
-  const response = await client.client.loginRequest({
+  const response = await tempClient.loginRequest({
     type: "m.login.password",
     identifier: {
       type: "m.id.user",
       user: userId,
     },
     password: password,
+    refresh_token: true,
   });
+
+  setAuthCookies(response, baseUrl);
 
   // re-create a client
   await client.newClient({
@@ -41,5 +42,5 @@ export async function login(
     userId: response.user_id,
   });
 
-  return response;
+  return { loginResponse: response, baseUrl };
 }
