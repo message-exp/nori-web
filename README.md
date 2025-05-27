@@ -1,16 +1,56 @@
 # nori-web
 
-## Getting Started
+## Quick Start
+
+### Prerequisites
+
+- Node.js (v22 or later)
+
+- pnpm
+
+- Other Tauri prerequisites: https://tauri.app/start/prerequisites/
 
 ### Setup Developing Environment
 
-1. Install Node.js (v22 or later) and pnpm.
+1. Run `pnpm install` to install dependencies.
 
-2. Run `pnpm install` to install dependencies.
+2. Run `pnpm prepare` to setup git hook.
 
-3. Run `pnpm prepare` to setup git hook.
+3. To get started with mobile app, run:
 
-4. To start the dev server, run `pnpm dev`.
+   ```sh
+   pnpm tauri android init
+   pnpm tauri ios init
+   ```
+
+### Start the App
+
+For web development, run:
+
+```sh
+pnpm dev
+```
+
+For Desktop development, run:
+
+```sh
+pnpm tauri dev
+```
+
+For Android development, run:
+
+```sh
+pnpm tauri android dev
+```
+
+For iOS development, run:
+
+```sh
+pnpm tauri ios dev
+```
+
+> [!WARNING]
+> iOS development requires Xcode and is macOS only.
 
 ### Run Docker Image
 
