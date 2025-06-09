@@ -1,11 +1,13 @@
 import * as sdk from "matrix-js-sdk";
 import { getAuthCookies } from "../utils";
+import { refreshToken } from "./refresh-token";
 
-class Client {
+export class Client {
   client: sdk.MatrixClient;
 
   constructor(opts: sdk.ICreateClientOpts) {
     this.client = sdk.createClient(opts);
+    this.wrapHttp();
   }
 
   async startClient() {
@@ -14,6 +16,7 @@ class Client {
 
   async newClient(opts: sdk.ICreateClientOpts, isSyncNeed: boolean = true) {
     this.client = sdk.createClient(opts);
+    this.wrapHttp();
     await this.startClient();
     if (isSyncNeed) {
       await this.sync();
@@ -72,6 +75,28 @@ class Client {
         }
       });
     });
+  }
+
+  private wrapHttp() {
+    const http = this.client.http;
+    const original = http.authedRequest.bind(http);
+    type AuthedRequestArgs = Parameters<typeof original>;
+    http.authedRequest = async <T>(...args: AuthedRequestArgs): Promise<T> => {
+      try {
+        return await original(...args);
+      } catch (err: unknown) {
+        const error = err as sdk.MatrixError;
+        if (error?.errcode === "M_UNKNOWN_TOKEN" || error?.httpStatus === 401) {
+          console.log("error access token, refreshing token");
+          const result = await refreshToken();
+          if (result === "REFRESH_SUCCESS") {
+            console.log("auto refresh token successful");
+            return await this.client.http.authedRequest(...args);
+          }
+        }
+        throw err;
+      }
+    };
   }
 }
 
