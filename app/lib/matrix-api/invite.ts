@@ -11,11 +11,11 @@ export function getInvites(): Room[] {
 export async function acceptInvite(roomId: string): Promise<void> {
   if (!client.client) throw new Error("Matrix client is not initialized");
   await client.client.joinRoom(roomId);
-  await client.sync(); //在接受後刷新一次room list
+  // await client.sync(); //在接受後刷新一次room list
 }
 
 export async function rejectInvite(roomId: string): Promise<void> {
   if (!client.client) throw new Error("Matrix client is not initialized");
   await client.client.leave(roomId);
-  await client.sync();
+  // await client.sync();
 }

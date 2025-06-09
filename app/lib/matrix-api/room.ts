@@ -6,6 +6,7 @@ export function getRoom(roomId: string | null): Room | null {
     throw new Error("Matrix client is not initialized");
   }
   if (!roomId) {
+    console.error("room id is not valid");
     return null;
   }
   return client.client.getRoom(roomId);
