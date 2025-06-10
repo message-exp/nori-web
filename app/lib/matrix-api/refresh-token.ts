@@ -14,13 +14,6 @@ export async function refreshToken(): Promise<string> {
     try {
       const tempClient = sdk.createClient({ baseUrl: authCookies.baseUrl });
       const response = await tempClient.refreshToken(authCookies.refreshToken);
-      // await client.newClient({
-      //   baseUrl: authCookies.baseUrl,
-      //   deviceId: authCookies.deviceId,
-      //   accessToken: response.access_token,
-      //   refreshToken: response.refresh_token,
-      //   userId: authCookies.userId,
-      // });
       client.client.setAccessToken(response.access_token);
 
       setAuthCookies(response, authCookies.baseUrl ?? "");
