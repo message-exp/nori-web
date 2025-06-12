@@ -12,6 +12,7 @@ export async function refreshToken(): Promise<string> {
     authCookies.accessToken
   ) {
     try {
+      console.log("refreshing: refresh token: ", authCookies.refreshToken);
       const tempClient = sdk.createClient({ baseUrl: authCookies.baseUrl });
       const response = await tempClient.refreshToken(authCookies.refreshToken);
       client.client.setAccessToken(response.access_token);
@@ -24,12 +25,13 @@ export async function refreshToken(): Promise<string> {
       return "REFRESH_FAILED";
     }
   } else {
+    console.log("something is missing");
     return "REFRESH_FAILED";
   }
 }
 
 export async function checkClientState(): Promise<boolean> {
-  const clientCookiesState = await client.restoreClient(true);
+  const clientCookiesState = await client.restoreClient();
   if (!clientCookiesState) {
     return false;
   }
