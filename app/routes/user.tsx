@@ -15,6 +15,7 @@ import {
 } from "~/components/ui/alert-dialog";
 import { logout } from "~/lib/matrix-api/logout";
 import { checkClientState } from "~/lib/matrix-api/refresh-token";
+import { ThemeToggle } from "~/components/theme-toggle";
 
 export default function User() {
   const [userData, setUserData] = useState<UserType>();
@@ -60,12 +61,13 @@ export default function User() {
 
   return (
     <div className="container mx-auto p-4 h-screen">
-      <div className="mb-4">
+      <div className="mb-4 flex justify-between items-center">
         <Link to="/home">
           <Button variant="ghost" size="icon">
             <ChevronLeft className="h-5 w-5" />
           </Button>
         </Link>
+        <ThemeToggle />
       </div>
 
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
