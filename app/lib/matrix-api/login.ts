@@ -20,7 +20,9 @@ export async function login(
     throw new Error(`base URL ${checkBaseUrlRes}`);
   }
 
-  const tempClient = sdk.createClient({ baseUrl });
+  // use the validated and possibly rewrote base URL (including protocol)
+  const resolvedBaseUrl = checkBaseUrlRes;
+  const tempClient = sdk.createClient({ baseUrl: resolvedBaseUrl });
 
   // log in to the home server, get tokens
   const response = await tempClient.loginRequest({
@@ -33,16 +35,16 @@ export async function login(
     refresh_token: true,
   });
 
-  setAuthCookies(response, baseUrl);
+  setAuthCookies(response, resolvedBaseUrl);
 
   // re-create a client
   await client.newClient({
-    baseUrl: baseUrl,
+    baseUrl: resolvedBaseUrl,
     deviceId: response.device_id,
     accessToken: response.access_token,
     refreshToken: response.refresh_token,
     userId: response.user_id,
   });
 
-  return { loginResponse: response, baseUrl };
+  return { loginResponse: response, baseUrl: resolvedBaseUrl };
 }
