@@ -15,6 +15,7 @@ import {
 } from "~/components/ui/alert-dialog";
 import { logout } from "~/lib/matrix-api/logout";
 import { checkClientState } from "~/lib/matrix-api/refresh-token";
+import { ThemeSelect } from "~/components/theme-select";
 
 export default function User() {
   const [userData, setUserData] = useState<UserType>();
@@ -60,7 +61,7 @@ export default function User() {
 
   return (
     <div className="container mx-auto p-4 h-screen">
-      <div className="mb-4">
+      <div className="mb-4 flex justify-between items-center">
         <Link to="/home">
           <Button variant="ghost" size="icon">
             <ChevronLeft className="h-5 w-5" />
@@ -78,6 +79,12 @@ export default function User() {
             <h1 className="text-3xl font-bold mb-6">
               {userData?.rawDisplayName}
             </h1>
+            <div className="space-y-2 mb-6">
+              <div className="flex items-center justify-between border rounded-md p-4">
+                <p className="font-medium">System Theme</p>
+                <ThemeSelect />
+              </div>
+            </div>
             <AlertDialog>
               <AlertDialogTrigger asChild>
                 <Button>Log out</Button>
