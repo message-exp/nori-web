@@ -24,10 +24,10 @@ import {
 import { Input } from "~/components/ui/input";
 import { debouncePromise } from "~/lib/debounce-helper";
 import { register } from "~/lib/matrix-api/register";
-import { getBaseUrl } from "~/lib/matrix-api/utils";
+import { checkBaseUrl } from "~/lib/matrix-api/utils";
 import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
 import { Link, useNavigate } from "react-router";
-const debouncedGetBaseUrl = debouncePromise(getBaseUrl, 1000); // 1 second cooldown
+const debouncedCheckBaseUrl = debouncePromise(checkBaseUrl, 1000); // 1 second cooldown
 
 // define form schema
 const formSchema = z
@@ -39,7 +39,7 @@ const formSchema = z
       .refine(
         // check whether the domain in the user ID is valid
         async (homeserver) => {
-          const baseUrl = await debouncedGetBaseUrl(`@user:${homeserver}`);
+          const baseUrl = await debouncedCheckBaseUrl(homeserver);
           return (
             baseUrl !== "IGNORE" &&
             baseUrl !== "FAIL_PROMPT" &&
