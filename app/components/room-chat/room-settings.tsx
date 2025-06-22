@@ -6,6 +6,17 @@ import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router";
 import { z } from "zod";
 import { Alert, AlertDescription } from "~/components/ui/alert";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "~/components/ui/alert-dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
 import {
@@ -15,14 +26,6 @@ import {
   CardHeader,
   CardTitle,
 } from "~/components/ui/card";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "~/components/ui/dialog";
 import {
   Form,
   FormControl,
@@ -40,180 +43,10 @@ const formSchema = z.object({
   room_topic: z.string().optional(),
 });
 
-// export function OldRoomSettings({ room }: { room: Room }) {
-//   const navigate = useNavigate();
-//   const [isLoading, setIsLoading] = React.useState(false);
-//   const [isLeaveDialogOpen, setIsLeaveDialogOpen] = React.useState(false);
-//   const [leaveConfirmation, setLeaveConfirmation] = React.useState("");
-//   const [isLeaving, setIsLeaving] = React.useState(false);
-
-//   const form = useForm<z.infer<typeof formSchema>>({
-//     resolver: zodResolver(formSchema),
-//     defaultValues: {
-//       name: room.name || "",
-//       topic: getRoomTopic(room) || "",
-//     },
-//   });
-
-//   function back() {
-//     navigate(`/home/${room.roomId}`);
-//   }
-
-//   async function onSubmit(values: z.infer<typeof formSchema>) {
-//     setIsLoading(true);
-//     await updateRoom(room.roomId, values.name, values.topic || "");
-//     form.reset({
-//       name: room.name || "",
-//       topic: getRoomTopic(room) || "",
-//     });
-//     setIsLoading(false);
-//     back();
-//   }
-
-//   async function handleLeaveRoom() {
-//     if (leaveConfirmation !== `leave ${room.name}`) {
-//       return;
-//     }
-
-//     setIsLeaving(true);
-//     try {
-//       await leaveRoom(room.roomId);
-//       navigate("/home");
-//     } catch (error) {
-//       console.error("Failed to leave room:", error);
-//     } finally {
-//       setIsLeaving(false);
-//       setIsLeaveDialogOpen(false);
-//     }
-//   }
-
-//   return (
-//     <div className="h-full flex items-center justify-center">
-//       <Card className="w-full sm:w-1/2">
-//         <CardHeader>
-//           <div className="flex flex-row items-center gap-2">
-//             <Button variant="ghost" size="icon" onClick={back}>
-//               <ChevronLeft className="h-8 w-8" />
-//             </Button>
-//             <CardTitle>Room Settings</CardTitle>
-//           </div>
-//         </CardHeader>
-//         <Form {...form}>
-//           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-//             <CardContent className="flex flex-col gap-4">
-//               <FormField
-//                 control={form.control}
-//                 name="name"
-//                 render={({ field }) => (
-//                   <FormItem>
-//                     <FormLabel className="text-right">Name</FormLabel>
-//                     <FormControl>
-//                       <Input placeholder="Room name" {...field} />
-//                     </FormControl>
-//                     <FormMessage />
-//                   </FormItem>
-//                 )}
-//               />
-//               <FormField
-//                 control={form.control}
-//                 name="topic"
-//                 render={({ field }) => (
-//                   <FormItem>
-//                     <FormLabel className="text-right">Topic</FormLabel>
-//                     <FormControl>
-//                       <Input placeholder="Optional" {...field} />
-//                     </FormControl>
-//                     <FormMessage />
-//                   </FormItem>
-//                 )}
-//               />
-//             </CardContent>
-//             <CardFooter>
-//               <Button type="submit" disabled={isLoading}>
-//                 {isLoading ? <Loader className="animate-spin" /> : "Save"}
-//               </Button>
-//             </CardFooter>
-//           </form>
-//         </Form>
-
-//         <Separator className="my-4" />
-
-//         <CardContent>
-//           <div className="space-y-2">
-//             <h3 className="text-lg font-medium text-destructive">
-//               Danger Zone
-//             </h3>
-//             <div className="flex items-center justify-between border border-destructive/20 rounded-md p-4 mt-2">
-//               <div className="space-y-1">
-//                 <p className="font-medium">Leave Room</p>
-//                 <p className="text-sm text-muted-foreground">
-//                   You will no longer have access to this room after leaving.
-//                 </p>
-//               </div>
-//               <Button
-//                 variant="destructive"
-//                 onClick={() => setIsLeaveDialogOpen(true)}
-//               >
-//                 <DoorOpen className="h-4 w-4 mr-2" /> Leave Room
-//               </Button>
-//             </div>
-//           </div>
-//         </CardContent>
-//       </Card>
-
-//       <Dialog open={isLeaveDialogOpen} onOpenChange={setIsLeaveDialogOpen}>
-//         <DialogContent>
-//           <DialogHeader>
-//             <DialogTitle>Leave Room</DialogTitle>
-//             <DialogDescription>
-//               This action cannot be undone. This will permanently Leave the
-//               room.
-//             </DialogDescription>
-//           </DialogHeader>
-//           <div className="py-4">
-//             <p className="mb-2">
-//               Please type{" "}
-//               <span className="font-medium">{`leave ${room.name}`}</span> to
-//               confirm:
-//             </p>
-//             <Input
-//               value={leaveConfirmation}
-//               onChange={(e) => setLeaveConfirmation(e.target.value)}
-//               placeholder={`leave ${room.name}`}
-//             />
-//           </div>
-//           <DialogFooter>
-//             <Button
-//               variant="outline"
-//               onClick={() => setIsLeaveDialogOpen(false)}
-//             >
-//               Cancel
-//             </Button>
-//             <Button
-//               variant="destructive"
-//               onClick={handleLeaveRoom}
-//               disabled={leaveConfirmation !== `leave ${room.name}` || isLeaving}
-//             >
-//               {isLeaving ? (
-//                 <Loader className="animate-spin h-4 w-4" />
-//               ) : (
-//                 <>
-//                   <DoorOpen className="h-4 w-4 mr-2" /> Leave
-//                 </>
-//               )}
-//             </Button>
-//           </DialogFooter>
-//         </DialogContent>
-//       </Dialog>
-//     </div>
-//   );
-// }
-
 export default function RoomSettings({ room }: { room: Room }) {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = React.useState(false);
   const [isLeaveDialogOpen, setIsLeaveDialogOpen] = React.useState(false);
-  const [leaveConfirmation, setLeaveConfirmation] = React.useState("");
   const [isLeaving, setIsLeaving] = React.useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -240,10 +73,6 @@ export default function RoomSettings({ room }: { room: Room }) {
   }
 
   async function handleLeaveRoom() {
-    if (leaveConfirmation !== `leave ${room.name}`) {
-      return;
-    }
-
     setIsLeaving(true);
     try {
       await leaveRoom(room.roomId);
@@ -261,7 +90,7 @@ export default function RoomSettings({ room }: { room: Room }) {
       {/* Header */}
       <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
         <div className="flex h-14 items-center px-4">
-          <Button variant="ghost" size="icon" className="mr-2">
+          <Button variant="ghost" size="icon" className="mr-2" onClick={back}>
             <ArrowLeft className="h-4 w-4" />
           </Button>
           <div className="flex items-center gap-2">
@@ -364,72 +193,59 @@ export default function RoomSettings({ room }: { room: Room }) {
                 </Alert>
 
                 <div className="flex flex-col sm:flex-row gap-3">
-                  <Button
-                    variant="outline"
-                    className="flex-1"
-                    onClick={() => setIsLeaveDialogOpen(true)}
-                  >
-                    <LogOut className="h-4 w-4 mr-2" />
-                    Leave Room
-                  </Button>
-
-                  <Dialog
+                  <AlertDialog
                     open={isLeaveDialogOpen}
                     onOpenChange={setIsLeaveDialogOpen}
                   >
-                    <DialogContent>
-                      <DialogHeader>
-                        <DialogTitle>Leave Room</DialogTitle>
-                        <DialogDescription>
-                          This action cannot be undone. This will permanently
-                          Leave the room.
-                        </DialogDescription>
-                      </DialogHeader>
-                      <div className="py-4">
-                        <p className="mb-2">
-                          Please type{" "}
-                          <span className="font-medium">{`leave ${room.name}`}</span>{" "}
-                          to confirm:
-                        </p>
-                        <Input
-                          value={leaveConfirmation}
-                          onChange={(e) => setLeaveConfirmation(e.target.value)}
-                          placeholder={`leave ${room.name}`}
-                        />
-                      </div>
-                      <DialogFooter>
-                        <Button
-                          variant="outline"
-                          onClick={() => setIsLeaveDialogOpen(false)}
-                        >
-                          Cancel
-                        </Button>
-                        <Button
-                          variant="destructive"
-                          onClick={handleLeaveRoom}
-                          disabled={
-                            leaveConfirmation !== `leave ${room.name}` ||
-                            isLeaving
-                          }
+                    <AlertDialogTrigger asChild>
+                      <Button variant="destructive" className="flex-1">
+                        <LogOut className="h-4 w-4 mr-2" />
+                        Leave Room
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>
+                          Are you absolutely sure?
+                        </AlertDialogTitle>
+                        <AlertDialogDescription>
+                          This action cannot be undone. You will permanently
+                          leave the room and will not be accessible to all
+                          messages, files, and member data.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction
+                          className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                          disabled={isLeaving}
+                          onClick={(e) => {
+                            e.preventDefault();
+                            handleLeaveRoom();
+                          }}
                         >
                           {isLeaving ? (
-                            <Loader className="animate-spin h-4 w-4" />
+                            <>
+                              <Loader className="h-4 w-4 animate-spin" />
+                              Leave Room
+                            </>
                           ) : (
                             <>
-                              <LogOut className="h-4 w-4 mr-2" /> Leave
+                              <LogOut className="h-4 w-4" />
+                              Leave Room
                             </>
                           )}
-                        </Button>
-                      </DialogFooter>
-                    </DialogContent>
-                  </Dialog>
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
                 </div>
               </CardContent>
             </Card>
 
             {/* Save Changes */}
             <div className="flex justify-end gap-3">
-              <Button variant="outline" type="reset">
+              <Button variant="outline" type="reset" onClick={back}>
                 Cancel
               </Button>
               <Button type="submit" disabled={isLoading}>
