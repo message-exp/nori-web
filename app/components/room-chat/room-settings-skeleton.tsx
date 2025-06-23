@@ -22,9 +22,9 @@ export default function RoomSettingsSkeleton({ roomId }: { roomId: string }) {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div>
       {/* Header */}
-      <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 sticky top-0 z-10">
         <div className="flex h-14 items-center px-4">
           <Button variant="ghost" size="icon" className="mr-2" onClick={back}>
             <ArrowLeft className="h-4 w-4" />
