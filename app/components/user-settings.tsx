@@ -33,7 +33,7 @@ const formSchema = z.object({
 
 export default function UserSettings({ user }: { user: User | undefined }) {
   const navigate = useNavigate();
-  const [loadingPorfile, setLoadingProfile] = useState(user === undefined);
+  const [loadingProfile, setLoadingProfile] = useState(user === undefined);
   const [loadingLogout, setLoadingLogout] = useState(false);
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -127,7 +127,7 @@ export default function UserSettings({ user }: { user: User | undefined }) {
                         <FormControl>
                           <Input
                             placeholder={
-                              loadingPorfile ? "Loading..." : "Display name"
+                              loadingProfile ? "Loading..." : "Display name"
                             }
                             {...field}
                           />
