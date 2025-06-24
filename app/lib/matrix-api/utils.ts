@@ -1,7 +1,6 @@
 import { getHttpUriForMxc } from "matrix-js-sdk/src/content-repo";
 import type { Room } from "matrix-js-sdk";
 import { EventTimeline } from "matrix-js-sdk/src/models/event-timeline";
-import type { SlidingSyncSdk } from "matrix-js-sdk/lib/sliding-sync-sdk";
 import * as sdk from "matrix-js-sdk";
 import { client } from "./client";
 
@@ -135,57 +134,29 @@ export function getRoomAvatar(room: Room, baseUrl: string): string | undefined {
 
 export function getImageHttpUrl(
   messageContent: sdk.IContent,
+  message: sdk.MatrixEvent,
 ): string | undefined {
-  const mxcUrl = messageContent.url;
-  console.log("image mxcurl: ", mxcUrl);
-  console.log("width: ", messageContent.info.w);
-  console.log("height: ", messageContent.info.h);
-  const { downloadUrl, thumbnailUrl } = mxcToHttp(
-    mxcUrl,
-    messageContent.info.w,
-    messageContent.info.h,
-    "scale",
-  );
-  return downloadUrl ?? undefined;
-}
+  const url = messageContent.url;
+  if (!url) return undefined;
 
-// 可選的縮圖方法
-type ResizeMethod = "scale" | "crop";
-
-// 回傳值的型別
-interface MxcToHttpResult {
-  downloadUrl: string;
-  thumbnailUrl: string;
-}
-
-/**
- * 將 MXC URL 轉成 HTTP 下載與縮圖 URL
- * @param mxcUrl ── 像 mxc://matrix.org/abc123
- * @param width  ── 縮圖寬度 (px)，省略則不加到 query
- * @param height ── 縮圖高度 (px)，省略則不加到 query
- * @param method ── 縮圖方法 (scale 或 crop)，預設 scale
- * @returns  { downloadUrl, thumbnailUrl }
- */
-function mxcToHttp(
-  mxcUrl: string,
-  width?: number,
-  height?: number,
-  method: ResizeMethod = "scale",
-): MxcToHttpResult {
-  // 先用 RegExp.exec() 拆出 serverName、mediaId
-  const MxcRegex = /^mxc:\/\/([^/]+)\/(.+)$/;
-  const execResult = MxcRegex.exec(mxcUrl);
-  if (!execResult) {
-    throw new Error(`Invalid MXC URL: ${mxcUrl}`);
+  if (url.startsWith("http://") || url.startsWith("https://")) {
+    return url;
   }
-  const [, serverName, mediaId] = execResult;
 
-  const base = `https://${serverName}/_matrix/client/v1/media`;
-  const downloadUrl = `${base}/download/${serverName}/${mediaId}`;
-  const thumbnailUrl =
-    width && height
-      ? `${base}/thumbnail/${serverName}/${mediaId}?width=${width}&height=${height}&method=${method}`
-      : `${base}/thumbnail/${serverName}/${mediaId}`;
-
-  return { downloadUrl, thumbnailUrl };
+  const room = client.client.getRoom(message.getRoomId());
+  const baseUrl = room?.client.baseUrl ?? client.client.baseUrl;
+  const httpUri = getHttpUriForMxc(
+    baseUrl,
+    url,
+    undefined,
+    undefined,
+    undefined,
+    false,
+    true,
+    true,
+  );
+  const token = client.client.getAccessToken() ?? "";
+  const sep = httpUri.includes("?") ? "&" : "?";
+  const authUrl = `${httpUri}${sep}access_token=${encodeURIComponent(token)}`;
+  return authUrl || undefined;
 }

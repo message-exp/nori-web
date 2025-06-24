@@ -24,7 +24,7 @@ export function MessageItem({ message }: MessageItemProps) {
 
   if (msgType === "m.image") {
     console.log(content);
-    const imageUrl = getImageHttpUrl(content);
+    const imageUrl = getImageHttpUrl(content, message);
     console.log("image url: ", imageUrl);
     messageBody = (
       <img
