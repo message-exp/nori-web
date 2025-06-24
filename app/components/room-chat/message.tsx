@@ -1,8 +1,10 @@
 import * as sdk from "matrix-js-sdk";
+import { getHttpUriForMxc } from "matrix-js-sdk/src/content-repo";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { getUser, getUserAvatar } from "~/lib/matrix-api/user";
-import { splitUserId } from "~/lib/matrix-api/utils";
-
+import { client } from "~/lib/matrix-api/client";
+import { getImageHttpUrl, splitUserId } from "~/lib/matrix-api/utils";
+import { useEffect, useState } from "react";
 interface MessageItemProps {
   message: sdk.MatrixEvent;
 }
@@ -15,6 +17,25 @@ export function MessageItem({ message }: MessageItemProps) {
   const user = getUser(sender || "");
   const senderUsername =
     user?.displayName || splitUserId(sender || "").username;
+
+  const msgType = content.msgtype;
+
+  let messageBody: React.ReactNode = null;
+
+  if (msgType === "m.image") {
+    console.log(content);
+    const imageUrl = getImageHttpUrl(content);
+    console.log("image url: ", imageUrl);
+    messageBody = (
+      <img
+        src={imageUrl}
+        alt={content.body || "image"}
+        className="max-w-xs rounded-lg"
+      />
+    );
+  } else {
+    messageBody = <div className="text-sm">{content.body}</div>;
+  }
 
   return (
     <div className="">
@@ -34,9 +55,7 @@ export function MessageItem({ message }: MessageItemProps) {
                 : "Invalid time"}
             </div>
           </div>
-          <div className="bg-card p-3 rounded-lg w-fit">
-            <div className="text-sm">{content.body}</div>
-          </div>
+          <div className="bg-card p-3 rounded-lg w-fit">{messageBody}</div>
         </div>
       </div>
     </div>
