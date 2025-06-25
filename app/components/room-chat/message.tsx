@@ -3,7 +3,7 @@ import { getHttpUriForMxc } from "matrix-js-sdk/src/content-repo";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { getUser, getUserAvatar } from "~/lib/matrix-api/user";
 import { client } from "~/lib/matrix-api/client";
-import { getImageHttpUrl, splitUserId } from "~/lib/matrix-api/utils";
+import { getImageBlob, splitUserId } from "~/lib/matrix-api/utils";
 import { useEffect, useState } from "react";
 interface MessageItemProps {
   message: sdk.MatrixEvent;
@@ -19,19 +19,30 @@ export function MessageItem({ message }: MessageItemProps) {
     user?.displayName || splitUserId(sender || "").username;
 
   const msgType = content.msgtype;
+  const [imageUrl, setImageUrl] = useState<string | undefined>();
+
+  useEffect(() => {
+    if (msgType === "m.image") {
+      getImageBlob(content, message).then(setImageUrl);
+    }
+    // return () => {
+    //   if (imageUrl && imageUrl.startsWith('blob:')) {
+    //     URL.revokeObjectURL(imageUrl);
+    //   }
+    // };
+  }, [msgType, content, message]);
 
   let messageBody: React.ReactNode = null;
 
   if (msgType === "m.image") {
-    console.log(content);
-    const imageUrl = getImageHttpUrl(content, message);
-    console.log("image url: ", imageUrl);
-    messageBody = (
+    messageBody = imageUrl ? (
       <img
         src={imageUrl}
         alt={content.body || "image"}
         className="max-w-xs rounded-lg"
       />
+    ) : (
+      <div className="text-sm">Loading image...</div>
     );
   } else {
     messageBody = <div className="text-sm">{content.body}</div>;

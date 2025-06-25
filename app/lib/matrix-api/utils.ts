@@ -132,31 +132,52 @@ export function getRoomAvatar(room: Room, baseUrl: string): string | undefined {
     : undefined;
 }
 
-export function getImageHttpUrl(
+export async function getImageBlob(
   messageContent: sdk.IContent,
   message: sdk.MatrixEvent,
-): string | undefined {
-  const url = messageContent.url;
-  if (!url) return undefined;
+): Promise<string | undefined> {
+  const mxcUrl = messageContent.url;
+  if (!mxcUrl) return undefined;
 
-  if (url.startsWith("http://") || url.startsWith("https://")) {
-    return url;
+  if (mxcUrl.startsWith("http://") || mxcUrl.startsWith("https://")) {
+    return mxcUrl;
   }
 
-  const room = client.client.getRoom(message.getRoomId());
-  const baseUrl = room?.client.baseUrl ?? client.client.baseUrl;
-  const httpUri = getHttpUriForMxc(
-    baseUrl,
-    url,
-    undefined,
-    undefined,
-    undefined,
-    false,
-    true,
-    true,
-  );
-  const token = client.client.getAccessToken() ?? "";
-  const sep = httpUri.includes("?") ? "&" : "?";
-  const authUrl = `${httpUri}${sep}access_token=${encodeURIComponent(token)}`;
-  return authUrl || undefined;
+  try {
+    const room = client.client.getRoom(message.getRoomId());
+    const baseUrl = room?.client.baseUrl ?? client.client.baseUrl;
+    const httpUri = getHttpUriForMxc(
+      baseUrl,
+      mxcUrl,
+      undefined,
+      undefined,
+      undefined,
+      false,
+      true,
+      true,
+    );
+    console.log("http uri: ", httpUri);
+    const requestUrl = httpUri.replace(baseUrl, "");
+    console.log("request url: ", requestUrl);
+
+    // 使用 authedRequest 獲取二進制資料，matrix-js-sdk 的 json: false 會直接返回 ArrayBuffer
+    const response = await client.client.http.authedRequest<ArrayBuffer>(
+      sdk.Method.Get,
+      "",
+      undefined,
+      undefined,
+      {
+        prefix: requestUrl,
+        json: false,
+      },
+    );
+
+    const blob = new Blob([response], {
+      type: messageContent.info?.mimetype ?? "image/jpeg",
+    });
+    return URL.createObjectURL(blob);
+  } catch (error) {
+    console.error("Failed to fetch image:", error);
+    return undefined;
+  }
 }
