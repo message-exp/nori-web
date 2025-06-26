@@ -17,7 +17,7 @@ export default function HomeLayout() {
         <Outlet context={{ isMobile, showMobileList, setShowMobileList }} />
       ) : (
         <div className="flex flex-row h-screen">
-          <div className="flex flex-col justify-between h-full p-2 border-r">
+          <div className="flex flex-col justify-between h-screen p-2 border-r flex-shrink-0">
             <div className="flex flex-col gap-2">
               <NavLink to="/home">
                 {/* eslint-disable-next-line @typescript-eslint/no-unused-vars */}
@@ -63,7 +63,7 @@ export default function HomeLayout() {
               </NavLink>
             </div>
           </div>
-          <div className="flex flex-col gap-2 w-full">
+          <div className="flex flex-col gap-2 w-full h-screen overflow-y-auto">
             <Outlet context={{ isMobile, showMobileList, setShowMobileList }} />
           </div>
         </div>
