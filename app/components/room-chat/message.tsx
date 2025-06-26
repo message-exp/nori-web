@@ -1,57 +1,25 @@
-import * as sdk from "matrix-js-sdk";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { getUser, getUserAvatar } from "~/lib/matrix-api/user";
-import { getImageBlob, splitUserId } from "~/lib/matrix-api/utils";
-import { useEffect, useState } from "react";
+import { splitUserId } from "~/lib/matrix-api/utils";
+import TextMessage from "~/components/message/text-message";
+import type { TimelineItem } from "~/lib/matrix-api/timeline-item";
+import ImageMessage from "~/components/message/image-message";
+
 interface MessageItemProps {
-  message: sdk.MatrixEvent;
+  message: TimelineItem;
 }
 
 export function MessageItem({ message }: MessageItemProps) {
-  const content = message.getContent();
-  const sender = message.getSender();
-  const timestamp = message.getDate();
+  const content =
+    message.event!.getContent()["m.new_content"] || message.event!.getContent();
+  const sender = message.event!.getSender();
 
   const user = getUser(sender || "");
   const senderUsername =
     user?.displayName || splitUserId(sender || "").username;
 
-  const msgType = content.msgtype;
-  const [imageUrl, setImageUrl] = useState<string | undefined>();
-
-  useEffect(() => {
-    let newImageUrl: string | undefined;
-    if (msgType === "m.image") {
-      getImageBlob(message).then((blob) => {
-        if (blob) {
-          newImageUrl = URL.createObjectURL(blob);
-          setImageUrl(newImageUrl);
-        }
-      });
-    }
-
-    return () => {
-      if (newImageUrl) {
-        URL.revokeObjectURL(newImageUrl);
-      }
-    };
-  }, [msgType, content, message]);
-
-  let messageBody: React.ReactNode = null;
-
-  if (msgType === "m.image") {
-    messageBody = imageUrl ? (
-      <img
-        src={imageUrl}
-        alt={content.body || "image"}
-        className="max-w-xs rounded-lg"
-      />
-    ) : (
-      <div className="text-sm">Loading image...</div>
-    );
-  } else {
-    messageBody = <div className="text-sm">{content.body}</div>;
-  }
+  // Get original (and edited) timestamps
+  const originalTs = message.originalTs;
 
   return (
     <div className="">
@@ -66,12 +34,48 @@ export function MessageItem({ message }: MessageItemProps) {
           <div className="flex flex-row gap-2">
             <div className="font-medium text-xs">{senderUsername}</div>
             <div className="text-xs text-muted-foreground">
-              {timestamp
-                ? new Date(timestamp).toLocaleString()
+              {originalTs
+                ? new Date(originalTs).toLocaleString()
                 : "Invalid time"}
             </div>
+            {message.isEdited() && (
+              <span className="text-xs text-muted-foreground italic">
+                edited&nbsp;
+                {/* <span title={new Date(editedTs).toLocaleString()}>
+                  ({new Date(editedTs).toLocaleTimeString()})
+                </span> */}
+              </span>
+            )}
           </div>
-          <div className="bg-card p-3 rounded-lg w-fit">{messageBody}</div>
+          <div className="bg-card p-3 rounded-lg w-fit">
+            {/* reference: https://spec.matrix.org/v1.14/client-server-api/#mroommessage-msgtypes */}
+            {content.msgtype === "m.text" ? (
+              <TextMessage content={content} />
+            ) : content.msgtype === "m.emote" ? (
+              // TODO: Emote message type
+              <TextMessage content={content} />
+            ) : content.msgtype === "m.notice" ? (
+              // TODO: Notice message type
+              <TextMessage content={content} />
+            ) : content.msgtype === "m.image" ? (
+              // TODO: Image message type
+              <ImageMessage message={message} />
+            ) : content.msgtype === "m.file" ? (
+              // TODO: File message type
+              <TextMessage content={content} />
+            ) : content.msgtype === "m.audio" ? (
+              // TODO: Audio message type
+              <TextMessage content={content} />
+            ) : content.msgtype === "m.video" ? (
+              // TODO: Video message type
+              <TextMessage content={content} />
+            ) : content.msgtype === "m.location" ? (
+              // TODO: Location message type
+              <TextMessage content={content} />
+            ) : (
+              <TextMessage content={content} />
+            )}
+          </div>
         </div>
       </div>
     </div>

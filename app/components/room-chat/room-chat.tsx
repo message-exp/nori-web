@@ -159,7 +159,7 @@ export const RoomChat = memo(({ onBackClick = () => {} }: RoomChatProps) => {
               [...messages]
                 .reverse()
                 .map((message) => (
-                  <MessageItem key={message.getId()} message={message} />
+                  <MessageItem key={message.event?.getId()} message={message} />
                 ))
             ) : (
               <p className="text-center text-muted-foreground">

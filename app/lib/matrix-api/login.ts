@@ -1,24 +1,28 @@
 import * as sdk from "matrix-js-sdk";
-import { getBaseUrl } from "./utils";
-import { client } from "./client";
-import { setAuthCookies } from "../utils";
+import { client } from "~/lib/matrix-api/client";
+import { checkBaseUrl } from "~/lib/matrix-api/utils";
+import { setAuthCookies } from "~/lib/utils";
 
 export async function login(
+  baseUrl: string,
   userId: string,
   password: string,
 ): Promise<{ loginResponse: sdk.LoginResponse; baseUrl: string }> {
-  // get base URL from host name
-  const baseUrl = await getBaseUrl(userId);
-  console.log("baseUrl", baseUrl);
+  // check if the base URL is valid
+  const checkBaseUrlRes = await checkBaseUrl(baseUrl);
+
+  console.log("checkBaseUrlRes", checkBaseUrlRes);
   if (
-    baseUrl === "IGNORE" ||
-    baseUrl === "FAIL_PROMPT" ||
-    baseUrl === "FAIL_ERROR"
+    checkBaseUrlRes === "IGNORE" ||
+    checkBaseUrlRes === "FAIL_PROMPT" ||
+    checkBaseUrlRes === "FAIL_ERROR"
   ) {
-    throw new Error(`base URL ${baseUrl}`);
+    throw new Error(`base URL ${checkBaseUrlRes}`);
   }
 
-  const tempClient = sdk.createClient({ baseUrl });
+  // use the validated and possibly rewrote base URL (including protocol)
+  const resolvedBaseUrl = checkBaseUrlRes;
+  const tempClient = sdk.createClient({ baseUrl: resolvedBaseUrl });
 
   // log in to the home server, get tokens
   const response = await tempClient.loginRequest({
@@ -31,16 +35,16 @@ export async function login(
     refresh_token: true,
   });
 
-  setAuthCookies(response, baseUrl);
+  setAuthCookies(response, resolvedBaseUrl);
 
   // re-create a client
   await client.newClient({
-    baseUrl: baseUrl,
+    baseUrl: resolvedBaseUrl,
     deviceId: response.device_id,
     accessToken: response.access_token,
     refreshToken: response.refresh_token,
     userId: response.user_id,
   });
 
-  return { loginResponse: response, baseUrl };
+  return { loginResponse: response, baseUrl: resolvedBaseUrl };
 }

@@ -4,7 +4,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { AlertCircle, Loader } from "lucide-react";
 import React from "react";
 import { useForm } from "react-hook-form";
+import { Link, useNavigate } from "react-router";
 import { z } from "zod";
+import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
 import { Button } from "~/components/ui/button";
 import {
   Card,
@@ -22,32 +24,12 @@ import {
   FormMessage,
 } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
-import { debouncePromise } from "~/lib/debounce-helper";
+import { HOME_SERVER } from "~/lib/env-config-helper";
 import { login } from "~/lib/matrix-api/login";
-import { getBaseUrl } from "~/lib/matrix-api/utils";
-import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
-import { Link, useNavigate } from "react-router";
-const debouncedGetBaseUrl = debouncePromise(getBaseUrl, 1000); // 1 second cooldown
 
 // define form schema
 const formSchema = z.object({
-  username: z
-    .string()
-    .trim()
-    .min(1)
-    .max(255)
-    .refine(
-      // check whether the domain in the user ID in valid
-      async (username) => {
-        const baseUrl = await debouncedGetBaseUrl(username);
-        return (
-          baseUrl !== "IGNORE" &&
-          baseUrl !== "FAIL_PROMPT" &&
-          baseUrl !== "FAIL_ERROR"
-        );
-      },
-      { message: "The domain is invalid." },
-    ),
+  username: z.string().trim().min(1).max(255),
   password: z.string().min(1),
 });
 
@@ -72,8 +54,13 @@ export function Login({
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
+    console.log("HOME_SERVER", HOME_SERVER);
     try {
-      const response = await login(values.username, values.password);
+      const response = await login(
+        HOME_SERVER,
+        values.username,
+        values.password,
+      );
       console.log("login response", response);
     } catch (error) {
       console.error("Error logging in:", error);
@@ -108,7 +95,7 @@ export function Login({
                 <FormItem>
                   <FormLabel>Username</FormLabel>
                   <FormControl>
-                    <Input placeholder="@user:matrix.org" {...field} />
+                    <Input placeholder="username" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
