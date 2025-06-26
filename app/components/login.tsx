@@ -4,7 +4,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { AlertCircle, Loader } from "lucide-react";
 import React from "react";
 import { useForm } from "react-hook-form";
+import { Link, useNavigate } from "react-router";
 import { z } from "zod";
+import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
 import { Button } from "~/components/ui/button";
 import {
   Card,
@@ -22,31 +24,11 @@ import {
   FormMessage,
 } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
-import { debouncePromise } from "~/lib/debounce-helper";
+import { HOME_SERVER } from "~/lib/env-config-helper";
 import { login } from "~/lib/matrix-api/login";
-import { checkBaseUrl } from "~/lib/matrix-api/utils";
-import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
-import { Link, useNavigate } from "react-router";
-const debouncedCheckBaseUrl = debouncePromise(checkBaseUrl, 1000); // 1 second cooldown
 
 // define form schema
 const formSchema = z.object({
-  baseUrl: z
-    .string()
-    .min(1)
-    .max(255)
-    .refine(
-      // check whether the domain in the user ID in valid
-      async (url) => {
-        const baseUrl = await debouncedCheckBaseUrl(url);
-        return (
-          baseUrl !== "IGNORE" &&
-          baseUrl !== "FAIL_PROMPT" &&
-          baseUrl !== "FAIL_ERROR"
-        );
-      },
-      { message: "The domain is invalid." },
-    ),
   username: z.string().trim().min(1).max(255),
   password: z.string().min(1),
 });
@@ -66,16 +48,16 @@ export function Login({
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      baseUrl: "matrix.org",
       username: "",
       password: "",
     },
   });
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
+    console.log("HOME_SERVER", HOME_SERVER);
     try {
       const response = await login(
-        values.baseUrl,
+        HOME_SERVER,
         values.username,
         values.password,
       );
@@ -106,19 +88,6 @@ export function Login({
         </Alert>
         <Form {...form}>
           <form className="space-y-8">
-            <FormField
-              control={form.control}
-              name="baseUrl"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Home Server URL</FormLabel>
-                  <FormControl>
-                    <Input {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
             <FormField
               control={form.control}
               name="username"

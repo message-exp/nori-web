@@ -4,7 +4,9 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { AlertCircle, Loader } from "lucide-react";
 import React from "react";
 import { useForm } from "react-hook-form";
+import { Link, useNavigate } from "react-router";
 import { z } from "zod";
+import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
 import { Button } from "~/components/ui/button";
 import {
   Card,
@@ -22,40 +24,14 @@ import {
   FormMessage,
 } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
-import { debouncePromise } from "~/lib/debounce-helper";
+import { HOME_SERVER } from "~/lib/env-config-helper";
 import { register } from "~/lib/matrix-api/register";
-import { checkBaseUrl } from "~/lib/matrix-api/utils";
-import { Alert, AlertDescription, AlertTitle } from "~/components/ui/alert";
-import { Link, useNavigate } from "react-router";
-const debouncedCheckBaseUrl = debouncePromise(checkBaseUrl, 1000); // 1 second cooldown
 
 // define form schema
-const formSchema = z
-  .object({
-    homeserver: z
-      .string()
-      .trim()
-      .min(1)
-      .refine(
-        // check whether the domain in the user ID is valid
-        async (homeserver) => {
-          const baseUrl = await debouncedCheckBaseUrl(homeserver);
-          return (
-            baseUrl !== "IGNORE" &&
-            baseUrl !== "FAIL_PROMPT" &&
-            baseUrl !== "FAIL_ERROR"
-          );
-        },
-        { message: "The domain is invalid." },
-      ),
-    username: z.string().trim().min(1),
-    password: z.string().min(1),
-  })
-  .refine((data) => data.homeserver.length + data.username.length <= 255, {
-    message:
-      "Combined length of homeserver and username must not exceed 255 characters",
-    path: ["username"], // shows the error on the username field
-  });
+const formSchema = z.object({
+  username: z.string().trim().min(1).max(255),
+  password: z.string().min(1),
+});
 
 export function Register({
   className,
@@ -72,7 +48,6 @@ export function Register({
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      homeserver: "matrix.org",
       username: "",
       password: "",
     },
@@ -81,7 +56,7 @@ export function Register({
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
       const response = await register(
-        values.homeserver,
+        HOME_SERVER,
         values.username,
         values.password,
       );
@@ -116,19 +91,6 @@ export function Register({
         </Alert>
         <Form {...form}>
           <form className="space-y-8">
-            <FormField
-              control={form.control}
-              name="homeserver"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Home server</FormLabel>
-                  <FormControl>
-                    <Input placeholder="matrix.org" {...field} />
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
             <FormField
               control={form.control}
               name="username"
