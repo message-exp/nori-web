@@ -22,12 +22,19 @@ export function MessageItem({ message }: MessageItemProps) {
   const [imageUrl, setImageUrl] = useState<string | undefined>();
 
   useEffect(() => {
+    let newImageUrl: string | undefined;
     if (msgType === "m.image") {
-      getImageBlob(message).then(setImageUrl);
+      getImageBlob(message).then((blob) => {
+        if (blob) {
+          newImageUrl = URL.createObjectURL(blob);
+          setImageUrl(newImageUrl);
+        }
+      });
     }
+
     return () => {
-      if (imageUrl && imageUrl.startsWith("blob:")) {
-        URL.revokeObjectURL(imageUrl);
+      if (newImageUrl) {
+        URL.revokeObjectURL(newImageUrl);
       }
     };
   }, [msgType, content, message]);
