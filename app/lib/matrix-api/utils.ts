@@ -132,52 +132,67 @@ export function getRoomAvatar(room: Room, baseUrl: string): string | undefined {
     : undefined;
 }
 
-export async function getImageBlob(
-  messageContent: sdk.IContent,
+const imageCache = new Map<string, Promise<string | undefined>>();
+
+export function getImageBlob(
   message: sdk.MatrixEvent,
 ): Promise<string | undefined> {
+  const messageContent = message.getContent();
   const mxcUrl = messageContent.url;
-  if (!mxcUrl) return undefined;
+  if (!mxcUrl) return Promise.resolve(undefined);
 
-  // If the URL is already HTTP(S), we don't need to do anything.
-  if (mxcUrl.startsWith("http://") || mxcUrl.startsWith("https://")) {
-    return mxcUrl;
+  // 1. Check if the cache already has this image
+  if (imageCache.has(mxcUrl)) {
+    return imageCache.get(mxcUrl)!;
   }
 
-  try {
-    // Get the full HTTP URL for the media.
-    // We don't need to worry about the homeserver, client.mxcUrlToHttp will handle it.
-    const room = client.client.getRoom(message.getRoomId());
-    const baseUrl = room?.client.baseUrl ?? client.client.baseUrl;
-    const httpUri = getHttpUriForMxc(
-      baseUrl,
-      mxcUrl,
-      undefined,
-      undefined,
-      undefined,
-      false,
-      true,
-      true,
-    );
-    if (!httpUri) return undefined;
-
-    console.log("http uri: ", httpUri);
-
-    // Use our new authedFetch to get the media data.
-    const response = await client.authedFetch(httpUri);
-
-    if (!response.ok) {
-      console.error(
-        `Failed to fetch image with status: ${response.status}`,
-        await response.text(),
-      );
-      return undefined;
+  // 2. If not, create a new promise and store it in the cache
+  const promise = (async (): Promise<string | undefined> => {
+    // If the URL is already HTTP(S), we don't need to do anything.
+    if (mxcUrl.startsWith("http://") || mxcUrl.startsWith("https://")) {
+      return mxcUrl;
     }
 
-    const blob = await response.blob();
-    return URL.createObjectURL(blob);
-  } catch (error) {
-    console.error("Failed to fetch and create blob URL for image:", error);
-    return undefined;
-  }
+    try {
+      // Get the full HTTP URL for the media.
+      // We don't need to worry about the homeserver, client.mxcUrlToHttp will handle it.
+      const room = client.client.getRoom(message.getRoomId());
+      const baseUrl = room?.client.baseUrl ?? client.client.baseUrl;
+      const httpUri = getHttpUriForMxc(
+        baseUrl,
+        mxcUrl,
+        undefined,
+        undefined,
+        undefined,
+        false,
+        true,
+        true,
+      );
+      if (!httpUri) return undefined;
+
+      // Use our new authedFetch to get the media data.
+      const response = await client.authedFetch(httpUri);
+
+      if (!response.ok) {
+        console.error(
+          `Failed to fetch image with status: ${response.status}`,
+          await response.text(),
+        );
+        // Remove the failed promise from the cache to allow retries
+        imageCache.delete(mxcUrl);
+        return undefined;
+      }
+
+      const blob = await response.blob();
+      return URL.createObjectURL(blob);
+    } catch (error) {
+      console.error("Failed to fetch and create blob URL for image:", error);
+      // Remove the failed promise from the cache to allow retries
+      imageCache.delete(mxcUrl);
+      return undefined;
+    }
+  })();
+
+  imageCache.set(mxcUrl, promise);
+  return promise;
 }

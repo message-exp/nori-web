@@ -23,13 +23,13 @@ export function MessageItem({ message }: MessageItemProps) {
 
   useEffect(() => {
     if (msgType === "m.image") {
-      getImageBlob(content, message).then(setImageUrl);
+      getImageBlob(message).then(setImageUrl);
     }
-    // return () => {
-    //   if (imageUrl && imageUrl.startsWith('blob:')) {
-    //     URL.revokeObjectURL(imageUrl);
-    //   }
-    // };
+    return () => {
+      if (imageUrl && imageUrl.startsWith("blob:")) {
+        URL.revokeObjectURL(imageUrl);
+      }
+    };
   }, [msgType, content, message]);
 
   let messageBody: React.ReactNode = null;
