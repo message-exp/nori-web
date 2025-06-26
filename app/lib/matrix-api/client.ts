@@ -4,6 +4,7 @@ import { refreshToken } from "./refresh-token";
 
 export class Client {
   client: sdk.MatrixClient;
+  private refreshPromise: Promise<void> | null = null;
 
   constructor(opts: sdk.ICreateClientOpts) {
     this.client = sdk.createClient(opts);
@@ -105,7 +106,6 @@ export class Client {
     console.log("client start sync");
     const currentSyncState = this.client.getSyncState();
 
-    // 如果已經是 PREPARED（同步完成）或 SYNCING（同步中）就直接拒絕
     if (currentSyncState === "PREPARED" || currentSyncState === "SYNCING") {
       console.log(
         `sync() 被重複呼叫，當前狀態：${currentSyncState}，已拒絕多餘操作`,
@@ -131,44 +131,87 @@ export class Client {
           reject(new Error("Matrix sync failed"));
         } else {
           console.log("Sync state:", state);
-          // 可以選擇忽略其他 state 或者根據需要處理
         }
       });
     });
   }
 
+  private triggerRefresh(): Promise<void> {
+    if (!this.refreshPromise) {
+      console.log("Token refresh triggered.");
+      this.refreshPromise = this.performRefresh();
+    }
+    return this.refreshPromise;
+  }
+
+  private async performRefresh(): Promise<void> {
+    try {
+      const result = await refreshToken();
+      if (result !== "REFRESH_SUCCESS") {
+        throw new Error("Token refresh failed");
+      }
+      console.log("refresh token successful");
+    } finally {
+      this.refreshPromise = null;
+    }
+  }
+
+  public async authedFetch(
+    url: string,
+    options: RequestInit = {},
+  ): Promise<Response> {
+    const doFetch = async (): Promise<Response> => {
+      const token = this.client.getAccessToken();
+      if (!token) {
+        throw new Error("User not logged in or access token not available.");
+      }
+      const headers = new Headers(options.headers);
+      headers.set("Authorization", `Bearer ${token}`);
+      return fetch(url, { ...options, headers });
+    };
+
+    if (this.refreshPromise) {
+      await this.refreshPromise.catch(() => {});
+    }
+
+    let response = await doFetch();
+
+    if (response.status === 401) {
+      console.log("authedFetch: 401 detected, attempting refresh.");
+      await this.triggerRefresh().catch((err) => {
+        console.error("Refresh token failed during authedFetch", err);
+      });
+      response = await doFetch();
+    }
+
+    return response;
+  }
+
   private wrapHttp() {
     const http = this.client.http;
     const original = http.authedRequest.bind(http);
-    // 這個 flag 用來標誌：目前是否正在執行 refreshToken()
-    let isRefreshing = false;
 
     http.authedRequest = async <T>(
       ...args: Parameters<typeof original>
     ): Promise<T> => {
-      if (isRefreshing) {
-        return await original(...args);
+      if (this.refreshPromise) {
+        await this.refreshPromise.catch(() => {});
       }
 
       try {
         return await original(...args);
       } catch (err: unknown) {
         const error = err as sdk.MatrixError;
-        if (
-          !isRefreshing &&
-          (error.errcode === "M_UNKNOWN_TOKEN" || error.httpStatus === 401)
-        ) {
-          console.log("Access token invaled……");
-          isRefreshing = true;
-          try {
-            const result = await refreshToken();
-            if (result === "REFRESH_SUCCESS") {
-              console.log("refresh token successful");
-              return await original(...args);
-            }
-          } finally {
-            isRefreshing = false;
-          }
+        if (error.errcode === "M_UNKNOWN_TOKEN" || error.httpStatus === 401) {
+          console.log("Access token invalid, triggering refresh...");
+          await this.triggerRefresh().catch((refreshErr) => {
+            console.error(
+              "Refresh token failed during authedRequest",
+              refreshErr,
+            );
+            throw err;
+          });
+          return await original(...args);
         }
         throw err;
       }

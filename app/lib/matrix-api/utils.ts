@@ -139,11 +139,14 @@ export async function getImageBlob(
   const mxcUrl = messageContent.url;
   if (!mxcUrl) return undefined;
 
+  // If the URL is already HTTP(S), we don't need to do anything.
   if (mxcUrl.startsWith("http://") || mxcUrl.startsWith("https://")) {
     return mxcUrl;
   }
 
   try {
+    // Get the full HTTP URL for the media.
+    // We don't need to worry about the homeserver, client.mxcUrlToHttp will handle it.
     const room = client.client.getRoom(message.getRoomId());
     const baseUrl = room?.client.baseUrl ?? client.client.baseUrl;
     const httpUri = getHttpUriForMxc(
@@ -156,28 +159,25 @@ export async function getImageBlob(
       true,
       true,
     );
+    if (!httpUri) return undefined;
+
     console.log("http uri: ", httpUri);
-    const requestUrl = httpUri.replace(baseUrl, "");
-    console.log("request url: ", requestUrl);
 
-    // 使用 authedRequest 獲取二進制資料，matrix-js-sdk 的 json: false 會直接返回 ArrayBuffer
-    const response = await client.client.http.authedRequest<ArrayBuffer>(
-      sdk.Method.Get,
-      "",
-      undefined,
-      undefined,
-      {
-        prefix: requestUrl,
-        json: false,
-      },
-    );
+    // Use our new authedFetch to get the media data.
+    const response = await client.authedFetch(httpUri);
 
-    const blob = new Blob([response], {
-      type: messageContent.info?.mimetype ?? "image/jpeg",
-    });
+    if (!response.ok) {
+      console.error(
+        `Failed to fetch image with status: ${response.status}`,
+        await response.text(),
+      );
+      return undefined;
+    }
+
+    const blob = await response.blob();
     return URL.createObjectURL(blob);
   } catch (error) {
-    console.error("Failed to fetch image:", error);
+    console.error("Failed to fetch and create blob URL for image:", error);
     return undefined;
   }
 }
