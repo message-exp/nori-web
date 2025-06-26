@@ -1,8 +1,6 @@
 import * as sdk from "matrix-js-sdk";
-import { getHttpUriForMxc } from "matrix-js-sdk/src/content-repo";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { getUser, getUserAvatar } from "~/lib/matrix-api/user";
-import { client } from "~/lib/matrix-api/client";
 import { getImageBlob, splitUserId } from "~/lib/matrix-api/utils";
 import { useEffect, useState } from "react";
 interface MessageItemProps {
