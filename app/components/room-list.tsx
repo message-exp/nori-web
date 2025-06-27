@@ -1,5 +1,5 @@
 import { DialogTrigger } from "@radix-ui/react-dialog";
-import { Plus } from "lucide-react";
+import { GitMerge, Plus, TriangleAlert } from "lucide-react";
 import { NotificationCountType } from "matrix-js-sdk";
 import React from "react";
 import { useNavigate } from "react-router";
@@ -16,7 +16,7 @@ import { useRoomContext } from "~/contexts/room-context";
 import { getRoomAvatar } from "~/lib/matrix-api/utils";
 import { cn, getLatestMessageText } from "~/lib/utils";
 import { CreateRoomDialog } from "./create-room-dialog";
-
+import { BridgeIcon } from "./ui/bridge-icon";
 interface RoomListProps {
   readonly onRoomSelect?: (roomId: string) => void;
 }
@@ -81,6 +81,7 @@ export const RoomList = React.memo(({ onRoomSelect }: RoomListProps) => {
                       .join("")}
                   </AvatarFallback>
                 </Avatar>
+                <BridgeIcon room={room} />
               </div>
               <div className="flex-1 overflow-hidden">
                 <div className="flex items-center justify-between">
