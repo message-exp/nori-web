@@ -14,7 +14,7 @@ export function meta({}: Route.MetaArgs) {
 
 export default function Home() {
   return (
-    <div className="flex h-screen w-full items-center justify-center">
+    <div className="flex min-h-screen w-full items-center justify-center">
       <Card>
         <CardHeader className="text-center">
           <CardTitle>Welcome to nori!</CardTitle>
