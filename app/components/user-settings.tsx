@@ -154,6 +154,26 @@ export default function UserSettings({ user }: { user: User | undefined }) {
               </CardContent>
             </Card>
 
+            {/* Messaging Networks */}
+            <Card>
+              <CardHeader>
+                <CardTitle>Messaging Networks</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-6">
+                {/* Theme */}
+                <div className="flex items-center justify-between">
+                  <div className="flex flex-row items-center gap-2">
+                    <Avatar>
+                      <AvatarImage src="/telegram.svg" />
+                      <AvatarFallback className="text-lg">TG</AvatarFallback>
+                    </Avatar>
+                    <Label>Telegram</Label>
+                  </div>
+                  <Button>Connect</Button>
+                </div>
+              </CardContent>
+            </Card>
+
             {/* Save Changes */}
             {/* <div className="flex justify-end gap-3">
               <Button variant="outline" type="reset">
