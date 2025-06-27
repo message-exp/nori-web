@@ -1,10 +1,5 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-  faDiscord,
-  faFacebook,
-  faStripe,
-  faTelegram,
-} from "@fortawesome/free-brands-svg-icons";
+import { faDiscord, faTelegram } from "@fortawesome/free-brands-svg-icons";
 
 const BridgeIcon = ({ room }) => {
   const bridgeStateEvents = room.currentState.getStateEvents("m.bridge");

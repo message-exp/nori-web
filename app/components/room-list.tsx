@@ -1,5 +1,5 @@
 import { DialogTrigger } from "@radix-ui/react-dialog";
-import { GitMerge, Plus, TriangleAlert } from "lucide-react";
+import { Plus } from "lucide-react";
 import { NotificationCountType } from "matrix-js-sdk";
 import React from "react";
 import { useNavigate } from "react-router";
