@@ -3,6 +3,7 @@ import { getUser, getUserAvatar } from "~/lib/matrix-api/user";
 import { splitUserId } from "~/lib/matrix-api/utils";
 import TextMessage from "~/components/message/text-message";
 import type { TimelineItem } from "~/lib/matrix-api/timeline-item";
+import ImageMessage from "~/components/message/image-message";
 
 interface MessageItemProps {
   message: TimelineItem;
@@ -58,7 +59,7 @@ export function MessageItem({ message }: MessageItemProps) {
               <TextMessage content={content} />
             ) : content.msgtype === "m.image" ? (
               // TODO: Image message type
-              <TextMessage content={content} />
+              <ImageMessage message={message} />
             ) : content.msgtype === "m.file" ? (
               // TODO: File message type
               <TextMessage content={content} />

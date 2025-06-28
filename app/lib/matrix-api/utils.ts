@@ -1,6 +1,8 @@
 import { getHttpUriForMxc } from "matrix-js-sdk/src/content-repo";
 import type { Room } from "matrix-js-sdk";
 import { EventTimeline } from "matrix-js-sdk/src/models/event-timeline";
+import * as sdk from "matrix-js-sdk";
+import { client } from "./client";
 
 /**
  * Get base URL from user ID
@@ -144,4 +146,82 @@ export function getRoomAvatar(room: Room, baseUrl: string): string | undefined {
   return mxcUrl
     ? getHttpUriForMxc(baseUrl, mxcUrl, 40, 40, "scale")
     : undefined;
+}
+
+const imageCache = new Map<string, Promise<Blob | undefined>>();
+
+export function getImageBlob(
+  message: sdk.MatrixEvent,
+): Promise<Blob | undefined> {
+  const messageContent = message.getContent();
+  const mxcUrl = messageContent.url;
+  if (!mxcUrl) return Promise.resolve(undefined);
+
+  // 1. Check if the cache already has this image
+  if (imageCache.has(mxcUrl)) {
+    return imageCache.get(mxcUrl)!;
+  }
+
+  // 2. If not, create a new promise and store it in the cache
+  const promise = (async (): Promise<Blob | undefined> => {
+    // If the URL is already HTTP(S), we can fetch it directly.
+    if (mxcUrl.startsWith("http://") || mxcUrl.startsWith("https://")) {
+      try {
+        const response = await fetch(mxcUrl);
+        if (!response.ok) {
+          console.error(
+            `Failed to fetch image with status: ${response.status}`,
+            await response.text(),
+          );
+          imageCache.delete(mxcUrl);
+          return undefined;
+        }
+        return await response.blob();
+      } catch (error) {
+        console.error("Failed to fetch image:", error);
+        imageCache.delete(mxcUrl);
+        return undefined;
+      }
+    }
+
+    try {
+      // Get the full HTTP URL for the media.
+      const room = client.client.getRoom(message.getRoomId());
+      const baseUrl = room?.client.baseUrl ?? client.client.baseUrl;
+      const httpUri = getHttpUriForMxc(
+        baseUrl,
+        mxcUrl,
+        undefined,
+        undefined,
+        undefined,
+        false,
+        true,
+        true,
+      );
+      if (!httpUri) return undefined;
+
+      // Use our new authedFetch to get the media data.
+      const response = await client.authedFetch(httpUri);
+
+      if (!response.ok) {
+        console.error(
+          `Failed to fetch image with status: ${response.status}`,
+          await response.text(),
+        );
+        // Remove the failed promise from the cache to allow retries
+        imageCache.delete(mxcUrl);
+        return undefined;
+      }
+
+      return await response.blob();
+    } catch (error) {
+      console.error("Failed to fetch and create blob for image:", error);
+      // Remove the failed promise from the cache to allow retries
+      imageCache.delete(mxcUrl);
+      return undefined;
+    }
+  })();
+
+  imageCache.set(mxcUrl, promise);
+  return promise;
 }

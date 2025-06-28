@@ -17,7 +17,6 @@ export function getUserAvatar(user: User | null) {
   if (!user) {
     return undefined;
   }
-  // const baseUrl = splitUsername(user.userId).domain;
   const mxcUrl = user.avatarUrl;
   const baseUrl = client.client.baseUrl;
   return mxcUrl
