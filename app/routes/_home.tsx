@@ -14,11 +14,11 @@ export default function HomeLayout() {
   return (
     <RoomProvider>
       {isMobile && !showMobileList ? (
-        <div className="h-screen w-full overflow-y-auto">
+        <div className="h-full w-full overflow-y-auto">
           <Outlet context={{ isMobile, showMobileList, setShowMobileList }} />
         </div>
       ) : (
-        <div className="flex flex-row h-screen">
+        <div className="flex flex-row h-full overflow-hidden">
           <div className="flex flex-col justify-between h-full p-2 border-r flex-shrink-0">
             <div className="flex flex-col gap-2">
               <NavLink to="/home">
@@ -65,7 +65,7 @@ export default function HomeLayout() {
               </NavLink>
             </div>
           </div>
-          <div className="flex flex-col gap-2 w-full h-full overflow-y-auto">
+          <div className="w-full h-full overflow-y-hidden">
             <Outlet context={{ isMobile, showMobileList, setShowMobileList }} />
           </div>
         </div>
