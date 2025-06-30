@@ -65,5 +65,5 @@ export function buildTimelineItems(events: sdk.MatrixEvent[]): TimelineItem[] {
   // return sorted by timestamp (newest first)
   return Array.from(eventMap.values())
     .filter((item) => item.isMessage())
-    .sort((a, b) => (b.getTimestamp() ?? 0) - (a.getTimestamp() ?? 0));
+    .sort((a, b) => (b.originalTs ?? 0) - (a.originalTs ?? 0));
 }
