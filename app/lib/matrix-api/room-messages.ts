@@ -1,11 +1,9 @@
 import * as sdk from "matrix-js-sdk";
 import { client } from "~/lib/matrix-api/client";
-import { buildTimelineItems } from "~/lib/matrix-api/timeline-helper";
 import {
   buildInitialTimelineItems,
   type TimelineState,
 } from "~/lib/matrix-api/timeline-processor";
-import type { TimelineItem } from "~/lib/matrix-api/timeline-item";
 
 // export async function getRoomMessages(
 //   room: sdk.Room,
