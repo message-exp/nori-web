@@ -47,7 +47,7 @@ export function MessageItem({ message }: MessageItemProps) {
               </span>
             )}
           </div>
-          <div className="bg-card p-3 rounded-lg w-fit">
+          <div className="bg-card p-3 rounded-lg w-fit max-w-2xs md:max-w-md">
             {/* reference: https://spec.matrix.org/v1.14/client-server-api/#mroommessage-msgtypes */}
             {content.msgtype === "m.text" ? (
               <TextMessage content={content} />

@@ -7,12 +7,12 @@ export default function TextMessage({ content }: { content: IContent }) {
     content.formatted_body ? (
     // TODO: limit HTML tags
     <div
-      className="text-sm"
+      className="text-sm break-words"
       dangerouslySetInnerHTML={{
         __html: content.formatted_body,
       }}
     />
   ) : (
-    <div className="text-sm">{content.body}</div>
+    <div className="text-sm break-words">{content.body}</div>
   );
 }
