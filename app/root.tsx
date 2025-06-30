@@ -33,9 +33,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
         <Meta />
         <Links />
       </head>
-      <body>
+      <body className="h-full overflow-hidden">
         <ThemeProvider defaultTheme="dark" storageKey="vite-ui-theme">
-          {children}
+          <div className="h-full">{children}</div>
         </ThemeProvider>
         <ScrollRestoration />
         <Scripts />

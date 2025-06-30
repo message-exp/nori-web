@@ -3,7 +3,7 @@ import { ThemeToggle } from "~/components/theme-toggle";
 
 export default function RegisterPage() {
   return (
-    <div className="flex h-screen w-full items-center justify-center">
+    <div className="flex min-h-screen w-full items-center justify-center">
       <Register className="flex" />
       <div className="fixed bottom-4 right-4">
         <ThemeToggle />

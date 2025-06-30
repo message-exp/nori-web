@@ -12,6 +12,8 @@
 html,
 body {
   @apply bg-white dark:bg-gray-950;
+  height: 100%;
+  overflow: hidden;
 
   @media (prefers-color-scheme: dark) {
     color-scheme: dark;
