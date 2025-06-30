@@ -87,6 +87,7 @@ function processEventIntoMap(
       messageMap.set(targetEventId, newItem);
     } else {
       // Original not found => older than the limit, don't care
+      return false;
     }
     return true;
   }

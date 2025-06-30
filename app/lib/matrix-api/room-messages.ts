@@ -5,26 +5,10 @@ import {
   type TimelineState,
 } from "~/lib/matrix-api/timeline-processor";
 
-// export async function getRoomMessages(
-//   room: sdk.Room,
-//   limit = 20,
-// ): Promise<TimelineItem[]> {
-//   // first get the messages already in the live timeline
-//   const timelineSet = room.getUnfilteredTimelineSet();
-//   const timeline = timelineSet.getLiveTimeline();
-
-//   // paginate backwards to get more messages
-//   await room.client.scrollback(room, limit);
-
-//   const events = timeline.getEvents();
-
-//   return buildTimelineItems(events);
-// }
-
 /**
- * Optimized version that returns timeline state for incremental processing
+ * return timeline state for incremental processing
  */
-export async function getRoomMessagesOptimized(
+export async function getRoomMessages(
   room: sdk.Room,
   limit = 20,
 ): Promise<TimelineState> {

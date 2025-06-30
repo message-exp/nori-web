@@ -1,7 +1,7 @@
 import * as sdk from "matrix-js-sdk";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { debouncePromise } from "~/lib/debounce-helper";
-import { getRoomMessagesOptimized } from "~/lib/matrix-api/room-messages";
+import { getRoomMessages } from "~/lib/matrix-api/room-messages";
 import {
   buildInitialTimelineItems,
   createEmptyTimelineState,
@@ -40,7 +40,7 @@ export function useRoomMessages(room: sdk.Room | null | undefined) {
 
     // Initial load
     setLoading(true);
-    getRoomMessagesOptimized(room, 20)
+    getRoomMessages(room, 20)
       .then((initialState) => {
         setTimelineState(initialState);
         setLoading(false);
