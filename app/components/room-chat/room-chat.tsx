@@ -47,8 +47,15 @@ export const RoomChat = memo(({ onBackClick = () => {} }: RoomChatProps) => {
   }, [selectedRoomId]);
 
   // get messages
-  const { messages, loading, loadingMore, hasMore, loadMore } =
-    useRoomMessages(room);
+  const {
+    messages,
+    loading,
+    loadingMore,
+    hasMore,
+    hasMoreNewer,
+    loadMore,
+    windowInfo,
+  } = useRoomMessages(room);
 
   // get to latest messages (scroll to bottom)
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -76,13 +83,11 @@ export const RoomChat = memo(({ onBackClick = () => {} }: RoomChatProps) => {
       console.log("atBottom: ", atBottom);
       setShouldScrollToBottom(atBottom);
 
-      // Check if user scrolled to top (within 50px) and load more
-      console.log(`check if top: ${scrollTop}, ${hasMore}, ${loadingMore}`);
-      console.log("result: ", scrollTop < 50 && hasMore && !loadingMore);
+      // Check if user scrolled to top (within 50px) and load older messages
       if (scrollTop < 50 && hasMore && !loadingMore) {
-        console.log("detect to top, start load more");
+        console.log("detect to top, start load older messages");
         const previousScrollHeight = scrollHeight;
-        loadMore().then(() => {
+        loadMore("older").then(() => {
           // Maintain scroll position after loading more messages
           if (scrollAreaRef.current) {
             const newScrollHeight = scrollAreaRef.current.scrollHeight;
@@ -91,8 +96,20 @@ export const RoomChat = memo(({ onBackClick = () => {} }: RoomChatProps) => {
           }
         });
       }
+
+      // Check if user scrolled to bottom (within 50px) and load newer messages
+      if (atBottom && hasMoreNewer && !loadingMore) {
+        console.log("detect to bottom, start load newer messages");
+        loadMore("newer").then(() => {
+          // Keep at bottom after loading newer messages
+          if (scrollAreaRef.current) {
+            scrollAreaRef.current.scrollTop =
+              scrollAreaRef.current.scrollHeight;
+          }
+        });
+      }
     },
-    [hasMore, loadingMore, loadMore],
+    [hasMore, hasMoreNewer, loadingMore, loadMore],
   );
 
   // Add scroll event listener
@@ -155,6 +172,15 @@ export const RoomChat = memo(({ onBackClick = () => {} }: RoomChatProps) => {
                 ? "Online"
                 : "Offline"}
             </p> */}
+            {/* Debug info - remove in production */}
+            {process.env.NODE_ENV === "development" && (
+              <div className="text-xs text-muted-foreground bg-muted p-2 rounded">
+                Messages: {messages.length} | Window:{" "}
+                {windowInfo.oldestMessageIndex}-{windowInfo.newestMessageIndex}{" "}
+                | Total Est: {windowInfo.totalEstimate} | HasMore:{" "}
+                {hasMore.toString()} | HasNewer: {hasMoreNewer.toString()}
+              </div>
+            )}
           </div>
         </div>
         <div className="flex gap-1">
