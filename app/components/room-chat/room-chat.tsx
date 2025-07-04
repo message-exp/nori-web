@@ -5,7 +5,7 @@ import {
   Settings,
   UserRoundPlus,
 } from "lucide-react";
-import { memo, useEffect, useRef, useState } from "react";
+import { memo, useCallback, useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router";
 import { MessageItem } from "~/components/room-chat/message";
 import { MessageInput } from "~/components/room-chat/message-input";
@@ -47,14 +47,64 @@ export const RoomChat = memo(({ onBackClick = () => {} }: RoomChatProps) => {
   }, [selectedRoomId]);
 
   // get messages
-  const { messages, loading } = useRoomMessages(room);
+  const { messages, loading, loadingMore, hasMore, loadMore } =
+    useRoomMessages(room);
 
   // get to latest messages (scroll to bottom)
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  // Scroll to bottom when messages change
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const [shouldScrollToBottom, setShouldScrollToBottom] = useState(true);
+
+  // Scroll to bottom when messages change (only if user was at bottom)
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-  }, [messages]);
+    if (shouldScrollToBottom) {
+      messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    }
+  }, [messages, shouldScrollToBottom]);
+
+  // Handle scroll events for infinite scroll
+  const handleScroll = useCallback(
+    (event: Event) => {
+      const target = event.target as HTMLDivElement;
+      if (!target) return;
+
+      const { scrollTop, scrollHeight, clientHeight } = target;
+      console.log(`target: ${scrollTop},  ${scrollHeight}, ${clientHeight}`);
+
+      // Check if user is at the bottom (within 50px)
+      const atBottom = scrollHeight - scrollTop - clientHeight < 50;
+      console.log("atBottom: ", atBottom);
+      setShouldScrollToBottom(atBottom);
+
+      // Check if user scrolled to top (within 50px) and load more
+      console.log(`check if top: ${scrollTop}, ${hasMore}, ${loadingMore}`);
+      console.log("result: ", scrollTop < 50 && hasMore && !loadingMore);
+      if (scrollTop < 50 && hasMore && !loadingMore) {
+        console.log("detect to top, start load more");
+        const previousScrollHeight = scrollHeight;
+        loadMore().then(() => {
+          // Maintain scroll position after loading more messages
+          if (scrollAreaRef.current) {
+            const newScrollHeight = scrollAreaRef.current.scrollHeight;
+            const scrollDiff = newScrollHeight - previousScrollHeight;
+            scrollAreaRef.current.scrollTop = scrollTop + scrollDiff;
+          }
+        });
+      }
+    },
+    [hasMore, loadingMore, loadMore],
+  );
+
+  // Add scroll event listener
+  useEffect(() => {
+    const scrollElement = scrollAreaRef.current?.querySelector(
+      "[data-radix-scroll-area-viewport]",
+    );
+    if (scrollElement) {
+      scrollElement.addEventListener("scroll", handleScroll);
+      return () => scrollElement.removeEventListener("scroll", handleScroll);
+    }
+  }, [handleScroll]);
 
   if (!selectedRoomId || !room) {
     return (
@@ -149,8 +199,13 @@ export const RoomChat = memo(({ onBackClick = () => {} }: RoomChatProps) => {
         </div>
       </div>
       <div className="flex-1 overflow-hidden">
-        <ScrollArea className="h-full">
+        <ScrollArea className="h-full" ref={scrollAreaRef}>
           <div className="space-y-4 p-4">
+            {loadingMore && (
+              <div className="flex justify-center text-muted-foreground py-2">
+                <p>Loading more messages...</p>
+              </div>
+            )}
             {loading ? (
               <div className="flex justify-center text-muted-foreground">
                 <p>Loading...</p>

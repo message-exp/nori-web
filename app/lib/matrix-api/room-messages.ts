@@ -19,6 +19,44 @@ export async function getRoomMessages(
   return buildTimelineItems(events);
 }
 
+export async function loadMoreMessages(
+  room: sdk.Room,
+  limit = 20,
+): Promise<{ messages: TimelineItem[]; hasMore: boolean }> {
+  console.log("loading more message");
+  const timelineSet = room.getUnfilteredTimelineSet();
+  const timeline = timelineSet.getLiveTimeline();
+
+  // Store current event count to check if we got new ones
+  const currentEventCount = timeline.getEvents().length;
+
+  // Check if we can paginate using getPaginationToken
+  const paginationToken = timeline.getPaginationToken(
+    sdk.EventTimeline.BACKWARDS,
+  );
+  const canPaginate = paginationToken !== null;
+
+  if (!canPaginate) {
+    // No more messages to load
+    return {
+      messages: buildTimelineItems(timeline.getEvents()),
+      hasMore: false,
+    };
+  }
+
+  await room.client.scrollback(room, limit);
+
+  const events = timeline.getEvents();
+  const newEventCount = events.length;
+
+  // Check if we actually got new messages and if we can still paginate
+  const hasMore =
+    newEventCount > currentEventCount &&
+    timeline.getPaginationToken(sdk.EventTimeline.BACKWARDS) !== null;
+
+  return { messages: buildTimelineItems(events), hasMore };
+}
+
 export async function sendTextMessage(roomId: string, body: string) {
   return await client.client.sendTextMessage(roomId, body);
 }
