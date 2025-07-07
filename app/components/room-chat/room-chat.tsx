@@ -51,10 +51,39 @@ export const RoomChat = memo(({ onBackClick = () => {} }: RoomChatProps) => {
 
   // get to latest messages (scroll to bottom)
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
+
   // Scroll to bottom when messages change
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
+
+  // Handle scroll events to detect top and bottom
+  const handleScroll = (event: Event) => {
+    const target = event.target as HTMLElement;
+    const { scrollTop, scrollHeight, clientHeight } = target;
+
+    // Check if scrolled to top
+    if (scrollTop === 0) {
+      console.log("Scrolled to TOP");
+    }
+
+    // Check if scrolled to bottom (with small tolerance for floating point precision)
+    if (scrollTop + clientHeight >= scrollHeight) {
+      console.log("Scrolled to BOTTOM");
+    }
+  };
+
+  // Add scroll event listener
+  useEffect(() => {
+    const scrollElement = scrollAreaRef.current?.querySelector(
+      "[data-radix-scroll-area-viewport]",
+    );
+    if (scrollElement) {
+      scrollElement.addEventListener("scroll", handleScroll);
+      return () => scrollElement.removeEventListener("scroll", handleScroll);
+    }
+  }, []);
 
   if (!selectedRoomId || !room) {
     return (
@@ -149,7 +178,7 @@ export const RoomChat = memo(({ onBackClick = () => {} }: RoomChatProps) => {
         </div>
       </div>
       <div className="flex-1 overflow-hidden">
-        <ScrollArea className="h-full">
+        <ScrollArea ref={scrollAreaRef} className="h-full">
           <div className="space-y-4 p-4">
             {loading ? (
               <div className="flex justify-center text-muted-foreground">
