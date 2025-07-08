@@ -1,11 +1,30 @@
 import * as sdk from "matrix-js-sdk";
 import { useEffect, useState } from "react";
 import { getRoomMessages } from "~/lib/matrix-api/room-messages";
+import { buildTimelineItems } from "~/lib/matrix-api/timeline-helper";
 import type { TimelineItem } from "~/lib/matrix-api/timeline-item";
 
 export function useRoomMessages(room: sdk.Room | null | undefined) {
+  const MESSAGE_LIMIT = 100;
+
   const [messages, setMessages] = useState<TimelineItem[]>([]);
   const [loading, setLoading] = useState(false);
+
+  function buildFromRoom(room: sdk.Room) {
+    const timeline = room.getUnfilteredTimelineSet().getLiveTimeline();
+    const events = timeline.getEvents();
+    return buildTimelineItems(events);
+  }
+
+  function trimStart(items: TimelineItem[]): TimelineItem[] {
+    if (items.length <= MESSAGE_LIMIT) return items;
+    return items.slice(items.length - MESSAGE_LIMIT);
+  }
+
+  function trimEnd(items: TimelineItem[]): TimelineItem[] {
+    if (items.length <= MESSAGE_LIMIT) return items;
+    return items.slice(0, MESSAGE_LIMIT);
+  }
 
   useEffect(() => {
     if (!room) {
@@ -13,11 +32,12 @@ export function useRoomMessages(room: sdk.Room | null | undefined) {
       return;
     }
 
-    // Initial load
     setLoading(true);
     getRoomMessages(room, 20)
       .then((initialMessages) => {
-        setMessages(initialMessages);
+        // buildTimelineItems returns newest first, keep ascending
+        const asc = initialMessages.slice().reverse();
+        setMessages(trimStart(asc));
         setLoading(false);
       })
       .catch((error) => {
@@ -25,7 +45,6 @@ export function useRoomMessages(room: sdk.Room | null | undefined) {
         setLoading(false);
       });
 
-    // Listen for new messages
     const handleRoomTimeline = (
       event: sdk.MatrixEvent,
       roomArg: sdk.Room | undefined,
@@ -34,13 +53,8 @@ export function useRoomMessages(room: sdk.Room | null | undefined) {
       data?: sdk.IRoomTimelineData,
     ) => {
       if (event.getRoomId() === room?.roomId && data?.liveEvent) {
-        getRoomMessages(room, 20)
-          .then((messages) => {
-            setMessages(messages);
-          })
-          .catch((error) => {
-            console.error("Failed to load messages:", error);
-          });
+        const current = buildFromRoom(room).slice().reverse();
+        setMessages(trimStart(current));
       }
     };
 
@@ -51,5 +65,20 @@ export function useRoomMessages(room: sdk.Room | null | undefined) {
     };
   }, [room]);
 
-  return { messages, loading };
+  const loadOlderMessages = async () => {
+    if (!room) return;
+    setLoading(true);
+    getRoomMessages(room, 20)
+      .then((newMessages) => {
+        const asc = newMessages.slice().reverse();
+        setMessages(trimEnd(asc));
+        setLoading(false);
+      })
+      .catch((error) => {
+        console.error("Failed to load messages:", error);
+        setLoading(false);
+      });
+  };
+
+  return { messages, loading, loadOlderMessages };
 }

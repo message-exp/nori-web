@@ -5,7 +5,7 @@ import {
   Settings,
   UserRoundPlus,
 } from "lucide-react";
-import { memo, useEffect, useRef, useState } from "react";
+import { memo, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router";
 import { MessageItem } from "~/components/room-chat/message";
 import { MessageInput } from "~/components/room-chat/message-input";
@@ -47,39 +47,45 @@ export const RoomChat = memo(({ onBackClick = () => {} }: RoomChatProps) => {
   }, [selectedRoomId]);
 
   // get messages
-  const { messages, loading } = useRoomMessages(room);
+  const { messages, loading, loadOlderMessages } = useRoomMessages(room);
 
-  // get to latest messages (scroll to bottom)
-  const messagesEndRef = useRef<HTMLDivElement>(null);
   const scrollAreaRef = useRef<HTMLDivElement>(null);
 
-  // Scroll to bottom when messages change
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  const prevHeight = useRef(0);
+  const atBottomRef = useRef(true);
+
+  useLayoutEffect(() => {
+    const scrollElement = scrollAreaRef.current?.querySelector(
+      "[data-radix-scroll-area-viewport]",
+    ) as HTMLElement | null;
+    if (!scrollElement) return;
+    const diff = scrollElement.scrollHeight - prevHeight.current;
+    if (atBottomRef.current) {
+      scrollElement.scrollTop = scrollElement.scrollHeight;
+    } else {
+      scrollElement.scrollTop = scrollElement.scrollTop + diff;
+    }
+    prevHeight.current = scrollElement.scrollHeight;
   }, [messages]);
 
-  // Handle scroll events to detect top and bottom
   const handleScroll = (event: Event) => {
     const target = event.target as HTMLElement;
     const { scrollTop, scrollHeight, clientHeight } = target;
 
-    // Check if scrolled to top
-    if (scrollTop === 0) {
-      console.log("Scrolled to TOP");
-    }
+    atBottomRef.current = scrollTop + clientHeight >= scrollHeight - 1;
 
-    // Check if scrolled to bottom (with small tolerance for floating point precision)
-    if (scrollTop + clientHeight >= scrollHeight) {
-      console.log("Scrolled to BOTTOM");
+    if (scrollTop === 0) {
+      loadOlderMessages();
     }
   };
 
-  // Add scroll event listener
   useEffect(() => {
     const scrollElement = scrollAreaRef.current?.querySelector(
       "[data-radix-scroll-area-viewport]",
     );
     if (scrollElement) {
+      prevHeight.current = scrollElement.scrollHeight;
+      scrollElement.scrollTop = scrollElement.scrollHeight;
       scrollElement.addEventListener("scroll", handleScroll);
       return () => scrollElement.removeEventListener("scroll", handleScroll);
     }
@@ -185,17 +191,14 @@ export const RoomChat = memo(({ onBackClick = () => {} }: RoomChatProps) => {
                 <p>Loading...</p>
               </div>
             ) : messages.length > 0 ? (
-              [...messages]
-                .reverse()
-                .map((message) => (
-                  <MessageItem key={message.event?.getId()} message={message} />
-                ))
+              messages.map((message) => (
+                <MessageItem key={message.event?.getId()} message={message} />
+              ))
             ) : (
               <p className="text-center text-muted-foreground">
                 No messages yet
               </p>
             )}
-            <div ref={messagesEndRef} />
           </div>
         </ScrollArea>
       </div>
