@@ -25,6 +25,7 @@ import { client } from "~/lib/matrix-api/client";
 import { getRoom, getRoomTopic } from "~/lib/matrix-api/room";
 import { getRoomAvatar } from "~/lib/matrix-api/utils";
 import { InviteUserDialog } from "./invite-user-dialog";
+import RoomChatContent from "./room-chat-content";
 
 interface RoomChatProps {
   readonly onBackClick?: () => void;
@@ -35,6 +36,7 @@ export const RoomChat = memo(({ onBackClick = () => {} }: RoomChatProps) => {
   const isMobile = useIsMobile();
   const { selectedRoomId } = useRoomContext();
   const [room, setRoom] = useState(getRoom(selectedRoomId));
+  const [roomLoading, setRoomLoading] = useState(false);
 
   // selected room changes
   useEffect(() => {
@@ -48,6 +50,15 @@ export const RoomChat = memo(({ onBackClick = () => {} }: RoomChatProps) => {
 
   // get messages
   const { messages, loading, loadOlderMessages } = useRoomMessages(room);
+
+  useEffect(() => {
+    console.log(messages.length == 0, loading);
+    if (messages.length == 0 && loading) {
+      setRoomLoading(true);
+    } else {
+      setRoomLoading(false);
+    }
+  }, [messages, loading]);
 
   const scrollAreaRef = useRef<HTMLDivElement>(null);
 
@@ -66,6 +77,7 @@ export const RoomChat = memo(({ onBackClick = () => {} }: RoomChatProps) => {
       scrollElement.scrollTop = scrollElement.scrollTop + diff;
     }
     prevHeight.current = scrollElement.scrollHeight;
+    console.log("message length: ", messages.length);
   }, [messages]);
 
   const handleScroll = (event: Event) => {
@@ -76,6 +88,7 @@ export const RoomChat = memo(({ onBackClick = () => {} }: RoomChatProps) => {
 
     if (scrollTop === 0) {
       loadOlderMessages();
+      // console.log("load message");
     }
   };
 
@@ -185,21 +198,7 @@ export const RoomChat = memo(({ onBackClick = () => {} }: RoomChatProps) => {
       </div>
       <div className="flex-1 overflow-hidden">
         <ScrollArea ref={scrollAreaRef} className="h-full">
-          <div className="space-y-4 p-4">
-            {loading ? (
-              <div className="flex justify-center text-muted-foreground">
-                <p>Loading...</p>
-              </div>
-            ) : messages.length > 0 ? (
-              messages.map((message) => (
-                <MessageItem key={message.event?.getId()} message={message} />
-              ))
-            ) : (
-              <p className="text-center text-muted-foreground">
-                No messages yet
-              </p>
-            )}
-          </div>
+          <RoomChatContent roomLoading={roomLoading} messages={messages} />
         </ScrollArea>
       </div>
       <div className="border-t p-4">
