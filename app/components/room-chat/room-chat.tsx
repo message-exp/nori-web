@@ -66,32 +66,33 @@ export const RoomChat = memo(({ onBackClick = () => {} }: RoomChatProps) => {
   const prevMessageIdRef = useRef<string | undefined>(undefined);
 
   useLayoutEffect(() => {
-    // 如果還沒紀錄過（初次載入），就把現在最上方的 message 當作 prevMessage
+    // On initial load, if there is no previous message recorded,
+    // set the current top message as the previous message.
     if (!prevMessageIdRef.current && messages.length > 0) {
       prevMessageIdRef.current = messages[0].event?.getId();
-      // 初次載入不滾動（或改成滾到底部也行）
+      // Do not scroll on initial load, or scroll to the bottom.
       return;
     }
 
-    // 如果有 prevMessageId，才做滾動
+    // Only scroll if there is a previous message ID.
     if (prevMessageIdRef.current) {
       const scrollElement = scrollAreaRef.current?.querySelector(
         "[data-radix-scroll-area-viewport]",
       ) as HTMLElement | null;
       if (!scrollElement) return;
 
-      // 找到那筆 message 的 DOM
+      // Find the DOM element of the previous message.
       const prevEl = scrollElement.querySelector<HTMLElement>(
         `[data-msg-id="${prevMessageIdRef.current}"]`,
       );
 
       if (prevEl) {
-        // 捲到它的 offsetTop
+        // Scroll to its offsetTop.
         scrollElement.scrollTop = prevEl.offsetTop;
       }
     }
 
-    // 更新 prevMessageId 為這次畫面新的最上方
+    // Update the previous message ID to the new top message on the screen.
     if (messages.length > 0) {
       prevMessageIdRef.current = messages[0].event?.getId();
     }
