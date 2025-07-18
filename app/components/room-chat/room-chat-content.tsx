@@ -20,13 +20,19 @@ export default function RoomChatContent({
     }
 
     if (messages.length > 0) {
+      console.log("top message id: ", messages[0].event?.getId());
       return (
         <div className="message-list-wrapper space-y-2">
           {/* TODO: disable if no newer message */}
           <p className="text-center text-muted-foreground">loading</p>
-          {messages.map((message) => (
-            <MessageItem key={message.event?.getId()} message={message} />
-          ))}
+          {messages.map((message) => {
+            const id = message.event?.getId();
+            return (
+              <div key={id} data-msg-id={id}>
+                <MessageItem message={message} />
+              </div>
+            );
+          })}
         </div>
       );
     }
