@@ -7,7 +7,6 @@ import {
 } from "lucide-react";
 import { memo, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router";
-import { MessageItem } from "~/components/room-chat/message";
 import { MessageInput } from "~/components/room-chat/message-input";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
@@ -64,20 +63,38 @@ export const RoomChat = memo(({ onBackClick = () => {} }: RoomChatProps) => {
 
   const prevHeight = useRef(0);
   const atBottomRef = useRef(true);
+  const prevMessageIdRef = useRef<string | undefined>(undefined);
 
   useLayoutEffect(() => {
-    const scrollElement = scrollAreaRef.current?.querySelector(
-      "[data-radix-scroll-area-viewport]",
-    ) as HTMLElement | null;
-    if (!scrollElement) return;
-    const diff = scrollElement.scrollHeight - prevHeight.current;
-    if (atBottomRef.current) {
-      scrollElement.scrollTop = scrollElement.scrollHeight;
-    } else {
-      scrollElement.scrollTop = scrollElement.scrollTop + diff;
+    // 如果還沒紀錄過（初次載入），就把現在最上方的 message 當作 prevMessage
+    if (!prevMessageIdRef.current && messages.length > 0) {
+      prevMessageIdRef.current = messages[0].event?.getId();
+      // 初次載入不滾動（或改成滾到底部也行）
+      return;
     }
-    prevHeight.current = scrollElement.scrollHeight;
-    console.log("message length: ", messages.length);
+
+    // 如果有 prevMessageId，才做滾動
+    if (prevMessageIdRef.current) {
+      const scrollElement = scrollAreaRef.current?.querySelector(
+        "[data-radix-scroll-area-viewport]",
+      ) as HTMLElement | null;
+      if (!scrollElement) return;
+
+      // 找到那筆 message 的 DOM
+      const prevEl = scrollElement.querySelector<HTMLElement>(
+        `[data-msg-id="${prevMessageIdRef.current}"]`,
+      );
+
+      if (prevEl) {
+        // 捲到它的 offsetTop
+        scrollElement.scrollTop = prevEl.offsetTop;
+      }
+    }
+
+    // 更新 prevMessageId 為這次畫面新的最上方
+    if (messages.length > 0) {
+      prevMessageIdRef.current = messages[0].event?.getId();
+    }
   }, [messages]);
 
   const handleScroll = (event: Event) => {
@@ -88,7 +105,6 @@ export const RoomChat = memo(({ onBackClick = () => {} }: RoomChatProps) => {
 
     if (scrollTop === 0) {
       loadOlderMessages();
-      // console.log("load message");
     }
   };
 
