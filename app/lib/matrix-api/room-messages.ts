@@ -9,12 +9,16 @@ export async function getRoomMessages(
 ): Promise<TimelineItem[]> {
   // first get the messages already in the live timeline
   const timelineSet = room.getUnfilteredTimelineSet();
+  console.log("timelineSet: ", timelineSet);
   const timeline = timelineSet.getLiveTimeline();
+  console.log("timeline", timeline);
 
   // paginate backwards to get more messages
   await room.client.scrollback(room, limit);
 
   const events = timeline.getEvents();
+
+  console.log("length: ", events.length);
 
   return buildTimelineItems(events);
 }
