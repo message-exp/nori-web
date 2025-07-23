@@ -4,11 +4,13 @@ import { MessageItem } from "./message";
 interface RoomChatContentProps {
   readonly roomLoading: boolean;
   readonly messages: readonly TimelineItem[];
+  readonly hasMore: boolean;
 }
 
 export default function RoomChatContent({
   roomLoading,
   messages,
+  hasMore,
 }: RoomChatContentProps) {
   const renderContent = () => {
     if (roomLoading) {
@@ -23,8 +25,10 @@ export default function RoomChatContent({
       console.log("top message id: ", messages[0].event?.getId());
       return (
         <div className="message-list-wrapper space-y-2">
-          {/* TODO: disable if no newer message */}
-          <p className="text-center text-muted-foreground">loading</p>
+          {hasMore && (
+            <p className="text-center text-muted-foreground">loading</p>
+          )}
+
           {messages.map((message) => {
             const id = message.event?.getId();
             return (

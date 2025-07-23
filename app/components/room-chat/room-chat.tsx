@@ -5,7 +5,14 @@ import {
   Settings,
   UserRoundPlus,
 } from "lucide-react";
-import { memo, useEffect, useLayoutEffect, useRef, useState } from "react";
+import {
+  memo,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 import { useNavigate } from "react-router";
 import { MessageInput } from "~/components/room-chat/message-input";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
@@ -48,10 +55,11 @@ export const RoomChat = memo(({ onBackClick = () => {} }: RoomChatProps) => {
   }, [selectedRoomId]);
 
   // get messages
-  const { messages, loading, loadOlderMessages } = useRoomMessages(room);
+  const { messages, loading, loadOlderMessages, hasMore } =
+    useRoomMessages(room);
 
   useEffect(() => {
-    console.log(messages.length == 0, loading);
+    // console.log(messages.length == 0, loading);
     if (messages.length == 0 && loading) {
       setRoomLoading(true);
     } else {
@@ -89,25 +97,31 @@ export const RoomChat = memo(({ onBackClick = () => {} }: RoomChatProps) => {
       if (prevEl) {
         // Scroll to its offsetTop.
         scrollElement.scrollTop = prevEl.offsetTop;
+        console.log("scroll to: ", prevMessageIdRef.current);
       }
     }
 
     // Update the previous message ID to the new top message on the screen.
     if (messages.length > 0) {
       prevMessageIdRef.current = messages[0].event?.getId();
+      console.log("save id: ", messages[0].event?.getId());
     }
   }, [messages]);
 
-  const handleScroll = (event: Event) => {
-    const target = event.target as HTMLElement;
-    const { scrollTop, scrollHeight, clientHeight } = target;
+  const handleScroll = useCallback(
+    (event: Event) => {
+      const target = event.target as HTMLElement;
+      const { scrollTop, scrollHeight, clientHeight } = target;
 
-    atBottomRef.current = scrollTop + clientHeight >= scrollHeight - 1;
+      atBottomRef.current = scrollTop + clientHeight >= scrollHeight - 1;
 
-    if (scrollTop === 0) {
-      loadOlderMessages();
-    }
-  };
+      if (scrollTop === 0 && hasMore) {
+        console.log("has more: ", hasMore);
+        loadOlderMessages();
+      }
+    },
+    [hasMore, loadOlderMessages],
+  );
 
   useEffect(() => {
     const scrollElement = scrollAreaRef.current?.querySelector(
@@ -115,11 +129,14 @@ export const RoomChat = memo(({ onBackClick = () => {} }: RoomChatProps) => {
     );
     if (scrollElement) {
       prevHeight.current = scrollElement.scrollHeight;
-      scrollElement.scrollTop = scrollElement.scrollHeight;
+      // Only scroll to bottom on initial load when no previous message ID exists
+      if (!prevMessageIdRef.current) {
+        scrollElement.scrollTop = scrollElement.scrollHeight;
+      }
       scrollElement.addEventListener("scroll", handleScroll);
       return () => scrollElement.removeEventListener("scroll", handleScroll);
     }
-  }, []);
+  }, [handleScroll]);
 
   if (!selectedRoomId || !room) {
     return (
@@ -215,7 +232,11 @@ export const RoomChat = memo(({ onBackClick = () => {} }: RoomChatProps) => {
       </div>
       <div className="flex-1 overflow-hidden">
         <ScrollArea ref={scrollAreaRef} className="h-full">
-          <RoomChatContent roomLoading={roomLoading} messages={messages} />
+          <RoomChatContent
+            roomLoading={roomLoading}
+            messages={messages}
+            hasMore={hasMore}
+          />
         </ScrollArea>
       </div>
       <div className="border-t p-4">
