@@ -6,12 +6,16 @@ import { buildTimelineItems } from "~/lib/matrix-api/timeline-helper";
 import type { TimelineItem } from "~/lib/matrix-api/timeline-item";
 
 export function useRoomMessages(room: sdk.Room | null | undefined) {
-  const MESSAGE_LIMIT = 500;
-  const MESSAGE_PRE_LOAD = 50;
+  const MESSAGE_LIMIT = 100;
+  const MESSAGE_PRE_LOAD = 30;
 
   const [messages, setMessages] = useState<TimelineItem[]>([]);
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
+  const [hasNewer, setHasNewer] = useState(false);
+  const [lastLoadDirection, setLastLoadDirection] = useState<
+    "backwards" | "forwards" | null
+  >(null);
 
   const timelineWindow = useMemo(() => {
     if (!room) return null;
@@ -78,6 +82,17 @@ export function useRoomMessages(room: sdk.Room | null | undefined) {
     setLoading(true);
     initializeTimelineWindow(timelineWindow).then((initialMessages) => {
       console.log("init timelinewindows: ", initialMessages);
+
+      // 初始化後檢查兩個方向的狀態
+      const backwardsHasMore = timelineWindow.canPaginate(
+        sdk.EventTimeline.BACKWARDS,
+      );
+      const forwardsHasMore = timelineWindow.canPaginate(
+        sdk.EventTimeline.FORWARDS,
+      );
+
+      setHasMore(backwardsHasMore);
+      setHasNewer(forwardsHasMore);
     });
     getRoomMessages(room, MESSAGE_PRE_LOAD)
       .then((initialMessages) => {
@@ -111,32 +126,69 @@ export function useRoomMessages(room: sdk.Room | null | undefined) {
     };
   }, [room]);
 
-  const loadOlderMessages = async () => {
+  const loadMessages = async (direction: "backwards" | "forwards") => {
     if (!room) return;
     if (!timelineWindow) return;
     setLoading(true);
+    setLastLoadDirection(direction);
 
     try {
+      const eventDirection =
+        direction === "backwards"
+          ? sdk.EventTimeline.BACKWARDS
+          : sdk.EventTimeline.FORWARDS;
+
       const nowHasMore = await timelineWindow.paginate(
-        sdk.EventTimeline.BACKWARDS,
+        eventDirection,
         MESSAGE_PRE_LOAD,
       );
+
       console.log(
-        "After paginate backwards, events count:",
+        `After paginate ${direction}, events count:`,
         timelineWindow.getEvents().length,
       );
       console.log("Has more events:", nowHasMore);
-      setHasMore(nowHasMore);
+
+      // 更新當前載入方向的狀態
+      if (direction === "backwards") {
+        setHasMore(nowHasMore);
+      } else {
+        setHasNewer(nowHasMore);
+      }
+
+      // 檢查相反方向的狀態
+      // TimelineWindow 可能已經有足夠資料來判斷相反方向
+      const oppositeDirection =
+        direction === "backwards"
+          ? sdk.EventTimeline.FORWARDS
+          : sdk.EventTimeline.BACKWARDS;
+
+      const oppositeHasMore = timelineWindow.canPaginate(oppositeDirection);
+
+      if (direction === "backwards") {
+        setHasNewer(oppositeHasMore);
+      } else {
+        setHasMore(oppositeHasMore);
+      }
+
+      console.log("has more: ", hasMore, " has newer: ", hasNewer);
 
       const newMessages = getEventsFromTimelineWindow(timelineWindow);
       const asc = newMessages.slice().reverse();
       setMessages(asc);
       setLoading(false);
     } catch (error) {
-      console.error("Failed to load older messages:", error);
+      console.error(`Failed to load ${direction} messages:`, error);
       setLoading(false);
     }
   };
 
-  return { messages, loading, loadOlderMessages, hasMore };
+  return {
+    messages,
+    loading,
+    loadMessages,
+    hasMore,
+    hasNewer,
+    lastLoadDirection,
+  };
 }

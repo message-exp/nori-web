@@ -55,8 +55,14 @@ export const RoomChat = memo(({ onBackClick = () => {} }: RoomChatProps) => {
   }, [selectedRoomId]);
 
   // get messages
-  const { messages, loading, loadOlderMessages, hasMore } =
-    useRoomMessages(room);
+  const {
+    messages,
+    loading,
+    loadMessages,
+    hasMore,
+    hasNewer,
+    lastLoadDirection,
+  } = useRoomMessages(room);
 
   useEffect(() => {
     // console.log(messages.length == 0, loading);
@@ -72,41 +78,58 @@ export const RoomChat = memo(({ onBackClick = () => {} }: RoomChatProps) => {
   const prevHeight = useRef(0);
   const atBottomRef = useRef(true);
   const prevMessageIdRef = useRef<string | undefined>(undefined);
+  const bottomMessageIdRef = useRef<string | undefined>(undefined);
 
   useLayoutEffect(() => {
-    // On initial load, if there is no previous message recorded,
-    // set the current top message as the previous message.
-    if (!prevMessageIdRef.current && messages.length > 0) {
+    // On initial load, set reference points
+    if (
+      !prevMessageIdRef.current &&
+      !bottomMessageIdRef.current &&
+      messages.length > 0
+    ) {
       prevMessageIdRef.current = messages[0].event?.getId();
-      // Do not scroll on initial load, or scroll to the bottom.
+      bottomMessageIdRef.current = messages[messages.length - 1].event?.getId();
+      // Do not scroll on initial load
       return;
     }
 
-    // Only scroll if there is a previous message ID.
-    if (prevMessageIdRef.current) {
-      const scrollElement = scrollAreaRef.current?.querySelector(
-        "[data-radix-scroll-area-viewport]",
-      ) as HTMLElement | null;
-      if (!scrollElement) return;
+    const scrollElement = scrollAreaRef.current?.querySelector(
+      "[data-radix-scroll-area-viewport]",
+    ) as HTMLElement | null;
+    if (!scrollElement) return;
 
-      // Find the DOM element of the previous message.
-      const prevEl = scrollElement.querySelector<HTMLElement>(
-        `[data-msg-id="${prevMessageIdRef.current}"]`,
+    // Choose reference point based on load direction
+    let referenceId: string | undefined;
+    if (lastLoadDirection === "forwards" && bottomMessageIdRef.current) {
+      // For forward loading, use bottom message as reference
+      referenceId = bottomMessageIdRef.current;
+    } else if (prevMessageIdRef.current) {
+      // For backward loading or default, use top message as reference
+      referenceId = prevMessageIdRef.current;
+    }
+
+    if (referenceId) {
+      const refEl = scrollElement.querySelector<HTMLElement>(
+        `[data-msg-id="${referenceId}"]`,
       );
 
-      if (prevEl) {
-        // Scroll to its offsetTop.
-        scrollElement.scrollTop = prevEl.offsetTop;
-        console.log("scroll to: ", prevMessageIdRef.current);
+      if (refEl) {
+        scrollElement.scrollTop = refEl.offsetTop;
+        console.log(
+          `scroll to (${lastLoadDirection || "initial"}):`,
+          referenceId,
+        );
       }
     }
 
-    // Update the previous message ID to the new top message on the screen.
+    // Update reference points
     if (messages.length > 0) {
       prevMessageIdRef.current = messages[0].event?.getId();
-      console.log("save id: ", messages[0].event?.getId());
+      bottomMessageIdRef.current = messages[messages.length - 1].event?.getId();
+      console.log("save top id:", prevMessageIdRef.current);
+      console.log("save bottom id:", bottomMessageIdRef.current);
     }
-  }, [messages]);
+  }, [messages, lastLoadDirection]);
 
   const handleScroll = useCallback(
     (event: Event) => {
@@ -115,12 +138,19 @@ export const RoomChat = memo(({ onBackClick = () => {} }: RoomChatProps) => {
 
       atBottomRef.current = scrollTop + clientHeight >= scrollHeight - 1;
 
+      // Load older messages when scrolled to top
       if (scrollTop === 0 && hasMore) {
         console.log("has more: ", hasMore);
-        loadOlderMessages();
+        loadMessages("backwards");
+      }
+
+      // Load newer messages when scrolled to bottom
+      if (scrollTop + clientHeight >= scrollHeight - 1 && hasNewer) {
+        console.log("has newer: ", hasNewer);
+        loadMessages("forwards");
       }
     },
-    [hasMore, loadOlderMessages],
+    [hasMore, hasNewer, loadMessages],
   );
 
   useEffect(() => {
@@ -130,7 +160,7 @@ export const RoomChat = memo(({ onBackClick = () => {} }: RoomChatProps) => {
     if (scrollElement) {
       prevHeight.current = scrollElement.scrollHeight;
       // Only scroll to bottom on initial load when no previous message ID exists
-      if (!prevMessageIdRef.current) {
+      if (!prevMessageIdRef.current && !bottomMessageIdRef.current) {
         scrollElement.scrollTop = scrollElement.scrollHeight;
       }
       scrollElement.addEventListener("scroll", handleScroll);
