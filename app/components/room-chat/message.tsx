@@ -38,6 +38,13 @@ export function MessageItem({ message }: MessageItemProps) {
                 ? new Date(originalTs).toLocaleString()
                 : "Invalid time"}
             </div>
+            {/* 加上 Message ID 顯示 - 只在開發環境顯示 */}
+            {process.env.NODE_ENV === "development" && (
+              <div className="text-xs text-gray-400 font-mono">
+                ID: {message.event?.getId() || "unknown"}{" "}
+                {/* 只顯示最後8個字符 */}
+              </div>
+            )}
             {message.isEdited() && (
               <span className="text-xs text-muted-foreground italic">
                 edited&nbsp;

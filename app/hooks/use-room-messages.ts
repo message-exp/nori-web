@@ -7,7 +7,7 @@ import type { TimelineItem } from "~/lib/matrix-api/timeline-item";
 
 export function useRoomMessages(room: sdk.Room | null | undefined) {
   const MESSAGE_LIMIT = 100;
-  const MESSAGE_PRE_LOAD = 30;
+  const MESSAGE_PRE_LOAD = 23;
 
   const [messages, setMessages] = useState<TimelineItem[]>([]);
   const [loading, setLoading] = useState(false);
@@ -126,6 +126,10 @@ export function useRoomMessages(room: sdk.Room | null | undefined) {
     };
   }, [room]);
 
+  useEffect(() => {
+    console.log("has more: ", hasMore, " has newer: ", hasNewer);
+  }, [hasMore, hasNewer, messages]);
+
   const loadMessages = async (direction: "backwards" | "forwards") => {
     if (!room) return;
     if (!timelineWindow) return;
@@ -170,8 +174,6 @@ export function useRoomMessages(room: sdk.Room | null | undefined) {
       } else {
         setHasMore(oppositeHasMore);
       }
-
-      console.log("has more: ", hasMore, " has newer: ", hasNewer);
 
       const newMessages = getEventsFromTimelineWindow(timelineWindow);
       const asc = newMessages.slice().reverse();

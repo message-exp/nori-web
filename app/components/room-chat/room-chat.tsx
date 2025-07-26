@@ -98,6 +98,9 @@ export const RoomChat = memo(({ onBackClick = () => {} }: RoomChatProps) => {
     ) as HTMLElement | null;
     if (!scrollElement) return;
 
+    console.log("top id:    ", prevMessageIdRef.current);
+    console.log("bottom id: ", bottomMessageIdRef.current);
+
     // Choose reference point based on load direction
     let referenceId: string | undefined;
     if (lastLoadDirection === "forwards" && bottomMessageIdRef.current) {
@@ -114,9 +117,16 @@ export const RoomChat = memo(({ onBackClick = () => {} }: RoomChatProps) => {
       );
 
       if (refEl) {
-        scrollElement.scrollTop = refEl.offsetTop;
+        if (lastLoadDirection === "forwards") {
+          // For forward loading, position reference element at bottom of viewport
+          scrollElement.scrollTop =
+            refEl.offsetTop - scrollElement.clientHeight + refEl.offsetHeight;
+        } else {
+          // For backward loading, position reference element at top of viewport
+          scrollElement.scrollTop = refEl.offsetTop;
+        }
         console.log(
-          `scroll to (${lastLoadDirection || "initial"}):`,
+          `scroll to (${lastLoadDirection || "initial"}): `,
           referenceId,
         );
       }
@@ -126,10 +136,13 @@ export const RoomChat = memo(({ onBackClick = () => {} }: RoomChatProps) => {
     if (messages.length > 0) {
       prevMessageIdRef.current = messages[0].event?.getId();
       bottomMessageIdRef.current = messages[messages.length - 1].event?.getId();
-      console.log("save top id:", prevMessageIdRef.current);
-      console.log("save bottom id:", bottomMessageIdRef.current);
+      console.log("save top id:     ", messages[0].event?.getId());
+      console.log(
+        "save bottom id:  ",
+        messages[messages.length - 1].event?.getId(),
+      );
     }
-  }, [messages, lastLoadDirection]);
+  }, [messages]);
 
   const handleScroll = useCallback(
     (event: Event) => {

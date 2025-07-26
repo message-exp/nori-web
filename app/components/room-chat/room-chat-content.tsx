@@ -22,7 +22,6 @@ export default function RoomChatContent({
     }
 
     if (messages.length > 0) {
-      console.log("top message id: ", messages[0].event?.getId());
       return (
         <div className="message-list-wrapper space-y-2">
           {hasMore && (
