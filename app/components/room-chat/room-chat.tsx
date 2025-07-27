@@ -81,67 +81,74 @@ export const RoomChat = memo(({ onBackClick = () => {} }: RoomChatProps) => {
   const bottomMessageIdRef = useRef<string | undefined>(undefined);
 
   useLayoutEffect(() => {
-    // On initial load, set reference points
-    if (
-      !prevMessageIdRef.current &&
-      !bottomMessageIdRef.current &&
-      messages.length > 0
-    ) {
-      prevMessageIdRef.current = messages[0].event?.getId();
-      bottomMessageIdRef.current = messages[messages.length - 1].event?.getId();
-      // Do not scroll on initial load
-      return;
-    }
-
     const scrollElement = scrollAreaRef.current?.querySelector(
       "[data-radix-scroll-area-viewport]",
     ) as HTMLElement | null;
     if (!scrollElement) return;
 
-    console.log("top id:    ", prevMessageIdRef.current);
-    console.log("bottom id: ", bottomMessageIdRef.current);
+    // Early return if no messages
+    if (messages.length === 0) return;
 
-    // Choose reference point based on load direction
-    let referenceId: string | undefined;
-    if (lastLoadDirection === "forwards" && bottomMessageIdRef.current) {
-      // For forward loading, use bottom message as reference
-      referenceId = bottomMessageIdRef.current;
-    } else if (prevMessageIdRef.current) {
-      // For backward loading or default, use top message as reference
-      referenceId = prevMessageIdRef.current;
-    }
+    // Check if this is initial state (no previous refs exist)
+    const isInitialState =
+      !prevMessageIdRef.current && !bottomMessageIdRef.current;
 
-    if (referenceId) {
-      const refEl = scrollElement.querySelector<HTMLElement>(
-        `[data-msg-id="${referenceId}"]`,
-      );
+    if (isInitialState) {
+      // Initial state: scroll to bottom
+      console.log("scroll to buttom");
+      console.log("scroll height: ", scrollElement.scrollHeight);
+      console.log("before scroll: ", scrollElement.scrollTop);
 
-      if (refEl) {
-        if (lastLoadDirection === "forwards") {
-          // For forward loading, position reference element at bottom of viewport
-          scrollElement.scrollTop =
-            refEl.offsetTop - scrollElement.clientHeight + refEl.offsetHeight;
-        } else {
-          // For backward loading, position reference element at top of viewport
-          scrollElement.scrollTop = refEl.offsetTop;
-        }
-        console.log(
-          `scroll to (${lastLoadDirection || "initial"}): `,
-          referenceId,
+      // Use requestAnimationFrame to ensure DOM is updated
+      requestAnimationFrame(() => {
+        scrollElement.scrollTop = scrollElement.scrollHeight;
+        console.log("after scroll: ", scrollElement.scrollTop);
+      });
+    } else {
+      // Normal state: handle directional scrolling
+      console.log("top id:    ", prevMessageIdRef.current);
+      console.log("bottom id: ", bottomMessageIdRef.current);
+
+      // Choose reference point based on load direction
+      let referenceId: string | undefined;
+      if (lastLoadDirection === "forwards" && bottomMessageIdRef.current) {
+        // For forward loading, use bottom message as reference
+        referenceId = bottomMessageIdRef.current;
+      } else if (prevMessageIdRef.current) {
+        // For backward loading or default, use top message as reference
+        referenceId = prevMessageIdRef.current;
+      }
+
+      if (referenceId) {
+        const refEl = scrollElement.querySelector<HTMLElement>(
+          `[data-msg-id="${referenceId}"]`,
         );
+
+        if (refEl) {
+          if (lastLoadDirection === "forwards") {
+            // For forward loading, position reference element at bottom of viewport
+            scrollElement.scrollTop =
+              refEl.offsetTop - scrollElement.clientHeight + refEl.offsetHeight;
+          } else {
+            // For backward loading, position reference element at top of viewport
+            scrollElement.scrollTop = refEl.offsetTop;
+          }
+          console.log(
+            `scroll to (${lastLoadDirection || "initial"}): `,
+            referenceId,
+          );
+        }
       }
     }
 
-    // Update reference points
-    if (messages.length > 0) {
-      prevMessageIdRef.current = messages[0].event?.getId();
-      bottomMessageIdRef.current = messages[messages.length - 1].event?.getId();
-      console.log("save top id:     ", messages[0].event?.getId());
-      console.log(
-        "save bottom id:  ",
-        messages[messages.length - 1].event?.getId(),
-      );
-    }
+    // Always save reference points at the end
+    prevMessageIdRef.current = messages[0].event?.getId();
+    bottomMessageIdRef.current = messages[messages.length - 1].event?.getId();
+    console.log("save top id:     ", messages[0].event?.getId());
+    console.log(
+      "save bottom id:  ",
+      messages[messages.length - 1].event?.getId(),
+    );
   }, [messages]);
 
   const handleScroll = useCallback(
