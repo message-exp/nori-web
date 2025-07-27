@@ -5,12 +5,14 @@ interface RoomChatContentProps {
   readonly roomLoading: boolean;
   readonly messages: readonly TimelineItem[];
   readonly hasMore: boolean;
+  readonly hasNewer: boolean;
 }
 
 export default function RoomChatContent({
   roomLoading,
   messages,
   hasMore,
+  hasNewer,
 }: RoomChatContentProps) {
   const renderContent = () => {
     if (roomLoading) {
@@ -36,6 +38,10 @@ export default function RoomChatContent({
               </div>
             );
           })}
+
+          {hasNewer && (
+            <p className="text-center text-muted-foreground">loading</p>
+          )}
         </div>
       );
     }
