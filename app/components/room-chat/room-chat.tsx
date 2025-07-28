@@ -304,6 +304,7 @@ export const RoomChat = memo(({ onBackClick = () => {} }: RoomChatProps) => {
             messages={messages}
             hasMore={hasMore}
             hasNewer={hasNewer}
+            loading={loading}
           />
         </ScrollArea>
       </div>
