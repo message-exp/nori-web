@@ -1,7 +1,6 @@
 import * as sdk from "matrix-js-sdk";
 import { useEffect, useMemo, useState } from "react";
 import { client } from "~/lib/matrix-api/client";
-import { getRoomMessages } from "~/lib/matrix-api/room-messages";
 import { buildTimelineItems } from "~/lib/matrix-api/timeline-helper";
 import type { TimelineItem } from "~/lib/matrix-api/timeline-item";
 
@@ -65,25 +64,24 @@ export function useRoomMessages(room: sdk.Room | null | undefined) {
     }
 
     setLoading(true);
-    initializeTimelineWindow(timelineWindow).then((initialMessages) => {
-      console.log("init timelinewindows: ", initialMessages);
-
-      // 初始化後檢查兩個方向的狀態
-      const backwardsHasMore = timelineWindow.canPaginate(
-        sdk.EventTimeline.BACKWARDS,
-      );
-      const forwardsHasMore = timelineWindow.canPaginate(
-        sdk.EventTimeline.FORWARDS,
-      );
-
-      setHasMore(backwardsHasMore);
-      setHasNewer(forwardsHasMore);
-    });
-    getRoomMessages(room, MESSAGE_PRE_LOAD)
+    initializeTimelineWindow(timelineWindow)
       .then((initialMessages) => {
+        console.log("init timelinewindows: ", initialMessages);
+
         // buildTimelineItems returns newest first, keep ascending
         const asc = initialMessages.slice().reverse();
         setMessages(asc);
+
+        // 初始化後檢查兩個方向的狀態
+        const backwardsHasMore = timelineWindow.canPaginate(
+          sdk.EventTimeline.BACKWARDS,
+        );
+        const forwardsHasMore = timelineWindow.canPaginate(
+          sdk.EventTimeline.FORWARDS,
+        );
+
+        setHasMore(backwardsHasMore);
+        setHasNewer(forwardsHasMore);
         setLoading(false);
       })
       .catch((error) => {
