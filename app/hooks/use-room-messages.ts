@@ -31,7 +31,6 @@ export function useRoomMessages(room: sdk.Room | null | undefined) {
     window: sdk.TimelineWindow,
   ): TimelineItem[] {
     const events = window.getEvents();
-    // console.log("getEvents() returned:", events.length, "events");
     return buildTimelineItems(events);
   }
 
@@ -40,15 +39,8 @@ export function useRoomMessages(room: sdk.Room | null | undefined) {
       // 關鍵：先調用 load() 進行初始化
       await window.load(undefined, MESSAGE_PRE_LOAD); // 載入最新的 20 個事件
 
-      // console.log("After load, events count:", window.getEvents().length);
-
       // 如果需要更多事件，可以再 paginate
-      const hasMore = await window.paginate(
-        sdk.EventTimeline.BACKWARDS,
-        MESSAGE_PRE_LOAD,
-      );
-      // console.log("After paginate, events count:", window.getEvents().length);
-      // console.log("Has more events:", hasMore);
+      await window.paginate(sdk.EventTimeline.BACKWARDS, MESSAGE_PRE_LOAD);
 
       return getEventsFromTimelineWindow(window);
     } catch (error) {
@@ -61,16 +53,6 @@ export function useRoomMessages(room: sdk.Room | null | undefined) {
     const timeline = room.getUnfilteredTimelineSet().getLiveTimeline();
     const events = timeline.getEvents();
     return buildTimelineItems(events);
-  }
-
-  function trimStart(items: TimelineItem[]): TimelineItem[] {
-    if (items.length <= MESSAGE_LIMIT) return items;
-    return items.slice(items.length - MESSAGE_LIMIT);
-  }
-
-  function trimEnd(items: TimelineItem[]): TimelineItem[] {
-    if (items.length <= MESSAGE_LIMIT) return items;
-    return items.slice(0, MESSAGE_LIMIT);
   }
 
   useEffect(() => {
@@ -98,7 +80,7 @@ export function useRoomMessages(room: sdk.Room | null | undefined) {
       .then((initialMessages) => {
         // buildTimelineItems returns newest first, keep ascending
         const asc = initialMessages.slice().reverse();
-        setMessages(trimStart(asc));
+        setMessages(asc);
         setLoading(false);
       })
       .catch((error) => {
@@ -113,9 +95,56 @@ export function useRoomMessages(room: sdk.Room | null | undefined) {
       removed?: boolean,
       data?: sdk.IRoomTimelineData,
     ) => {
-      if (event.getRoomId() === room?.roomId && data?.liveEvent) {
+      // 只處理當前 room 的 live event
+      if (event.getRoomId() !== room?.roomId || !data?.liveEvent) {
+        return;
+      }
+
+      // 如果 hasNewer=true，表示使用者正在往上滑，暫停自動更新機制
+      if (hasNewer) {
+        console.log(
+          "Pausing timeline updates - user scrolling up (hasNewer=true)",
+        );
+        return;
+      }
+
+      // 使用 timelineWindow 而不是直接從 room 重建
+      if (timelineWindow) {
+        try {
+          // 檢查是否可以向前分頁（獲取更新的訊息）
+          const canPaginateForwards = timelineWindow.canPaginate(
+            sdk.EventTimeline.FORWARDS,
+          );
+
+          if (canPaginateForwards) {
+            // 如果有更新的訊息，進行分頁載入
+            timelineWindow.paginate(sdk.EventTimeline.FORWARDS, 1).then(() => {
+              const newMessages = getEventsFromTimelineWindow(timelineWindow);
+              const asc = newMessages.slice().reverse();
+              setMessages(asc);
+
+              // 更新狀態
+              const stillHasNewer = timelineWindow.canPaginate(
+                sdk.EventTimeline.FORWARDS,
+              );
+              setHasNewer(stillHasNewer);
+            });
+          } else {
+            // 如果沒有更新的訊息可載入，直接更新當前 timelineWindow 的訊息
+            const newMessages = getEventsFromTimelineWindow(timelineWindow);
+            const asc = newMessages.slice().reverse();
+            setMessages(asc);
+          }
+        } catch (error) {
+          console.error("Failed to handle timeline update:", error);
+          // 如果 timelineWindow 失敗，回退到原來的方式
+          const current = buildFromRoom(room).slice().reverse();
+          setMessages(current);
+        }
+      } else {
+        // 如果沒有 timelineWindow，回退到原來的方式
         const current = buildFromRoom(room).slice().reverse();
-        setMessages(trimStart(current));
+        setMessages(current);
       }
     };
 
