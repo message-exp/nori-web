@@ -16,6 +16,9 @@ export function useRoomMessages(room: sdk.Room | null | undefined) {
   const [lastLoadDirection, setLastLoadDirection] = useState<
     "backwards" | "forwards" | null
   >(null);
+  const [lastLoadTrigger, setLastLoadTrigger] = useState<
+    "user_scroll" | "new_message" | null
+  >(null);
 
   const timelineWindow = useMemo(() => {
     if (!room) return null;
@@ -122,6 +125,8 @@ export function useRoomMessages(room: sdk.Room | null | undefined) {
               const newMessages = getEventsFromTimelineWindow(timelineWindow);
               const asc = newMessages.slice().reverse();
               setMessages(asc);
+              setLastLoadDirection("forwards");
+              setLastLoadTrigger("new_message");
 
               // 更新狀態
               const stillHasNewer = timelineWindow.canPaginate(
@@ -159,11 +164,15 @@ export function useRoomMessages(room: sdk.Room | null | undefined) {
     console.log("has more: ", hasMore, " has newer: ", hasNewer);
   }, [hasMore, hasNewer, messages]);
 
-  const loadMessages = async (direction: "backwards" | "forwards") => {
+  const loadMessages = async (
+    direction: "backwards" | "forwards",
+    trigger: "user_scroll" | "new_message" = "user_scroll",
+  ) => {
     if (!room) return;
     if (!timelineWindow) return;
     setLoading(true);
     setLastLoadDirection(direction);
+    setLastLoadTrigger(trigger);
 
     try {
       const eventDirection =
@@ -221,5 +230,6 @@ export function useRoomMessages(room: sdk.Room | null | undefined) {
     hasMore,
     hasNewer,
     lastLoadDirection,
+    lastLoadTrigger,
   };
 }

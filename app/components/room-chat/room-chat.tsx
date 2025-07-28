@@ -62,10 +62,10 @@ export const RoomChat = memo(({ onBackClick = () => {} }: RoomChatProps) => {
     hasMore,
     hasNewer,
     lastLoadDirection,
+    lastLoadTrigger,
   } = useRoomMessages(room);
 
   useEffect(() => {
-    // console.log(messages.length == 0, loading);
     if (messages.length == 0 && loading) {
       setRoomLoading(true);
     } else {
@@ -80,68 +80,51 @@ export const RoomChat = memo(({ onBackClick = () => {} }: RoomChatProps) => {
   const prevMessageIdRef = useRef<string | undefined>(undefined);
   const bottomMessageIdRef = useRef<string | undefined>(undefined);
 
-  useLayoutEffect(() => {
-    const scrollElement = scrollAreaRef.current?.querySelector(
-      "[data-radix-scroll-area-viewport]",
-    ) as HTMLElement | null;
-    if (!scrollElement) return;
+  const scrollToBottom = useCallback((scrollElement: HTMLElement) => {
+    console.log("scroll to buttom");
+    console.log("scroll height: ", scrollElement.scrollHeight);
+    console.log("before scroll: ", scrollElement.scrollTop);
 
-    // Early return if no messages
-    if (messages.length === 0) return;
+    requestAnimationFrame(() => {
+      scrollElement.scrollTop = scrollElement.scrollHeight;
+      console.log("after scroll: ", scrollElement.scrollTop);
+    });
+  }, []);
 
-    // Check if this is initial state (no previous refs exist)
-    const isInitialState =
-      !prevMessageIdRef.current && !bottomMessageIdRef.current;
-
-    if (isInitialState) {
-      // Initial state: scroll to bottom
-      console.log("scroll to buttom");
-      console.log("scroll height: ", scrollElement.scrollHeight);
-      console.log("before scroll: ", scrollElement.scrollTop);
-
-      // Use requestAnimationFrame to ensure DOM is updated
-      requestAnimationFrame(() => {
-        scrollElement.scrollTop = scrollElement.scrollHeight;
-        console.log("after scroll: ", scrollElement.scrollTop);
-      });
-    } else {
-      // Normal state: handle directional scrolling
-      console.log("top id:    ", prevMessageIdRef.current);
-      console.log("bottom id: ", bottomMessageIdRef.current);
-
-      // Choose reference point based on load direction
-      let referenceId: string | undefined;
-      if (lastLoadDirection === "forwards" && bottomMessageIdRef.current) {
-        // For forward loading, use bottom message as reference
-        referenceId = bottomMessageIdRef.current;
-      } else if (prevMessageIdRef.current) {
-        // For backward loading or default, use top message as reference
-        referenceId = prevMessageIdRef.current;
+  const getReferenceId = useCallback(() => {
+    if (lastLoadDirection === "forwards" && bottomMessageIdRef.current) {
+      // 如果是新訊息觸發的載入，不使用參考點（會滾動到底部）
+      if (lastLoadTrigger === "new_message") {
+        return null;
       }
-
-      if (referenceId) {
-        const refEl = scrollElement.querySelector<HTMLElement>(
-          `[data-msg-id="${referenceId}"]`,
-        );
-
-        if (refEl) {
-          if (lastLoadDirection === "forwards") {
-            // For forward loading, position reference element at bottom of viewport
-            scrollElement.scrollTop =
-              refEl.offsetTop - scrollElement.clientHeight + refEl.offsetHeight;
-          } else {
-            // For backward loading, position reference element at top of viewport
-            scrollElement.scrollTop = refEl.offsetTop;
-          }
-          console.log(
-            `scroll to (${lastLoadDirection || "initial"}): `,
-            referenceId,
-          );
-        }
-      }
+      return bottomMessageIdRef.current;
     }
+    return prevMessageIdRef.current;
+  }, [lastLoadDirection, lastLoadTrigger]);
 
-    // Always save reference points at the end
+  const scrollToReference = useCallback(
+    (scrollElement: HTMLElement, referenceId: string) => {
+      const refEl = scrollElement.querySelector<HTMLElement>(
+        `[data-msg-id="${referenceId}"]`,
+      );
+
+      if (!refEl) return;
+
+      if (lastLoadDirection === "forwards") {
+        scrollElement.scrollTop =
+          refEl.offsetTop - scrollElement.clientHeight + refEl.offsetHeight;
+      } else {
+        scrollElement.scrollTop = refEl.offsetTop;
+      }
+      console.log(
+        `scroll to (${lastLoadDirection || "initial"}): `,
+        referenceId,
+      );
+    },
+    [lastLoadDirection],
+  );
+
+  const saveReferencePoints = useCallback(() => {
     prevMessageIdRef.current = messages[0].event?.getId();
     bottomMessageIdRef.current = messages[messages.length - 1].event?.getId();
     console.log("save top id:     ", messages[0].event?.getId());
@@ -150,6 +133,40 @@ export const RoomChat = memo(({ onBackClick = () => {} }: RoomChatProps) => {
       messages[messages.length - 1].event?.getId(),
     );
   }, [messages]);
+
+  useLayoutEffect(() => {
+    const scrollElement = scrollAreaRef.current?.querySelector(
+      "[data-radix-scroll-area-viewport]",
+    ) as HTMLElement | null;
+    if (!scrollElement || messages.length === 0) return;
+
+    const isInitialState =
+      !prevMessageIdRef.current && !bottomMessageIdRef.current;
+
+    if (isInitialState) {
+      scrollToBottom(scrollElement);
+    } else {
+      console.log("top id:    ", prevMessageIdRef.current);
+      console.log("bottom id: ", bottomMessageIdRef.current);
+      console.log("load trigger: ", lastLoadTrigger);
+
+      const referenceId = getReferenceId();
+      if (referenceId) {
+        scrollToReference(scrollElement, referenceId);
+      } else if (lastLoadTrigger === "new_message") {
+        // 新訊息進來時，滾動到底部
+        scrollToBottom(scrollElement);
+      }
+    }
+
+    saveReferencePoints();
+  }, [
+    messages,
+    scrollToBottom,
+    getReferenceId,
+    scrollToReference,
+    saveReferencePoints,
+  ]);
 
   const handleScroll = useCallback(
     (event: Event) => {
@@ -167,7 +184,7 @@ export const RoomChat = memo(({ onBackClick = () => {} }: RoomChatProps) => {
       // Load newer messages when scrolled to bottom
       if (scrollTop + clientHeight >= scrollHeight - 1 && hasNewer) {
         console.log("has newer: ", hasNewer);
-        loadMessages("forwards");
+        loadMessages("forwards", "user_scroll");
       }
     },
     [hasMore, hasNewer, loadMessages],
