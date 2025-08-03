@@ -4,6 +4,7 @@ import { splitUserId } from "~/lib/matrix-api/utils";
 import TextMessage from "~/components/message/text-message";
 import type { TimelineItem } from "~/lib/matrix-api/timeline-item";
 import ImageMessage from "~/components/message/image-message";
+import { useUserAvatar } from "~/hooks/use-user-avatar";
 
 interface MessageItemProps {
   message: TimelineItem;
@@ -21,12 +22,14 @@ export function MessageItem({ message }: MessageItemProps) {
   // Get original (and edited) timestamps
   const originalTs = message.originalTs;
 
+  const avatarUrl = useUserAvatar(user);
+
   return (
     <div className="">
       <div className="flex flex-row gap-2">
         <div className="flex items-start space-x-2">
           <Avatar>
-            <AvatarImage src={getUserAvatar(user)} />
+            <AvatarImage src={avatarUrl} />
             <AvatarFallback>{senderUsername}</AvatarFallback>
           </Avatar>
         </div>

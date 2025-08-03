@@ -150,27 +150,31 @@ export function getRoomAvatar(room: Room, baseUrl: string): string | undefined {
 
 const imageCache = new Map<string, Promise<Blob | undefined>>();
 
-export function getImageBlob(
-  message: sdk.MatrixEvent,
-): Promise<Blob | undefined> {
-  const messageContent = message.getContent();
-  const mxcUrl = messageContent.url;
-  if (!mxcUrl) return Promise.resolve(undefined);
+/**
+ * Generic helper that converts an MXC (or plain HTTP/HTTPS) URL to a `Blob`.
+ * Results are cached so subsequent requests for the same `mxcUrl` share the same network call.
+ *
+ * @param mxcUrl  The Matrix Content URI or direct HTTP(S) URL to the image.
+ * @returns       A `Promise` resolving to a `Blob`, or `undefined` if the fetch failed.
+ */
+export async function getImageBlob(mxcUrl: string): Promise<Blob | undefined> {
+  // 1. Validate param
+  if (!mxcUrl) return undefined;
 
-  // 1. Check if the cache already has this image
+  // 2. Check cache first
   if (imageCache.has(mxcUrl)) {
     return imageCache.get(mxcUrl)!;
   }
 
-  // 2. If not, create a new promise and store it in the cache
+  // 3. Build a new promise, store it immediately so parallel callers coalesce
   const promise = (async (): Promise<Blob | undefined> => {
-    // If the URL is already HTTP(S), we can fetch it directly.
+    // A. Direct HTTP(S) URL – just fetch it.
     if (mxcUrl.startsWith("http://") || mxcUrl.startsWith("https://")) {
       try {
         const response = await fetch(mxcUrl);
         if (!response.ok) {
           console.error(
-            `Failed to fetch image with status: ${response.status}`,
+            `Failed to fetch image ${mxcUrl} with status: ${response.status}`,
             await response.text(),
           );
           imageCache.delete(mxcUrl);
@@ -184,10 +188,9 @@ export function getImageBlob(
       }
     }
 
+    // B. MXC URI – build an authenticated HTTP URL and fetch via the Matrix client.
     try {
-      // Get the full HTTP URL for the media.
-      const room = client.client.getRoom(message.getRoomId());
-      const baseUrl = room?.client.baseUrl ?? client.client.baseUrl;
+      const baseUrl = client.client.baseUrl; // fallback to the homeserver base URL
       const httpUri = getHttpUriForMxc(
         baseUrl,
         mxcUrl,
@@ -200,15 +203,12 @@ export function getImageBlob(
       );
       if (!httpUri) return undefined;
 
-      // Use our new authedFetch to get the media data.
       const response = await client.authedFetch(httpUri);
-
       if (!response.ok) {
         console.error(
-          `Failed to fetch image with status: ${response.status}`,
+          `Failed to fetch image ${mxcUrl} with status: ${response.status}`,
           await response.text(),
         );
-        // Remove the failed promise from the cache to allow retries
         imageCache.delete(mxcUrl);
         return undefined;
       }
@@ -216,7 +216,6 @@ export function getImageBlob(
       return await response.blob();
     } catch (error) {
       console.error("Failed to fetch and create blob for image:", error);
-      // Remove the failed promise from the cache to allow retries
       imageCache.delete(mxcUrl);
       return undefined;
     }
@@ -224,4 +223,33 @@ export function getImageBlob(
 
   imageCache.set(mxcUrl, promise);
   return promise;
+}
+
+/**
+ * Convenience wrapper around `getImageBlob` that extracts the URL from a Matrix event.
+ *
+ * @param message  The Matrix event that contains a `url` field in its content.
+ * @returns        A `Promise` resolving to a `Blob`, or `undefined` if no URL or the fetch failed.
+ */
+export function getMessageImageBlob(
+  message: sdk.MatrixEvent,
+): Promise<Blob | undefined> {
+  const mxcUrl = message?.getContent()?.url;
+  if (!mxcUrl) return Promise.resolve(undefined);
+  return getImageBlob(mxcUrl);
+}
+
+/**
+ * Convenience helper that converts an MXC (or HTTP) URL directly into a browser object URL.
+ * *Remember* to call `URL.revokeObjectURL` once the image element or preview is unmounted to avoid memory leaks.
+ *
+ * @param mxcUrl  The Matrix Content URI or direct HTTP(S) URL to the image.
+ * @returns       A `Promise` resolving to an object URL string, or `undefined` if the fetch failed.
+ */
+export async function getImageObjectUrl(
+  mxcUrl: string,
+): Promise<string | undefined> {
+  const blob = await getImageBlob(mxcUrl);
+  if (!blob) return undefined;
+  return URL.createObjectURL(blob);
 }

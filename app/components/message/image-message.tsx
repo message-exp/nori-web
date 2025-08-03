@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import type { TimelineItem } from "~/lib/matrix-api/timeline-item";
-import { getImageBlob } from "~/lib/matrix-api/utils";
+import { getMessageImageBlob } from "~/lib/matrix-api/utils";
 interface MessageItemProps {
   message: TimelineItem;
 }
@@ -13,7 +13,7 @@ export default function ImageMessage({ message }: MessageItemProps) {
 
   useEffect(() => {
     let newImageUrl: string | undefined;
-    getImageBlob(message.event!).then((blob) => {
+    getMessageImageBlob(message.event!).then((blob) => {
       if (blob) {
         newImageUrl = URL.createObjectURL(blob);
         setImageUrl(newImageUrl);
