@@ -1,5 +1,5 @@
 import { NotificationCountType } from "matrix-js-sdk";
-import { Room } from "matrix-js-sdk";
+import type { Room } from "matrix-js-sdk";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { avatarFallback, cn, getLatestMessageText } from "~/lib/utils";
 import { BridgeIcon } from "../ui/bridge-icon";
