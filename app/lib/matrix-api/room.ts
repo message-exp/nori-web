@@ -1,6 +1,7 @@
 import { client } from "./client";
 import { EventTimeline, type ICreateRoomOpts, type Room } from "matrix-js-sdk";
 import { getImageObjectUrl } from "./utils";
+import { getUserAvatar, getUser } from "./user";
 
 export function getRoom(roomId: string | null): Room | null {
   if (!client.client) {
@@ -71,12 +72,65 @@ export async function leaveRoom(roomId: string): Promise<void> {
   }
 }
 
+export function isDMRoom(room: Room | null): boolean {
+  if (!room || !client.client) {
+    return false;
+  }
+
+  const members = room.getJoinedMembers();
+  const memberCount = members.length;
+
+  // DM room should have exactly 2 members
+  if (memberCount !== 2) {
+    return false;
+  }
+
+  // Check if room is marked as direct
+  const currentUserId = client.client.getUserId();
+  if (!currentUserId) {
+    return false;
+  }
+
+  // Get the m.direct event from account data to check if this room is a DM
+  const directRooms =
+    client.client.getAccountData("m.direct" as any)?.getContent() || {};
+
+  // Check if this room is in any user's direct room list
+  for (const userId in directRooms) {
+    const roomIds = directRooms[userId];
+    if (Array.isArray(roomIds) && roomIds.includes(room.roomId)) {
+      return true;
+    }
+  }
+
+  return false;
+}
+
 export async function getRoomAvatar(room: Room | null) {
   if (!room) {
     console.log("room not found");
     return undefined;
   }
 
+  // Check if this is a DM room, if so use the other user's avatar
+  if (isDMRoom(room) && client.client) {
+    const currentUserId = client.client.getUserId();
+    const members = room.getJoinedMembers();
+
+    // Find the other user (not the current user)
+    const otherUser = members.find((member) => member.userId !== currentUserId);
+
+    if (otherUser) {
+      const user = getUser(otherUser.userId);
+      const userAvatar = await getUserAvatar(user);
+      if (userAvatar) {
+        console.log("Using other user's avatar for DM room");
+        return userAvatar;
+      }
+    }
+  }
+
+  // Fall back to room avatar if not a DM or user avatar not found
   const state = room.getLiveTimeline().getState(EventTimeline.FORWARDS);
   if (!state) {
     console.log("room state not found");
