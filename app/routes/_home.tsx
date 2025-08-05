@@ -12,6 +12,9 @@ function HomeLayoutContent() {
   const isMobile = useIsMobile();
   const [showMobileList, setShowMobileList] = useState(true);
   const [userAvatarUrl, setUserAvatarUrl] = useState<string | undefined>();
+  const [userAvatarFallback, setUserAvatarFallback] = useState<
+    string | undefined
+  >();
   const { loading } = useRoomContext();
 
   useEffect(() => {
@@ -22,6 +25,12 @@ function HomeLayoutContent() {
         const user = await getCurrentUser();
         const avatarUrl = await getUserAvatar(user);
         setUserAvatarUrl(avatarUrl);
+        setUserAvatarFallback(
+          user?.displayName
+            ?.split(" ")
+            .map((n) => n[0])
+            .join(""),
+        );
       } catch (error) {
         console.error("Failed to fetch user avatar:", error);
       }
@@ -79,7 +88,9 @@ function HomeLayoutContent() {
                       <AvatarImage
                         src={userAvatarUrl || "https://github.com/shadcn.png"}
                       />
-                      <AvatarFallback className="rounded-sm">CN</AvatarFallback>
+                      <AvatarFallback className="rounded-sm">
+                        {userAvatarFallback}
+                      </AvatarFallback>
                     </Avatar>
                   </Button>
                 )}

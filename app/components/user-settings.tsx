@@ -25,7 +25,9 @@ import {
 } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
+import { useUserAvatar } from "~/hooks/use-user-avatar";
 import { logout } from "~/lib/matrix-api/logout";
+import { avatarFallback } from "~/lib/utils";
 
 const formSchema = z.object({
   user_display_name: z.string().min(1),
@@ -35,6 +37,8 @@ export default function UserSettings({ user }: { user: User | undefined }) {
   const navigate = useNavigate();
   const [loadingProfile, setLoadingProfile] = useState(user === undefined);
   const [loadingLogout, setLoadingLogout] = useState(false);
+
+  const avatarUrl = useUserAvatar(user ?? null);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -100,8 +104,10 @@ export default function UserSettings({ user }: { user: User | undefined }) {
                   <div className="flex items-center gap-4">
                     <div className="relative">
                       <Avatar className="h-20 w-20">
-                        <AvatarImage src="/placeholder.svg?height=80&width=80" />
-                        <AvatarFallback className="text-lg">TR</AvatarFallback>
+                        <AvatarImage src={avatarUrl} />
+                        <AvatarFallback className="text-lg">
+                          {avatarFallback(user?.displayName ?? "")}
+                        </AvatarFallback>
                       </Avatar>
                       <Button
                         size="icon"

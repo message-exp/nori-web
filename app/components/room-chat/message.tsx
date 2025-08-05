@@ -5,6 +5,7 @@ import TextMessage from "~/components/message/text-message";
 import type { TimelineItem } from "~/lib/matrix-api/timeline-item";
 import ImageMessage from "~/components/message/image-message";
 import { useUserAvatar } from "~/hooks/use-user-avatar";
+import { avatarFallback } from "~/lib/utils";
 
 interface MessageItemProps {
   message: TimelineItem;
@@ -30,7 +31,7 @@ export function MessageItem({ message }: MessageItemProps) {
         <div className="flex items-start space-x-2">
           <Avatar>
             <AvatarImage src={avatarUrl} />
-            <AvatarFallback>{senderUsername}</AvatarFallback>
+            <AvatarFallback>{avatarFallback(senderUsername)}</AvatarFallback>
           </Avatar>
         </div>
         <div className="flex flex-col gap-2">
