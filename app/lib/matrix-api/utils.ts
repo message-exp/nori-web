@@ -138,15 +138,15 @@ export function splitUserId(userId: string) {
   };
 }
 
-export function getRoomAvatar(room: Room, baseUrl: string): string | undefined {
-  const state = room.getLiveTimeline().getState(EventTimeline.FORWARDS);
-  if (!state) return undefined;
-  const avatarEvent = state.getStateEvents("m.room.avatar", "");
-  const mxcUrl = avatarEvent?.getContent()?.url;
-  return mxcUrl
-    ? getHttpUriForMxc(baseUrl, mxcUrl, 40, 40, "scale")
-    : undefined;
-}
+// export function getRoomAvatar(room: Room, baseUrl: string): string | undefined {
+//   const state = room.getLiveTimeline().getState(EventTimeline.FORWARDS);
+//   if (!state) return undefined;
+//   const avatarEvent = state.getStateEvents("m.room.avatar", "");
+//   const mxcUrl = avatarEvent?.getContent()?.url;
+//   return mxcUrl
+//     ? getHttpUriForMxc(baseUrl, mxcUrl, 40, 40, "scale")
+//     : undefined;
+// }
 
 const imageCache = new Map<string, Promise<Blob | undefined>>();
 

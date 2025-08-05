@@ -1,7 +1,7 @@
 import { useCallback, useEffect } from "react";
 import { useNavigate, useOutletContext, useParams } from "react-router";
 import { RoomChat } from "~/components/room-chat/room-chat";
-import { RoomList } from "~/components/room-list";
+import { RoomList } from "~/components/room-list/room-list";
 import {
   ResizableHandle,
   ResizablePanel,

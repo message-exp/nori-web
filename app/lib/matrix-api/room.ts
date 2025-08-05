@@ -1,5 +1,6 @@
 import { client } from "./client";
 import { EventTimeline, type ICreateRoomOpts, type Room } from "matrix-js-sdk";
+import { getImageObjectUrl } from "./utils";
 
 export function getRoom(roomId: string | null): Room | null {
   if (!client.client) {
@@ -68,4 +69,29 @@ export async function leaveRoom(roomId: string): Promise<void> {
     console.error(`Failed to leave room ${roomId}:`, error);
     throw new Error(`Failed to leave room: ${error}`);
   }
+}
+
+export async function getRoomAvatar(room: Room | null) {
+  if (!room) {
+    console.log("room not found");
+    return undefined;
+  }
+
+  const state = room.getLiveTimeline().getState(EventTimeline.FORWARDS);
+  if (!state) {
+    console.log("room state not found");
+    return undefined;
+  }
+
+  const avatarEvent = state.getStateEvents("m.room.avatar", "");
+  const mxcUrl = avatarEvent?.getContent()?.url;
+
+  if (!mxcUrl) {
+    console.log("room avatar not found");
+    return undefined;
+  }
+
+  const returnUrl = await getImageObjectUrl(mxcUrl);
+  console.log("return url: ", returnUrl);
+  return returnUrl;
 }
