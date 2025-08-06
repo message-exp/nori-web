@@ -42,7 +42,6 @@ export function MessageItem({ message }: MessageItemProps) {
             {process.env.NODE_ENV === "development" && (
               <div className="text-xs text-gray-400 font-mono">
                 ID: {message.event?.getId() || "unknown"}{" "}
-                {/* 只顯示最後8個字符 */}
               </div>
             )}
             {message.isEdited() && (
