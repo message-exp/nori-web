@@ -5,9 +5,15 @@ import {
   Settings,
   UserRoundPlus,
 } from "lucide-react";
-import { memo, useEffect, useRef, useState } from "react";
+import {
+  memo,
+  useCallback,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 import { useNavigate } from "react-router";
-import { MessageItem } from "~/components/room-chat/message";
 import { MessageInput } from "~/components/room-chat/message-input";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
@@ -24,6 +30,7 @@ import { useRoomMessages } from "~/hooks/use-room-messages";
 import { client } from "~/lib/matrix-api/client";
 import { getRoom, getRoomTopic } from "~/lib/matrix-api/room";
 import { InviteUserDialog } from "./invite-user-dialog";
+import RoomChatContent from "./room-chat-content";
 import { useRoomAvatar } from "~/hooks/use-room-avatar";
 import { avatarFallback } from "~/lib/utils";
 
@@ -36,6 +43,7 @@ export const RoomChat = memo(({ onBackClick = () => {} }: RoomChatProps) => {
   const isMobile = useIsMobile();
   const { selectedRoomId } = useRoomContext();
   const [room, setRoom] = useState(getRoom(selectedRoomId));
+  const [roomLoading, setRoomLoading] = useState(false);
 
   const roomAvatarUrl = useRoomAvatar(room);
 
@@ -50,14 +58,155 @@ export const RoomChat = memo(({ onBackClick = () => {} }: RoomChatProps) => {
   }, [selectedRoomId]);
 
   // get messages
-  const { messages, loading } = useRoomMessages(room);
+  const {
+    messages,
+    loading,
+    loadMessages,
+    hasMore,
+    hasNewer,
+    lastLoadDirection,
+    lastLoadTrigger,
+  } = useRoomMessages(room);
 
-  // get to latest messages (scroll to bottom)
-  const messagesEndRef = useRef<HTMLDivElement>(null);
-  // Scroll to bottom when messages change
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (messages.length == 0 && loading) {
+      setRoomLoading(true);
+    } else {
+      setRoomLoading(false);
+    }
+  }, [messages, loading]);
+
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
+
+  const prevHeight = useRef(0);
+  const atBottomRef = useRef(true);
+  const prevMessageIdRef = useRef<string | undefined>(undefined);
+  const bottomMessageIdRef = useRef<string | undefined>(undefined);
+
+  const scrollToBottom = useCallback((scrollElement: HTMLElement) => {
+    console.log("scroll to buttom");
+    console.log("scroll height: ", scrollElement.scrollHeight);
+    console.log("before scroll: ", scrollElement.scrollTop);
+
+    requestAnimationFrame(() => {
+      scrollElement.scrollTop = scrollElement.scrollHeight;
+      console.log("after scroll: ", scrollElement.scrollTop);
+    });
+  }, []);
+
+  const getReferenceId = useCallback(() => {
+    if (lastLoadDirection === "forwards" && bottomMessageIdRef.current) {
+      // 如果是新訊息觸發的載入，不使用參考點（會滾動到底部）
+      if (lastLoadTrigger === "new_message") {
+        return null;
+      }
+      return bottomMessageIdRef.current;
+    }
+    return prevMessageIdRef.current;
+  }, [lastLoadDirection, lastLoadTrigger]);
+
+  const scrollToReference = useCallback(
+    (scrollElement: HTMLElement, referenceId: string) => {
+      const refEl = scrollElement.querySelector<HTMLElement>(
+        `[data-msg-id="${referenceId}"]`,
+      );
+
+      if (!refEl) return;
+
+      if (lastLoadDirection === "forwards") {
+        scrollElement.scrollTop =
+          refEl.offsetTop - scrollElement.clientHeight + refEl.offsetHeight;
+      } else {
+        scrollElement.scrollTop = refEl.offsetTop;
+      }
+      console.log(
+        `scroll to (${lastLoadDirection || "initial"}): `,
+        referenceId,
+      );
+    },
+    [lastLoadDirection],
+  );
+
+  const saveReferencePoints = useCallback(() => {
+    prevMessageIdRef.current = messages[0].event?.getId();
+    bottomMessageIdRef.current = messages[messages.length - 1].event?.getId();
+    console.log("save top id:     ", messages[0].event?.getId());
+    console.log(
+      "save bottom id:  ",
+      messages[messages.length - 1].event?.getId(),
+    );
   }, [messages]);
+
+  useLayoutEffect(() => {
+    const scrollElement = scrollAreaRef.current?.querySelector(
+      "[data-radix-scroll-area-viewport]",
+    ) as HTMLElement | null;
+    if (!scrollElement || messages.length === 0) return;
+
+    const isInitialState =
+      !prevMessageIdRef.current && !bottomMessageIdRef.current;
+
+    if (isInitialState) {
+      scrollToBottom(scrollElement);
+    } else {
+      console.log("top id:    ", prevMessageIdRef.current);
+      console.log("bottom id: ", bottomMessageIdRef.current);
+      console.log("load trigger: ", lastLoadTrigger);
+
+      const referenceId = getReferenceId();
+      if (referenceId) {
+        scrollToReference(scrollElement, referenceId);
+      } else if (lastLoadTrigger === "new_message") {
+        // 新訊息進來時，滾動到底部
+        scrollToBottom(scrollElement);
+      }
+    }
+
+    saveReferencePoints();
+  }, [
+    messages,
+    scrollToBottom,
+    getReferenceId,
+    scrollToReference,
+    saveReferencePoints,
+  ]);
+
+  const handleScroll = useCallback(
+    (event: Event) => {
+      const target = event.target as HTMLElement;
+      const { scrollTop, scrollHeight, clientHeight } = target;
+
+      atBottomRef.current = scrollTop + clientHeight >= scrollHeight - 1;
+
+      // Load older messages when scrolled to top
+      if (scrollTop === 0 && hasMore) {
+        console.log("has more: ", hasMore);
+        loadMessages("backwards");
+      }
+
+      // Load newer messages when scrolled to bottom
+      if (scrollTop + clientHeight >= scrollHeight - 1 && hasNewer) {
+        console.log("has newer: ", hasNewer);
+        loadMessages("forwards", "user_scroll");
+      }
+    },
+    [hasMore, hasNewer, loadMessages],
+  );
+
+  useEffect(() => {
+    const scrollElement = scrollAreaRef.current?.querySelector(
+      "[data-radix-scroll-area-viewport]",
+    );
+    if (scrollElement) {
+      prevHeight.current = scrollElement.scrollHeight;
+      // Only scroll to bottom on initial load when no previous message ID exists
+      if (!prevMessageIdRef.current && !bottomMessageIdRef.current) {
+        scrollElement.scrollTop = scrollElement.scrollHeight;
+      }
+      scrollElement.addEventListener("scroll", handleScroll);
+      return () => scrollElement.removeEventListener("scroll", handleScroll);
+    }
+  }, [handleScroll]);
 
   if (!selectedRoomId || !room) {
     return (
@@ -144,25 +293,14 @@ export const RoomChat = memo(({ onBackClick = () => {} }: RoomChatProps) => {
         </div>
       </div>
       <div className="flex-1 overflow-hidden">
-        <ScrollArea className="h-full">
-          <div className="space-y-4 p-4">
-            {loading ? (
-              <div className="flex justify-center text-muted-foreground">
-                <p>Loading...</p>
-              </div>
-            ) : messages.length > 0 ? (
-              [...messages]
-                .reverse()
-                .map((message) => (
-                  <MessageItem key={message.event?.getId()} message={message} />
-                ))
-            ) : (
-              <p className="text-center text-muted-foreground">
-                No messages yet
-              </p>
-            )}
-            <div ref={messagesEndRef} />
-          </div>
+        <ScrollArea ref={scrollAreaRef} className="h-full">
+          <RoomChatContent
+            roomLoading={roomLoading}
+            messages={messages}
+            hasMore={hasMore}
+            hasNewer={hasNewer}
+            loading={loading}
+          />
         </ScrollArea>
       </div>
       <div className="border-t p-4">
