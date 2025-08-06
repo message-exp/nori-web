@@ -1,5 +1,6 @@
 import clsx from "clsx";
 import { House, Inbox } from "lucide-react";
+import { TbCards } from "react-icons/tb";
 import { useState } from "react";
 import { NavLink, Outlet } from "react-router";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
@@ -35,6 +36,18 @@ export default function HomeLayout() {
               </NavLink>
             </div>
             <div className="flex flex-col gap-2">
+              <NavLink to="/contract">
+                {/* eslint-disable-next-line @typescript-eslint/no-unused-vars */}
+                {({ isActive, isPending, isTransitioning }) => (
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    className={clsx("size-12", isActive && "bg-accent")}
+                  >
+                    <TbCards className="size-6" />
+                  </Button>
+                )}
+              </NavLink>
               <NavLink to="/inbox">
                 {/* eslint-disable-next-line @typescript-eslint/no-unused-vars */}
                 {({ isActive, isPending, isTransitioning }) => (
