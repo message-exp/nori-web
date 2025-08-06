@@ -63,6 +63,7 @@ export function useRoomMessages(room: sdk.Room | null | undefined) {
       return;
     }
 
+    setMessages([]);
     setLoading(true);
     initializeTimelineWindow(timelineWindow)
       .then((initialMessages) => {
