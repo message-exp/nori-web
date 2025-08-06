@@ -59,7 +59,7 @@ function HomeLayoutContent() {
               </NavLink>
             </div>
             <div className="flex flex-col gap-2">
-              <NavLink to="/contract">
+              <NavLink to="/cards">
                 {/* eslint-disable-next-line @typescript-eslint/no-unused-vars */}
                 {({ isActive, isPending, isTransitioning }) => (
                   <Button
