@@ -12,6 +12,25 @@ interface telegramLogoutRequestCodeResponse {
   message: string;
 }
 
+interface telegramUserInfo {
+  id: string;
+  username: string;
+  first_name: string;
+  last_name: string;
+  phone: string;
+  is_bot: boolean;
+}
+interface telegramGetUserInfoResponse {
+  telegram: telegramUserInfo;
+  mxid: string;
+  permissions: string;
+}
+export function getTelegramUserInfo(): Promise<telegramGetUserInfoResponse> {
+  return contactsApi
+    .get("/api/bridge/telegram/users/info")
+    .then((response) => response.data);
+}
+
 export function telegramLoginRequestCode(
   phone: string,
 ): Promise<telegramLoginRequestCodeResponse> {
