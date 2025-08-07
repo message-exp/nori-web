@@ -7,8 +7,8 @@ interface telegramLoginRequestCodeResponse {
 
 interface telegramLoginVerifyCodeResponse {
   state: string;
-  username?: string;
-  phone?: string;
+  username: string;
+  phone: string;
 }
 interface telegramLogoutRequestCodeResponse {
   message: string;
