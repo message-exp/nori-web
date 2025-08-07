@@ -1,5 +1,4 @@
 import contactsApi from ".";
-import { getAuthCookies } from "../utils";
 
 interface contactCard {
   id: string;

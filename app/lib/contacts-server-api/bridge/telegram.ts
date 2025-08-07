@@ -1,6 +1,4 @@
 import contactsApi from "..";
-import { getAuthCookies } from "../../utils";
-
 interface telegramLoginRequestCodeResponse {
   message: string;
 }

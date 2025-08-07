@@ -1,8 +1,4 @@
-import axios, {
-  type InternalAxiosRequestConfig,
-  type AxiosResponse,
-  type AxiosError,
-} from "axios";
+import axios, { type InternalAxiosRequestConfig, type AxiosError } from "axios";
 import { CONTACTS_SERVER } from "../env-config-helper";
 import { getAuthCookies } from "../utils";
 
