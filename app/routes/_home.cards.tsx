@@ -1,16 +1,75 @@
-import { Plus } from "lucide-react";
+import { Plus, Instagram, Twitter, Facebook, Linkedin } from "lucide-react";
 import { Button } from "~/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
+import { Card, CardContent } from "~/components/ui/card";
+import { Avatar, AvatarImage, AvatarFallback } from "~/components/ui/avatar";
 
 // Mock data for demonstration
 const mockCards = [
-  { id: 1, title: "合約卡片 1", description: "這是第一張合約卡片的描述內容" },
-  { id: 2, title: "合約卡片 2", description: "這是第二張合約卡片的描述內容" },
-  { id: 3, title: "合約卡片 3", description: "這是第三張合約卡片的描述內容" },
-  { id: 4, title: "合約卡片 4", description: "這是第四張合約卡片的描述內容" },
-  { id: 5, title: "合約卡片 5", description: "這是第五張合約卡片的描述內容" },
-  { id: 6, title: "合約卡片 6", description: "這是第六張合約卡片的描述內容" },
+  {
+    id: 1,
+    name: "張小明",
+    nickname: "@xiaoming",
+    avatar:
+      "https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=100&h=100&fit=crop&crop=face",
+    socialMedia: ["instagram", "twitter"],
+  },
+  {
+    id: 2,
+    name: "李美麗",
+    nickname: "@beautiful_li",
+    avatar:
+      "https://images.unsplash.com/photo-1494790108755-2616b612b786?w=100&h=100&fit=crop&crop=face",
+    socialMedia: ["facebook", "instagram"],
+  },
+  {
+    id: 3,
+    name: "王大勇",
+    nickname: "@brave_wang",
+    avatar:
+      "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=100&h=100&fit=crop&crop=face",
+    socialMedia: ["linkedin", "twitter"],
+  },
+  {
+    id: 4,
+    name: "陳小花",
+    nickname: "@flower_chen",
+    avatar:
+      "https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=100&h=100&fit=crop&crop=face",
+    socialMedia: ["instagram"],
+  },
+  {
+    id: 5,
+    name: "林志強",
+    nickname: "@strong_lin",
+    avatar:
+      "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=100&h=100&fit=crop&crop=face",
+    socialMedia: ["facebook", "linkedin", "twitter"],
+  },
+  {
+    id: 6,
+    name: "黃淑芬",
+    nickname: "@graceful_huang",
+    avatar:
+      "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=100&h=100&fit=crop&crop=face",
+    socialMedia: ["instagram", "facebook"],
+  },
 ];
+
+const getSocialMediaIcon = (platform: string) => {
+  const iconClass = "size-4 text-gray-600";
+  switch (platform) {
+    case "instagram":
+      return <Instagram className={iconClass} />;
+    case "twitter":
+      return <Twitter className={iconClass} />;
+    case "facebook":
+      return <Facebook className={iconClass} />;
+    case "linkedin":
+      return <Linkedin className={iconClass} />;
+    default:
+      return null;
+  }
+};
 
 export default function CardsPage() {
   const handleAddCard = () => {
@@ -36,18 +95,43 @@ export default function CardsPage() {
               key={card.id}
               className="cursor-pointer transition-all duration-200 hover:shadow-lg hover:-translate-y-1 hover:scale-105"
             >
-              <CardHeader className="pb-3">
-                <CardTitle className="text-lg font-semibold text-gray-800">
-                  {card.title}
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="pt-0">
-                <p className="text-sm text-gray-600 mb-4">{card.description}</p>
-                {/* 預留空間給未來的內容 */}
-                <div className="bg-gray-50 rounded-md p-4 min-h-[100px] flex items-center justify-center">
-                  <span className="text-gray-400 text-sm">預留內容區域</span>
-                </div>
-              </CardContent>
+              {/* Fixed 5:3 aspect ratio container */}
+              <div className="aspect-[5/3]">
+                <CardContent className="h-full p-4 flex">
+                  {/* Left section with Avatar (1/3 to 1/2 width) */}
+                  <div className="w-2/5 flex items-center justify-center">
+                    <Avatar className="size-20">
+                      <AvatarImage src={card.avatar} alt={card.name} />
+                      <AvatarFallback className="text-xl">
+                        {card.name.charAt(0)}
+                      </AvatarFallback>
+                    </Avatar>
+                  </div>
+
+                  {/* Right section with names and social media */}
+                  <div className="flex-1 flex flex-col justify-center space-y-3 pl-4">
+                    {/* Names section */}
+                    <div className="space-y-1">
+                      <h3 className="font-bold text-gray-800 text-xl leading-tight">
+                        {card.name}
+                      </h3>
+                      <p className="text-sm text-gray-500">{card.nickname}</p>
+                    </div>
+
+                    {/* Social media icons */}
+                    <div className="flex space-x-2">
+                      {card.socialMedia.map((platform) => (
+                        <div
+                          key={platform}
+                          className="p-2 rounded-full bg-gray-50 hover:bg-gray-100 transition-colors"
+                        >
+                          {getSocialMediaIcon(platform)}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </CardContent>
+              </div>
             </Card>
           ))}
         </div>
