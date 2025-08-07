@@ -13,9 +13,6 @@ contactsApi.interceptors.request.use(
 
     if (accessToken) {
       config.headers.Authorization = `Bearer ${accessToken}`;
-      console.log(
-        "Using access token for contacts API:",
-        config.headers.Authorization,
       );
     }
 
