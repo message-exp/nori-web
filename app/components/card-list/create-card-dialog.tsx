@@ -117,6 +117,7 @@ export default function CreateCardDialog({
                           <Input
                             placeholder="Avatar URL (optional)"
                             className="flex-1"
+                            autoComplete="off"
                             {...field}
                           />
                         </FormControl>
@@ -144,6 +145,7 @@ export default function CreateCardDialog({
                         <Input
                           placeholder="Enter display name"
                           className="col-span-3"
+                          autoComplete="off"
                           {...field}
                         />
                       </FormControl>
@@ -168,6 +170,7 @@ export default function CreateCardDialog({
                         <Input
                           placeholder="Enter nickname (optional)"
                           className="col-span-3"
+                          autoComplete="off"
                           {...field}
                         />
                       </FormControl>
