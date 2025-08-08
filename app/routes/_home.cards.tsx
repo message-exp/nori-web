@@ -1,7 +1,6 @@
-import { Plus } from "lucide-react";
-import { Button } from "~/components/ui/button";
+import { useEffect, useState } from "react";
 
-import ContactCard from "~/components/contact-card";
+import CardList from "~/components/card-list/card-list";
 import type {
   ContactCard as ContactCardType,
   PlatformContact,
@@ -62,40 +61,33 @@ const mockPlatformContacts: Record<string, PlatformContact[]> = {
 };
 
 export default function CardsPage() {
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // 模擬 3 秒載入時間
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 3000);
+
+    return () => clearTimeout(timer);
+  }, []);
+
   const handleAddCard = () => {
     // TODO: 實作新增卡片功能
     console.log("新增卡片");
   };
 
-  return (
-    <div className="flex flex-col h-full">
-      {/* Header with Add Button */}
-      <div className="flex justify-end p-4 border-b">
-        <Button onClick={handleAddCard} className="flex items-center gap-2">
-          <Plus className="size-4" />
-          新增卡片
-        </Button>
-      </div>
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-full">載入中...</div>
+    );
+  }
 
-      {/* Scrollable Grid Content */}
-      <div className="flex-1 overflow-y-auto p-4">
-        <div
-          className="grid justify-center"
-          style={{
-            gridTemplateColumns: "repeat(auto-fill, 320px)",
-            gap: "16px",
-          }}
-        >
-          {mockContactCards.map((contactCard) => (
-            <div key={contactCard.id} className="flex justify-center">
-              <ContactCard
-                contactCard={contactCard}
-                platformContacts={mockPlatformContacts[contactCard.id] || []}
-              />
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
+  return (
+    <CardList
+      contactCards={mockContactCards}
+      platformContacts={mockPlatformContacts}
+      onAddCard={handleAddCard}
+    />
   );
 }
