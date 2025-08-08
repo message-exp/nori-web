@@ -81,19 +81,24 @@ export const RoomChat = memo(({ onBackClick = () => {} }: RoomChatProps) => {
   const bottomMessageIdRef = useRef<string | undefined>(undefined);
 
   const scrollToBottom = useCallback((scrollElement: HTMLElement) => {
-    console.log("scroll to buttom");
+    console.log("scroll to bottom");
     console.log("scroll height: ", scrollElement.scrollHeight);
     console.log("before scroll: ", scrollElement.scrollTop);
 
     requestAnimationFrame(() => {
       scrollElement.scrollTop = scrollElement.scrollHeight;
-      console.log("after scroll: ", scrollElement.scrollTop);
+
+
+
+
+    requestAnimationFrame(() => {
+      scrollElement.scrollTop = scrollElement.scrollHeight;
     });
   }, []);
 
   const getReferenceId = useCallback(() => {
     if (lastLoadDirection === "forwards" && bottomMessageIdRef.current) {
-      // 如果是新訊息觸發的載入，不使用參考點（會滾動到底部）
+      // If loading is triggered by a new message, do not use a reference point (will scroll to the bottom)
       if (lastLoadTrigger === "new_message") {
         return null;
       }
