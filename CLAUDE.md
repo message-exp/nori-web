@@ -44,6 +44,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
     - `message/` - Message display components
   - `lib/` - Utility libraries
     - `matrix-api/` - Matrix protocol API wrappers
+    - `contacts-server-api/` - Contacts server API integration
   - `contexts/` - React context providers
   - `hooks/` - Custom React hooks
 
@@ -65,7 +66,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 #### Component Organization
 
 - UI components follow shadcn/ui patterns with Radix UI primitives
-- Custom components in feature-specific folders (room-chat, message)
+- Custom components in feature-specific folders (room-chat, message, card-list)
 - Theme support via `next-themes` with dark mode default
 
 #### State Management
@@ -86,11 +87,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Invite system and room settings
 - Bridge network icon support
 
-## Planned Features
+## Contact Management System
 
-### Contact Management System
-
-The application will include a contact management system with two main entities:
+The application includes a contact management system with two main entities, now implemented with full API integration:
 
 #### ContactCard (contact-cards)
 
@@ -164,6 +163,50 @@ ContactCard (1) ←→ (many) PlatformContact
 - One contact can have multiple platform accounts
 - Each platform account belongs to one contact
 
+### API Integration
+
+The contacts system is implemented with a dedicated API client:
+
+**Location:** `app/lib/contacts-server-api/`
+
+**Structure:**
+
+- `index.ts` - Axios client with authentication interceptors
+- `types.ts` - TypeScript definitions for all data models
+- `contacts.ts` - Contact card CRUD operations
+- `platform-contacts.ts` - Platform contact CRUD operations
+- `bridge/telegram.ts` - Telegram-specific bridge operations
+
+**Authentication:**
+
+- Uses Bearer token authentication via request interceptors
+- Integrates with existing auth cookie system
+- Configurable via `VITE_CONTACTS_SERVER` environment variable
+
+**Error Handling:**
+
+- Axios-based HTTP client with 10-second timeout
+- Standard HTTP error responses with proper typing
+
+### UI Components
+
+**Contact Card Components** (`app/components/card-list/`):
+
+- `card-list.tsx` - Main container for contact cards display
+- `contact-card.tsx` - Individual contact card component
+- `create-card-dialog.tsx` - Form dialog for creating new contacts
+
+**Features:**
+
+- Form validation using react-hook-form with Zod schema
+- File upload support for contact avatars
+- Responsive card grid layout
+- Loading states and error handling
+
+**Routes:**
+
+- `_home.cards.tsx` - Main contacts page with card list integration
+
 ## Development Notes
 
 ### Environment Setup
@@ -171,6 +214,10 @@ ContactCard (1) ←→ (many) PlatformContact
 - Node.js v22+ required
 - Pre-commit hooks configured with lint-staged
 - ESLint + Prettier for code quality
+
+**Environment Variables:**
+
+- `VITE_CONTACTS_SERVER` - Base URL for the contacts API server
 
 ### Docker Support
 
