@@ -37,7 +37,7 @@ interface RoomChatProps {
   readonly onBackClick?: () => void;
 }
 
-export const RoomChat = memo(({ onBackClick = () => {} }: RoomChatProps) => {
+const RoomChatComponent = ({ onBackClick = () => {} }: RoomChatProps) => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   const { selectedRoomId } = useRoomContext();
@@ -88,11 +88,9 @@ export const RoomChat = memo(({ onBackClick = () => {} }: RoomChatProps) => {
     requestAnimationFrame(() => {
       scrollElement.scrollTop = scrollElement.scrollHeight;
 
-
-
-
-    requestAnimationFrame(() => {
-      scrollElement.scrollTop = scrollElement.scrollHeight;
+      requestAnimationFrame(() => {
+        scrollElement.scrollTop = scrollElement.scrollHeight;
+      });
     });
   }, []);
 
@@ -318,4 +316,6 @@ export const RoomChat = memo(({ onBackClick = () => {} }: RoomChatProps) => {
       </div>
     </div>
   );
-});
+};
+
+export const RoomChat = memo(RoomChatComponent);
