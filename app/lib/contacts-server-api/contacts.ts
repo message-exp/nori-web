@@ -1,50 +1,37 @@
 import contactsApi from ".";
+import type {
+  ContactCardResponse,
+  ContactCardCreate,
+  ContactCardUpdate,
+} from "./types";
 
-interface contactCard {
-  id: string;
-  contact_name: string;
-  nickname: string;
-  contact_avatar_url: string;
+export async function getAllContactCards(): Promise<ContactCardResponse[]> {
+  const response = await contactsApi.get("/api/contact-cards");
+  return response.data;
+}
+export async function createContactCards(
+  data: ContactCardCreate,
+): Promise<ContactCardResponse> {
+  const response = await contactsApi.post("/api/contact-cards", data);
+  return response.data;
 }
 
-export function getAllContactCards(): Promise<contactCard[]> {
-  return contactsApi
-    .get("/api/contact-cards")
-    .then((response) => response.data);
-}
-export function createContactCards(
-  contact_name: string,
-  nickname: string,
-  contact_avatar_url: string,
-): Promise<contactCard> {
-  return contactsApi
-    .post("/api/contact-cards", {
-      contact_name,
-      nickname,
-      contact_avatar_url,
-    })
-    .then((response) => response.data);
-}
-
-export function updateContactCard(
+export async function updateContactCard(
   contact_card_id: string,
-  contact_name: string,
-  nickname: string,
-  contact_avatar_url: string,
-): Promise<contactCard> {
-  return contactsApi
-    .put(`/api/contact-cards/${contact_card_id}`, {
-      contact_name,
-      nickname,
-      contact_avatar_url,
-    })
-    .then((response) => response.data);
+  data: ContactCardUpdate,
+): Promise<ContactCardResponse> {
+  const response = await contactsApi.put(
+    `/api/contact-cards/${contact_card_id}`,
+    data,
+  );
+  return response.data;
 }
 
-export function deleteContactCard(
+export async function deleteContactCard(
   contact_card_id: string,
 ): Promise<{ message: string }> {
-  return contactsApi
-    .delete(`/api/contact-cards/${contact_card_id}`)
-    .then((response) => response.data);
+  const response = await contactsApi.delete(
+    `/api/contact-cards/${contact_card_id}`,
+  );
+  return response.data;
 }
