@@ -1,7 +1,102 @@
-export default function ContactCard() {
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faDiscord, faTelegram } from "@fortawesome/free-brands-svg-icons";
+import { MessageCircle } from "lucide-react";
+import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
+import type {
+  ContactCard as ContactCardType,
+  PlatformContact,
+  PlatformEnum,
+} from "~/lib/contacts-server-api/types";
+
+interface ContactCardProps {
+  readonly contactCard?: ContactCardType;
+  readonly platformContacts?: PlatformContact[];
+}
+
+function getPlatformIcon(platform: PlatformEnum) {
+  switch (platform) {
+    case "Discord":
+      return (
+        <FontAwesomeIcon
+          icon={faDiscord}
+          className="size-4 text-white"
+          aria-label="Discord"
+        />
+      );
+    case "Telegram":
+      return (
+        <FontAwesomeIcon
+          icon={faTelegram}
+          className="size-4 text-white"
+          aria-label="Telegram"
+        />
+      );
+    case "Matrix":
+      return (
+        <MessageCircle className="size-4 text-white" aria-label="Matrix" />
+      );
+    default:
+      return null;
+  }
+}
+
+export default function ContactCard({
+  contactCard,
+  platformContacts = [],
+}: ContactCardProps) {
+  const displayName = contactCard?.contact_name || "Contact Name";
+  const nickname = contactCard?.nickname;
+
   return (
-    <div className="w-80 h-54 border rounded-lg shadow-sm bg-white flex items-center justify-center">
-      <span className="text-lg font-medium text-gray-600">card</span>
+    <div className="w-80 h-54 border rounded-lg shadow-sm bg-card transition-transform duration-300 ease-out cursor-pointer hover:scale-105">
+      <div className="flex items-center p-6 h-full">
+        {/* Large Avatar */}
+        <div className="flex-shrink-0 mr-6">
+          <Avatar className="size-20">
+            <AvatarImage
+              src={contactCard?.contact_avatar_url}
+              alt={displayName}
+            />
+            <AvatarFallback className="text-2xl font-semibold">
+              {displayName.charAt(0).toUpperCase()}
+            </AvatarFallback>
+          </Avatar>
+        </div>
+
+        {/* Contact Info and Platform Icons */}
+        <div className="flex-1 min-w-0">
+          {/* display name and nickname */}
+          <div className="mb-4">
+            <h3 className="text-xl font-semibold text-foreground truncate">
+              {displayName}
+            </h3>
+            {nickname && (
+              <p className="text-sm text-muted-foreground truncate">
+                {nickname}
+              </p>
+            )}
+          </div>
+
+          {/* Platform Icons */}
+          <div className="flex gap-2">
+            {platformContacts.slice(0, 3).map((contact) => (
+              <div
+                key={contact.id}
+                className="flex items-center justify-center size-8 bg-gray-800 rounded-full"
+              >
+                {getPlatformIcon(contact.platform)}
+              </div>
+            ))}
+            {platformContacts.length > 3 && (
+              <div className="flex items-center justify-center size-8 bg-muted rounded-full">
+                <span className="text-xs text-muted-foreground">
+                  +{platformContacts.length - 3}
+                </span>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
