@@ -68,7 +68,6 @@ export function useRoomMessages(room: sdk.Room | null | undefined) {
     setLoading(true);
     initializeTimelineWindow(timelineWindow)
       .then((initialMessages) => {
-
         // buildTimelineItems returns newest first, keep ascending
         const asc = initialMessages.slice().reverse();
         setMessages(asc);
