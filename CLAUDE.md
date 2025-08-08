@@ -86,6 +86,84 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - Invite system and room settings
 - Bridge network icon support
 
+## Planned Features
+
+### Contact Management System
+
+The application will include a contact management system with two main entities:
+
+#### ContactCard (contact-cards)
+
+Basic contact information cards containing:
+
+**Data Model:**
+
+```typescript
+interface ContactCard {
+  id: UUID; // Unique identifier
+  contact_name: string; // Contact name
+  nickname?: string; // Optional nickname
+  contact_avatar_url?: string; // Optional avatar URL
+}
+```
+
+**API Data Structures:**
+
+- `ContactCardResponse`: Complete data returned to frontend
+- `ContactCardCreate`: Input data for creating new contacts (excludes id)
+- `ContactCardUpdate`: Input data for updating contact information
+
+**Main Operations:**
+
+- Get all contact cards
+- Create new contact card
+- Update contact card information
+- Delete contact card
+
+#### PlatformContact (platform-contact)
+
+Platform-specific account information for contacts, with one-to-many relationship to ContactCard:
+
+**Data Model:**
+
+```typescript
+interface PlatformContact {
+  id: UUID; // Unique identifier
+  contact_card_id: UUID; // Foreign key to ContactCard
+  platform: PlatformEnum; // Platform type (Telegram/Discord/Matrix)
+  platform_user_id: string; // User ID on that platform
+  dm_room_id: string; // Direct message room ID
+}
+
+enum PlatformEnum {
+  TELEGRAM = "Telegram",
+  DISCORD = "Discord",
+  MATRIX = "Matrix",
+}
+```
+
+**API Data Structures:**
+
+- `PlatformContactResponse`: Complete data returned to frontend
+- `PlatformContactCreate`: Input data for creating new platform contacts
+- `PlatformContactUpdate`: Input data for updates (platform_user_id and dm_room_id only)
+
+**Main Operations:**
+
+- Get all platform contacts for a specific ContactCard
+- Create new platform contact information
+- Update platform contact information
+- Delete platform contact information
+
+**Relationship Structure:**
+
+```
+ContactCard (1) ←→ (many) PlatformContact
+```
+
+- One contact can have multiple platform accounts
+- Each platform account belongs to one contact
+
 ## Development Notes
 
 ### Environment Setup
