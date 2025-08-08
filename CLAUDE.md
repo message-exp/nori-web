@@ -1,0 +1,100 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## Development Commands
+
+### Package Manager
+
+- Uses `pnpm` as the package manager
+- Install dependencies: `pnpm install`
+- Setup git hooks: `pnpm prepare`
+
+### Development Server
+
+- Start dev server: `pnpm dev` (runs on http://localhost:5173)
+- Build for production: `pnpm build`
+- Start production server: `pnpm start`
+
+### Code Quality
+
+- Lint code: `pnpm lint`
+- Check types: `pnpm typecheck` (runs react-router typegen + tsc)
+- Format code: `pnpm format`
+- Check formatting: `pnpm format:check`
+
+## Architecture Overview
+
+### Framework & Stack
+
+- **React Router v7** with SSR enabled by default
+- **TypeScript** with strict mode
+- **Tailwind CSS v4** for styling
+- **Vite** for build tooling
+- **Matrix JS SDK** for Matrix protocol integration
+- **shadcn/ui** components (New York style)
+
+### Project Structure
+
+- `app/` - Main application code
+  - `routes/` - React Router file-based routing
+  - `components/` - Reusable React components
+    - `ui/` - shadcn/ui components
+    - `room-chat/` - Room-specific chat components
+    - `message/` - Message display components
+  - `lib/` - Utility libraries
+    - `matrix-api/` - Matrix protocol API wrappers
+  - `contexts/` - React context providers
+  - `hooks/` - Custom React hooks
+
+### Key Architectural Patterns
+
+#### Matrix Client Management
+
+- Central `Client` class in `app/lib/matrix-api/client.ts` wraps Matrix JS SDK
+- Handles token refresh, authentication state, and HTTP request wrapping
+- Global client instance exported for app-wide use
+- Room context (`app/contexts/room-context.tsx`) manages room state and Matrix events
+
+#### Routing Structure
+
+- File-based routing with React Router v7
+- Route naming convention: `_layout.route.tsx` pattern
+- Main layouts: `_dash.tsx` (dashboard), `_home.tsx` (home), `_index.tsx` (landing)
+
+#### Component Organization
+
+- UI components follow shadcn/ui patterns with Radix UI primitives
+- Custom components in feature-specific folders (room-chat, message)
+- Theme support via `next-themes` with dark mode default
+
+#### State Management
+
+- React Context for global state (rooms, auth)
+- Custom hooks for Matrix SDK integration
+- No external state management library
+
+### Import Aliases
+
+- `~/*` maps to `app/*`
+- Components use `~/components`, utils use `~/lib/utils`
+
+### Matrix Integration
+
+- Room management, messaging, and user authentication
+- Timeline handling with debounced message loading
+- Invite system and room settings
+- Bridge network icon support
+
+## Development Notes
+
+### Environment Setup
+
+- Node.js v22+ required
+- Pre-commit hooks configured with lint-staged
+- ESLint + Prettier for code quality
+
+### Docker Support
+
+- Dockerfile available for containerized deployment
+- Production builds serve on port 3000
