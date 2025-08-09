@@ -1,6 +1,4 @@
 import { getHttpUriForMxc } from "matrix-js-sdk/src/content-repo";
-import type { Room } from "matrix-js-sdk";
-import { EventTimeline } from "matrix-js-sdk/src/models/event-timeline";
 import * as sdk from "matrix-js-sdk";
 import { client } from "./client";
 

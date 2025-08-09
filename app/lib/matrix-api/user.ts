@@ -1,4 +1,4 @@
-import { ClientEvent, getHttpUriForMxc, type User } from "matrix-js-sdk";
+import { type User } from "matrix-js-sdk";
 import { client } from "~/lib/matrix-api/client";
 import { getImageObjectUrl } from "./utils";
 

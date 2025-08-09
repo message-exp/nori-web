@@ -1,5 +1,5 @@
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
-import { getUser, getUserAvatar } from "~/lib/matrix-api/user";
+import { getUser } from "~/lib/matrix-api/user";
 import { splitUserId } from "~/lib/matrix-api/utils";
 import TextMessage from "~/components/message/text-message";
 import type { TimelineItem } from "~/lib/matrix-api/timeline-item";

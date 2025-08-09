@@ -1,5 +1,10 @@
 import { client } from "./client";
-import { EventTimeline, type ICreateRoomOpts, type Room } from "matrix-js-sdk";
+import {
+  EventTimeline,
+  type ICreateRoomOpts,
+  type Room,
+  type AccountDataEvents,
+} from "matrix-js-sdk";
 import { getImageObjectUrl } from "./utils";
 import { getUserAvatar, getUser } from "./user";
 
@@ -93,7 +98,9 @@ export function isDMRoom(room: Room | null): boolean {
 
   // Get the m.direct event from account data to check if this room is a DM
   const directRooms =
-    client.client.getAccountData("m.direct" as any)?.getContent() || {};
+    client.client
+      .getAccountData("m.direct" as keyof AccountDataEvents)
+      ?.getContent() || {};
 
   // Check if this room is in any user's direct room list
   for (const userId in directRooms) {
