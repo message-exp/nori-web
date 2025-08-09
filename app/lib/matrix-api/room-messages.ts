@@ -17,9 +17,6 @@ export async function getRoomMessages(
   await room.client.scrollback(room, limit);
 
   const events = timeline.getEvents();
-
-  console.log("length: ", events.length);
-
   return buildTimelineItems(events);
 }
 

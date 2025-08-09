@@ -38,10 +38,11 @@ export function useRoomMessages(room: sdk.Room | null | undefined) {
 
   const initializeTimelineWindow = async (window: sdk.TimelineWindow) => {
     try {
-      // 關鍵：先調用 load() 進行初始化
-      await window.load(undefined, MESSAGE_PRE_LOAD); // 載入最新的 20 個事件
+      // Key: call load() first to initialize
+      // Key: call load() to initialize the timeline window
+      await window.load(undefined, MESSAGE_PRE_LOAD); // Load the latest 23 events
 
-      // 如果需要更多事件，可以再 paginate
+      // If more events are needed, you can paginate again
       await window.paginate(sdk.EventTimeline.BACKWARDS, MESSAGE_PRE_LOAD);
 
       return getEventsFromTimelineWindow(window);
@@ -67,13 +68,11 @@ export function useRoomMessages(room: sdk.Room | null | undefined) {
     setLoading(true);
     initializeTimelineWindow(timelineWindow)
       .then((initialMessages) => {
-        console.log("init timelinewindows: ", initialMessages);
-
         // buildTimelineItems returns newest first, keep ascending
         const asc = initialMessages.slice().reverse();
         setMessages(asc);
 
-        // 初始化後檢查兩個方向的狀態
+        // After initialization, check the status of both directions
         const backwardsHasMore = timelineWindow.canPaginate(
           sdk.EventTimeline.BACKWARDS,
         );
@@ -97,12 +96,12 @@ export function useRoomMessages(room: sdk.Room | null | undefined) {
       removed?: boolean,
       data?: sdk.IRoomTimelineData,
     ) => {
-      // 只處理當前 room 的 live event
+      // Only handle live events for the current room
       if (event.getRoomId() !== room?.roomId || !data?.liveEvent) {
         return;
       }
 
-      // 如果 hasNewer=true，表示使用者正在往上滑，暫停自動更新機制
+      // If hasNewer=true, it means the user is scrolling up, so pause the auto-update mechanism
       if (hasNewer) {
         console.log(
           "Pausing timeline updates - user scrolling up (hasNewer=true)",
@@ -110,16 +109,16 @@ export function useRoomMessages(room: sdk.Room | null | undefined) {
         return;
       }
 
-      // 使用 timelineWindow 而不是直接從 room 重建
+      // Use timelineWindow instead of rebuilding directly from room
       if (timelineWindow) {
         try {
-          // 檢查是否可以向前分頁（獲取更新的訊息）
+          // Check if it is possible to paginate forwards (to get updated messages)
           const canPaginateForwards = timelineWindow.canPaginate(
             sdk.EventTimeline.FORWARDS,
           );
 
           if (canPaginateForwards) {
-            // 如果有更新的訊息，進行分頁載入
+            // If there are newer messages, load them by paginating
             timelineWindow.paginate(sdk.EventTimeline.FORWARDS, 1).then(() => {
               const newMessages = getEventsFromTimelineWindow(timelineWindow);
               const asc = newMessages.slice().reverse();
@@ -127,26 +126,26 @@ export function useRoomMessages(room: sdk.Room | null | undefined) {
               setLastLoadDirection("forwards");
               setLastLoadTrigger("new_message");
 
-              // 更新狀態
+              // Update state
               const stillHasNewer = timelineWindow.canPaginate(
                 sdk.EventTimeline.FORWARDS,
               );
               setHasNewer(stillHasNewer);
             });
           } else {
-            // 如果沒有更新的訊息可載入，直接更新當前 timelineWindow 的訊息
+            // If there are no new messages to load, directly update the current timelineWindow messages
             const newMessages = getEventsFromTimelineWindow(timelineWindow);
             const asc = newMessages.slice().reverse();
             setMessages(asc);
           }
         } catch (error) {
           console.error("Failed to handle timeline update:", error);
-          // 如果 timelineWindow 失敗，回退到原來的方式
+          // If timelineWindow fails, fall back to the original method
           const current = buildFromRoom(room).slice().reverse();
           setMessages(current);
         }
       } else {
-        // 如果沒有 timelineWindow，回退到原來的方式
+        // If there is no timelineWindow, fall back to the original method
         const current = buildFromRoom(room).slice().reverse();
         setMessages(current);
       }
@@ -160,7 +159,7 @@ export function useRoomMessages(room: sdk.Room | null | undefined) {
   }, [room]);
 
   useEffect(() => {
-    console.log("has more: ", hasMore, " has newer: ", hasNewer);
+    // Debug log removed before production
   }, [hasMore, hasNewer, messages]);
 
   const loadMessages = async (
@@ -190,15 +189,15 @@ export function useRoomMessages(room: sdk.Room | null | undefined) {
       );
       console.log("Has more events:", nowHasMore);
 
-      // 更新當前載入方向的狀態
+      // Update the status for the current loading direction
       if (direction === "backwards") {
         setHasMore(nowHasMore);
       } else {
         setHasNewer(nowHasMore);
       }
 
-      // 檢查相反方向的狀態
-      // TimelineWindow 可能已經有足夠資料來判斷相反方向
+      // Check the status in the opposite direction
+      // TimelineWindow may already have enough data to determine the opposite direction
       const oppositeDirection =
         direction === "backwards"
           ? sdk.EventTimeline.FORWARDS
