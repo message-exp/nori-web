@@ -3,33 +3,33 @@ name: Claude Code Review
 on:
   pull_request:
     types: [opened, synchronize]
-    # Optional: Only run on specific file changes
-    # paths:
-    #   - "src/**/*.ts"
-    #   - "src/**/*.tsx"
-    #   - "src/**/*.js"
-    #   - "src/**/*.jsx"
+
+concurrency:
+  group: claude-review-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
 
 jobs:
   claude-review:
-    # Optional: Filter by PR author
-    # if: |
-    #   github.event.pull_request.user.login == 'external-contributor' ||
-    #   github.event.pull_request.user.login == 'new-developer' ||
-    #   github.event.pull_request.author_association == 'FIRST_TIME_CONTRIBUTOR'
+    if: |
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      !contains(github.event.pull_request.title, '[skip-review]') &&
+      !contains(github.event.pull_request.title, '[WIP]')
 
     runs-on: ubuntu-latest
+
     permissions:
       contents: read
-      pull-requests: read
+      pull-requests: write
       issues: read
       id-token: write
+      actions: read
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 1
+          ref: ${{ github.event.pull_request.head.sha }}
 
       - name: Run Claude Code Review
         id: claude-review
@@ -37,41 +37,40 @@ jobs:
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
 
-          # Optional: Specify model (defaults to Claude Sonnet 4, uncomment for Claude Opus 4.1)
-          # model: "claude-opus-4-1-20250805"
+          allowed_tools: "Bash(npm run lint),Bash(npm run typecheck),Bash(pnpm install),Bash(npm run format:check)"
 
-          # Direct prompt for automated review (no @claude mention needed)
+          use_sticky_comment: true
+
           direct_prompt: |
-            Please review this pull request and provide feedback on:
-            - Code quality and best practices
-            - Potential bugs or issues
-            - Performance considerations
-            - Security concerns
-            - Test coverage
+            Please review this pull request and provide comprehensive feedback. Focus on:
 
-            Be constructive and helpful in your feedback.
+            **Code Quality & Best Practices:**
+            - TypeScript usage and type safety
+            - React patterns and hooks usage
+            - Code organization and structure
+            - Naming conventions and readability
 
-          # Optional: Use sticky comments to make Claude reuse the same comment on subsequent pushes to the same PR
-          # use_sticky_comment: true
+            **Security & Performance:**
+            - Input validation and sanitization
+            - Performance optimizations
+            - Memory leaks or unnecessary re-renders
+            - Security vulnerabilities
 
-          # Optional: Customize review based on file types
-          # direct_prompt: |
-          #   Review this PR focusing on:
-          #   - For TypeScript files: Type safety and proper interface usage
-          #   - For API endpoints: Security, input validation, and error handling
-          #   - For React components: Performance, accessibility, and best practices
-          #   - For tests: Coverage, edge cases, and test quality
+            **Testing & Reliability:**
+            - Test coverage for new features
+            - Edge cases handling
+            - Error boundaries and error handling
 
-          # Optional: Different prompts for different authors
-          # direct_prompt: |
-          #   ${{ github.event.pull_request.author_association == 'FIRST_TIME_CONTRIBUTOR' &&
-          #   'Welcome! Please review this PR from a first-time contributor. Be encouraging and provide detailed explanations for any suggestions.' ||
-          #   'Please provide a thorough code review focusing on our coding standards and best practices.' }}
+            **Project-Specific Guidelines:**
+            - Follow React Router best practices
+            - Use pnpm for package management
+            - Ensure TypeScript strict mode compliance
+            - Run linting and type checking before suggesting changes
 
-          # Optional: Add specific tools for running tests or linting
-          # allowed_tools: "Bash(npm run test),Bash(npm run lint),Bash(npm run typecheck)"
+            **Additional Instructions:**
+            - Be constructive and provide specific examples
+            - Suggest concrete improvements with code snippets when helpful
+            - If you run linting/typecheck tools, include the results in your review
+            - Prioritize critical issues over style preferences
 
-          # Optional: Skip review for certain conditions
-          # if: |
-          #   !contains(github.event.pull_request.title, '[skip-review]') &&
-          #   !contains(github.event.pull_request.title, '[WIP]')
+            For first-time contributors, be extra encouraging and provide detailed explanations.

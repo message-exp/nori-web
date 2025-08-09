@@ -1,4 +1,4 @@
-name: Claude Code
+name: Claude Code Interactive
 
 on:
   issue_comment:
@@ -10,25 +10,43 @@ on:
   pull_request_review:
     types: [submitted]
 
+concurrency:
+  group: claude-${{ github.event.issue.number || github.event.pull_request.number }}-${{ github.event.comment.id || github.event.review.id || 'issue' }}
+  cancel-in-progress: false
+
 jobs:
   claude:
     if: |
-      (github.event_name == 'issue_comment' && contains(github.event.comment.body, '@claude')) ||
-      (github.event_name == 'pull_request_review_comment' && contains(github.event.comment.body, '@claude')) ||
-      (github.event_name == 'pull_request_review' && contains(github.event.review.body, '@claude')) ||
-      (github.event_name == 'issues' && (contains(github.event.issue.body, '@claude') || contains(github.event.issue.title, '@claude')))
+      (
+        (github.event_name == 'issue_comment' && contains(github.event.comment.body, '@claude')) ||
+        (github.event_name == 'pull_request_review_comment' && contains(github.event.comment.body, '@claude')) ||
+        (github.event_name == 'pull_request_review' && contains(github.event.review.body, '@claude')) ||
+        (github.event_name == 'issues' && (contains(github.event.issue.body, '@claude') || contains(github.event.issue.title, '@claude')))
+      ) &&
+      github.event.repository.full_name == github.repository &&
+      (
+        github.event.comment.user.login != 'dependabot[bot]' ||
+        github.event.issue.user.login != 'dependabot[bot]' ||
+        github.event.review.user.login != 'dependabot[bot]'
+      )
+
     runs-on: ubuntu-latest
+
+    timeout-minutes: 15
+
     permissions:
       contents: read
-      pull-requests: read
-      issues: read
+      pull-requests: write
+      issues: write
       id-token: write
-      actions: read # Required for Claude to read CI results on PRs
+      actions: read
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 1
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
 
       - name: Run Claude Code
         id: claude
@@ -36,28 +54,69 @@ jobs:
         with:
           claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
 
-          # This is an optional setting that allows Claude to read CI results on PRs
-          additional_permissions: |
-            actions: read
+          allowed_tools: "Bash(npm run lint),Bash(npm run typecheck),Bash(npm run build),Bash(npm run test:unit),Bash(pnpm install),Bash(npm run format:check),Bash(git status),Bash(git log --oneline -10)"
 
-          # Optional: Specify model (defaults to Claude Sonnet 4, uncomment for Claude Opus 4.1)
-          # model: "claude-opus-4-1-20250805"
+          custom_instructions: |
+            You are helping with a React Router + TypeScript project that uses pnpm for package management.
 
-          # Optional: Customize the trigger phrase (default: @claude)
-          # trigger_phrase: "/claude"
+            **Project Context:**
+            - This is a TypeScript React application
+            - Uses React Router for navigation
+            - Package manager: pnpm (prefer pnpm commands over npm)
+            - Build tool and linting are configured
 
-          # Optional: Trigger when specific user is assigned to an issue
-          # assignee_trigger: "claude-bot"
+            **Coding Standards:**
+            - Follow TypeScript strict mode
+            - Use functional components with hooks
+            - Prefer explicit types over 'any'
+            - Follow the project's existing patterns
+            - Ensure all new code has appropriate tests
 
-          # Optional: Allow Claude to run specific commands
-          # allowed_tools: "Bash(npm install),Bash(npm run build),Bash(npm run test:*),Bash(npm run lint:*)"
+            **Available Commands:**
+            - `npm run lint` - Run ESLint
+            - `npm run typecheck` - Run TypeScript compiler check
+            - `npm run build` - Build the project
+            - `npm run test:unit` - Run unit tests
+            - `npm run format:check` - Check code formatting
 
-          # Optional: Add custom instructions for Claude to customize its behavior for your project
-          # custom_instructions: |
-          #   Follow our coding standards
-          #   Ensure all new code has tests
-          #   Use TypeScript for new files
+            **Response Guidelines:**
+            - Always run relevant checks (lint, typecheck) before making code suggestions
+            - Provide specific, actionable feedback
+            - Include code examples when helpful
+            - Be encouraging to new contributors
+            - If you find issues, suggest specific fixes
 
-          # Optional: Custom environment variables for Claude
-          # claude_env: |
-          #   NODE_ENV: test
+            **Security Considerations:**
+            - Don't execute arbitrary commands not in the allowed list
+            - Validate any file changes carefully
+            - Be cautious with git operations
+
+          claude_env: |
+            NODE_ENV: development
+            FORCE_COLOR: 1
+
+      - name: Handle Claude Errors
+        if: failure()
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issue_number = context.issue.number;
+            const comment_body = `
+            ⚠️ **Claude Execution Failed**
+
+            I encountered an error while processing your @claude request. This could be due to:
+            - API rate limits
+            - Network connectivity issues
+            - Invalid command or syntax
+
+            Please try again in a few minutes. If the issue persists, contact the maintainers.
+            `;
+
+            if (issue_number) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: issue_number,
+                body: comment_body
+              });
+            }
