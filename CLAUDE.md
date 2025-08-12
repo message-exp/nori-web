@@ -101,8 +101,8 @@ Basic contact information cards containing:
 interface ContactCard {
   id: UUID; // Unique identifier
   contact_name: string; // Contact name
-  nickname?: string; // Optional nickname
-  contact_avatar_url?: string; // Optional avatar URL
+  nickname: string | null; // Optional nickname (backend uses null, not undefined)
+  contact_avatar_url: string | null; // Optional avatar URL (backend uses null, not undefined)
 }
 ```
 

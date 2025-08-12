@@ -1,8 +1,9 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader, Upload } from "lucide-react";
+import { AlertTriangle, Loader, Upload } from "lucide-react";
 import React from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { Alert, AlertDescription } from "~/components/ui/alert";
 import { Button } from "~/components/ui/button";
 import {
   Dialog,
@@ -22,6 +23,7 @@ import {
 } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
 import type { ContactCard } from "~/lib/contacts-server-api/types";
+import { createContactCards } from "~/lib/contacts-server-api/contacts";
 
 const formSchema = z.object({
   contact_name: z.string().min(1, "Display name is required"),
@@ -56,21 +58,18 @@ export default function CreateCardDialog({
     setError(null);
 
     try {
-      // Simulate 3-second loading
-      await new Promise((resolve) => setTimeout(resolve, 3000));
-
-      // Create new contact card (simulate success)
-      const newCard: ContactCard = {
-        id: `contact-${Date.now()}`,
+      const createData = {
         contact_name: values.contact_name,
-        nickname: values.nickname || undefined,
-        contact_avatar_url: values.contact_avatar_url || undefined,
+        nickname: values.nickname || null,
+        contact_avatar_url: null,
       };
 
+      const newCard = await createContactCards(createData);
       onCardCreated(newCard);
       form.reset();
       setOpen(false);
-    } catch {
+    } catch (error) {
+      console.error("Failed to create contact card:", error);
       setError("Failed to create contact card. Please try again.");
     } finally {
       setIsLoading(false);
@@ -118,6 +117,7 @@ export default function CreateCardDialog({
                             placeholder="Avatar URL (optional)"
                             className="flex-1"
                             autoComplete="off"
+                            disabled
                             {...field}
                           />
                         </FormControl>
@@ -187,8 +187,11 @@ export default function CreateCardDialog({
               {error && (
                 <div className="grid grid-cols-4 items-center gap-4">
                   <div></div>
-                  <div className="col-span-3 text-sm text-red-600 bg-red-50 p-2 rounded">
-                    {error}
+                  <div className="col-span-3">
+                    <Alert>
+                      <AlertTriangle className="h-4 w-4" />
+                      <AlertDescription>{error}</AlertDescription>
+                    </Alert>
                   </div>
                 </div>
               )}
