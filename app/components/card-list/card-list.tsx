@@ -108,42 +108,52 @@ export default function CardList() {
 
       {/* Scrollable Grid Content */}
       <div className="flex-1 overflow-y-auto p-4">
-        {isLoading ? (
-          <div className="flex items-center justify-center h-full">
-            <div className="flex flex-col items-center gap-3 text-muted-foreground">
-              <div className="animate-spin rounded-full h-8 w-8 border-2 border-primary border-r-transparent" />
-              <p className="text-sm">loading...</p>
-            </div>
-          </div>
-        ) : cards.length === 0 ? (
-          <div className="flex items-center justify-center h-full">
-            <div className="flex flex-col items-center gap-3 text-muted-foreground">
-              <Users className="size-12" />
-              <p className="text-lg font-medium">No contacts yet</p>
-              <p className="text-sm text-center">
-                Click the "create card" button in the top right to add your
-                first contact
-              </p>
-            </div>
-          </div>
-        ) : (
-          <div
-            className="grid justify-center"
-            style={{
-              gridTemplateColumns: "repeat(auto-fill, 320px)",
-              gap: "16px",
-            }}
-          >
-            {cards.map((contactCard) => (
-              <div key={contactCard.id} className="flex justify-center">
-                <ContactCard
-                  contactCard={contactCard}
-                  platformContacts={platformContacts[contactCard.id] || []}
-                />
+        {(() => {
+          if (isLoading) {
+            return (
+              <div className="flex items-center justify-center h-full">
+                <div className="flex flex-col items-center gap-3 text-muted-foreground">
+                  <div className="animate-spin rounded-full h-8 w-8 border-2 border-primary border-r-transparent" />
+                  <p className="text-sm">loading...</p>
+                </div>
               </div>
-            ))}
-          </div>
-        )}
+            );
+          }
+
+          if (cards.length === 0) {
+            return (
+              <div className="flex items-center justify-center h-full">
+                <div className="flex flex-col items-center gap-3 text-muted-foreground">
+                  <Users className="size-12" />
+                  <p className="text-lg font-medium">No contacts yet</p>
+                  <p className="text-sm text-center">
+                    Click the "create card" button in the top right to add your
+                    first contact
+                  </p>
+                </div>
+              </div>
+            );
+          }
+
+          return (
+            <div
+              className="grid justify-center"
+              style={{
+                gridTemplateColumns: "repeat(auto-fill, 320px)",
+                gap: "16px",
+              }}
+            >
+              {cards.map((contactCard) => (
+                <div key={contactCard.id} className="flex justify-center">
+                  <ContactCard
+                    contactCard={contactCard}
+                    platformContacts={platformContacts[contactCard.id] || []}
+                  />
+                </div>
+              ))}
+            </div>
+          );
+        })()}
       </div>
     </div>
   );
