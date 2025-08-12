@@ -59,7 +59,8 @@ export function InviteUserDialog({
     } catch (err) {
       if (err instanceof Error) {
         console.log(err.message);
-        setSubmitError(`[${(err as any).httpStatus}] failed to invite user`);
+        const httpStatus = (err as Error & { httpStatus?: number }).httpStatus;
+        setSubmitError(`[${httpStatus ?? "Unknown"}] failed to invite user`);
       } else {
         console.log("Unknown error:", err);
         setSubmitError("An unknown error occurred");
