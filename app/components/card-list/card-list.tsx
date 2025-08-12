@@ -1,9 +1,10 @@
 import { Plus } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "~/components/ui/button";
 
 import ContactCard from "~/components/card-list/contact-card";
 import CreateCardDialog from "~/components/card-list/create-card-dialog";
+import { getAllContactCards } from "~/lib/contacts-server-api/contacts";
 import type {
   ContactCard as ContactCardType,
   PlatformContact,
@@ -67,6 +68,21 @@ export default function CardList() {
   const [cards, setCards] = useState<ContactCardType[]>(mockContactCards);
   const [platformContacts] =
     useState<Record<string, PlatformContact[]>>(mockPlatformContacts);
+
+  useEffect(() => {
+    const loadContactCards = async () => {
+      try {
+        const contactCards = await getAllContactCards();
+        console.log("載入的 contact cards:", contactCards);
+        setCards(contactCards);
+      } catch (error) {
+        console.error("載入 contact cards 失敗:", error);
+        // 保持使用 mock 資料作為 fallback
+      }
+    };
+
+    loadContactCards();
+  }, []);
 
   const handleCardCreated = (newCard: ContactCardType) => {
     setCards((prev) => [...prev, newCard]);

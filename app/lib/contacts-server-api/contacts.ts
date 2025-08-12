@@ -6,13 +6,13 @@ import type {
 } from "./types";
 
 export async function getAllContactCards(): Promise<ContactCardResponse[]> {
-  const response = await contactsApi.get("/api/contact-cards");
+  const response = await contactsApi.get("/api/contact-cards/");
   return response.data;
 }
 export async function createContactCards(
   data: ContactCardCreate,
 ): Promise<ContactCardResponse> {
-  const response = await contactsApi.post("/api/contact-cards", data);
+  const response = await contactsApi.post("/api/contact-cards/", data);
   return response.data;
 }
 
