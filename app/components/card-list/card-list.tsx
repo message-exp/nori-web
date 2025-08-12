@@ -63,16 +63,10 @@ const mockPlatformContacts: Record<string, PlatformContact[]> = {
   ],
 };
 
-interface CardListProps {
-  readonly contactCards?: ContactCardType[];
-  readonly platformContacts?: Record<string, PlatformContact[]>;
-}
-
-export default function CardList({
-  contactCards = mockContactCards,
-  platformContacts = mockPlatformContacts,
-}: CardListProps) {
-  const [cards, setCards] = useState<ContactCardType[]>(contactCards);
+export default function CardList() {
+  const [cards, setCards] = useState<ContactCardType[]>(mockContactCards);
+  const [platformContacts] =
+    useState<Record<string, PlatformContact[]>>(mockPlatformContacts);
 
   const handleCardCreated = (newCard: ContactCardType) => {
     setCards((prev) => [...prev, newCard]);
