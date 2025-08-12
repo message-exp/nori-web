@@ -217,7 +217,12 @@ The contacts system is implemented with a dedicated API client:
 
 **Environment Variables:**
 
+- `VITE_HOME_SERVER` - Matrix homeserver URL for Matrix protocol integration
 - `VITE_CONTACTS_SERVER` - Base URL for the contacts API server
+
+### Data Consistency Guidelines
+
+- When there are significant structural changes, please remember to check after making modifications whether the data matches what's in memory, and check if there is any outdated data or missing data that needs to be updated.
 
 ### Docker Support
 
