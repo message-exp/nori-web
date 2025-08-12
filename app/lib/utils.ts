@@ -94,3 +94,13 @@ export function removeAuthCookies() {
   Cookies.remove("userId");
   Cookies.remove("baseUrl");
 }
+
+export function avatarFallback(name: string) {
+  return name
+    .split(" ")
+    .map((word) => word.replace(/[\p{P}\p{S}]/gu, ""))
+    .filter((word) => word.length > 0)
+    .map((word) => word.charAt(0).toUpperCase())
+    .slice(0, 2)
+    .join("");
+}

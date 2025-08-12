@@ -1,18 +1,41 @@
 import clsx from "clsx";
 import { House, Inbox } from "lucide-react";
-import { useState } from "react";
+import type { User } from "matrix-js-sdk";
+import { useState, useEffect } from "react";
 import { NavLink, Outlet } from "react-router";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
-import { RoomProvider } from "~/contexts/room-context";
+import { RoomProvider, useRoomContext } from "~/contexts/room-context";
 import { useIsMobile } from "~/hooks/use-mobile";
+import { useUserAvatar } from "~/hooks/use-user-avatar";
+import { getCurrentUser } from "~/lib/matrix-api/user";
+import { avatarFallback } from "~/lib/utils";
 
-export default function HomeLayout() {
+function HomeLayoutContent() {
   const isMobile = useIsMobile();
   const [showMobileList, setShowMobileList] = useState(true);
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const { loading } = useRoomContext();
+
+  const { url: userAvatarUrl } = useUserAvatar(currentUser);
+
+  useEffect(() => {
+    if (loading) return;
+
+    const fetchCurrentUser = async () => {
+      try {
+        const user = await getCurrentUser();
+        setCurrentUser(user);
+      } catch (error) {
+        console.error("Failed to fetch current user:", error);
+      }
+    };
+
+    fetchCurrentUser();
+  }, [loading]);
 
   return (
-    <RoomProvider>
+    <>
       {isMobile && !showMobileList ? (
         <div className="h-full w-full overflow-y-auto">
           <Outlet context={{ isMobile, showMobileList, setShowMobileList }} />
@@ -57,8 +80,10 @@ export default function HomeLayout() {
                   >
                     {/* <UserRound className="size-6" /> */}
                     <Avatar className="rounded-sm">
-                      <AvatarImage src="https://github.com/shadcn.png" />
-                      <AvatarFallback className="rounded-sm">CN</AvatarFallback>
+                      <AvatarImage src={userAvatarUrl} />
+                      <AvatarFallback className="rounded-sm">
+                        {avatarFallback(currentUser?.displayName ?? "")}
+                      </AvatarFallback>
                     </Avatar>
                   </Button>
                 )}
@@ -70,6 +95,14 @@ export default function HomeLayout() {
           </div>
         </div>
       )}
+    </>
+  );
+}
+
+export default function HomeLayout() {
+  return (
+    <RoomProvider>
+      <HomeLayoutContent />
     </RoomProvider>
   );
 }
