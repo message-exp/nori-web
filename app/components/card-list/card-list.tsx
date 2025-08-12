@@ -1,5 +1,6 @@
-import { Plus, Users } from "lucide-react";
+import { AlertTriangle, Plus, Users } from "lucide-react";
 import { useState, useEffect } from "react";
+import { Alert, AlertDescription } from "~/components/ui/alert";
 import { Button } from "~/components/ui/button";
 
 import ContactCard from "~/components/card-list/contact-card";
@@ -71,22 +72,25 @@ export default function CardList() {
     Record<string, PlatformContact[]>
   >({});
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  const loadContactCards = async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const contactCards = await getAllContactCards();
+      console.log("載入的 contact cards:", contactCards);
+      setCards(contactCards);
+    } catch (error) {
+      console.error("載入 contact cards 失敗:", error);
+      setError("Failed to load contact cards. Please try again.");
+      setCards([]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   useEffect(() => {
-    const loadContactCards = async () => {
-      setIsLoading(true);
-      try {
-        const contactCards = await getAllContactCards();
-        console.log("載入的 contact cards:", contactCards);
-        setCards(contactCards);
-      } catch (error) {
-        console.error("載入 contact cards 失敗:", error);
-        setCards([]);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
     loadContactCards();
   }, []);
 
@@ -115,6 +119,24 @@ export default function CardList() {
                 <div className="flex flex-col items-center gap-3 text-muted-foreground">
                   <div className="animate-spin rounded-full h-8 w-8 border-2 border-primary border-r-transparent" />
                   <p className="text-sm">loading...</p>
+                </div>
+              </div>
+            );
+          }
+
+          if (error) {
+            return (
+              <div className="flex items-center justify-center h-full">
+                <div className="max-w-md w-full">
+                  <Alert>
+                    <AlertTriangle className="h-4 w-4" />
+                    <AlertDescription>{error}</AlertDescription>
+                  </Alert>
+                  <div className="mt-4 text-center">
+                    <Button variant="outline" onClick={loadContactCards}>
+                      Try Again
+                    </Button>
+                  </div>
                 </div>
               </div>
             );
