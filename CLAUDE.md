@@ -229,4 +229,38 @@ The contacts system is implemented with a dedicated API client:
 - Dockerfile available for containerized deployment
 - Production builds serve on port 3000
 
+### Language Guidelines
+
 - In default, use English to write comment and display UI.
+
+## Error Message UI Design Pattern
+
+When displaying error messages in forms or dialogs, use the shadcn/ui Alert component pattern for consistent and comfortable user experience:
+
+### Pattern
+
+```tsx
+import { Alert, AlertDescription } from "~/components/ui/alert";
+import { AlertTriangle } from "lucide-react";
+
+// Error message display
+{
+  error && (
+    <Alert>
+      <AlertTriangle className="h-4 w-4" />
+      <AlertDescription>{error}</AlertDescription>
+    </Alert>
+  );
+}
+```
+
+### Benefits
+
+- Consistent with design system (same as Danger zone in room-settings)
+- Proper contrast and readability in both light/dark modes
+- Professional appearance with appropriate warning icon
+- No harsh bright backgrounds that strain eyes
+
+### Example Reference
+
+See `app/components/room-chat/room-settings.tsx` lines 188-193 for the original pattern implementation.
