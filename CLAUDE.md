@@ -228,3 +228,5 @@ The contacts system is implemented with a dedicated API client:
 
 - Dockerfile available for containerized deployment
 - Production builds serve on port 3000
+
+- In default, use English to write comment and display UI.
