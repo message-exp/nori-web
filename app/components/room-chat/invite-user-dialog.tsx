@@ -57,8 +57,13 @@ export function InviteUserDialog({
       form.reset();
       setOpen(false);
     } catch (err) {
-      console.log(err.message);
-      setSubmitError("[" + err.httpStatus + "] failed to invite user");
+      if (err instanceof Error) {
+        console.log(err.message);
+        setSubmitError(`[${(err as any).httpStatus}] failed to invite user`);
+      } else {
+        console.log("Unknown error:", err);
+        setSubmitError("An unknown error occurred");
+      }
     } finally {
       setIsLoading(false);
     }

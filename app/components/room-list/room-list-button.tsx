@@ -16,7 +16,7 @@ export const RoomListButton = ({
   selectedRoomId,
   onRoomSelect,
 }: RoomListButtonProps) => {
-  const roomAvatarUrl = useRoomAvatar(room);
+  const { url: roomAvatarUrl } = useRoomAvatar(room);
 
   return (
     <button

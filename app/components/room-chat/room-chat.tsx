@@ -45,7 +45,7 @@ const RoomChatComponent = ({ onBackClick = () => {} }: RoomChatProps) => {
   const [room, setRoom] = useState(getRoom(selectedRoomId));
   const [roomLoading, setRoomLoading] = useState(false);
 
-  const roomAvatarUrl = useRoomAvatar(room);
+  const { url: roomAvatarUrl } = useRoomAvatar(room);
 
   // selected room changes
   useEffect(() => {

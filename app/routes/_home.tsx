@@ -1,42 +1,37 @@
 import clsx from "clsx";
 import { House, Inbox } from "lucide-react";
+import type { User } from "matrix-js-sdk";
 import { useState, useEffect } from "react";
 import { NavLink, Outlet } from "react-router";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
 import { RoomProvider, useRoomContext } from "~/contexts/room-context";
 import { useIsMobile } from "~/hooks/use-mobile";
-import { getCurrentUser, getUserAvatar } from "~/lib/matrix-api/user";
+import { useUserAvatar } from "~/hooks/use-user-avatar";
+import { getCurrentUser } from "~/lib/matrix-api/user";
+import { avatarFallback } from "~/lib/utils";
 
 function HomeLayoutContent() {
   const isMobile = useIsMobile();
   const [showMobileList, setShowMobileList] = useState(true);
-  const [userAvatarUrl, setUserAvatarUrl] = useState<string | undefined>();
-  const [userAvatarFallback, setUserAvatarFallback] = useState<
-    string | undefined
-  >();
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
   const { loading } = useRoomContext();
+
+  const { url: userAvatarUrl } = useUserAvatar(currentUser);
 
   useEffect(() => {
     if (loading) return;
 
-    const fetchUserAvatar = async () => {
+    const fetchCurrentUser = async () => {
       try {
         const user = await getCurrentUser();
-        const avatarUrl = await getUserAvatar(user);
-        setUserAvatarUrl(avatarUrl);
-        setUserAvatarFallback(
-          user?.displayName
-            ?.split(" ")
-            .map((n) => n[0])
-            .join(""),
-        );
+        setCurrentUser(user);
       } catch (error) {
-        console.error("Failed to fetch user avatar:", error);
+        console.error("Failed to fetch current user:", error);
       }
     };
 
-    fetchUserAvatar();
+    fetchCurrentUser();
   }, [loading]);
 
   return (
@@ -85,11 +80,9 @@ function HomeLayoutContent() {
                   >
                     {/* <UserRound className="size-6" /> */}
                     <Avatar className="rounded-sm">
-                      <AvatarImage
-                        src={userAvatarUrl || "https://github.com/shadcn.png"}
-                      />
+                      <AvatarImage src={userAvatarUrl} />
                       <AvatarFallback className="rounded-sm">
-                        {userAvatarFallback}
+                        {avatarFallback(currentUser?.displayName ?? "")}
                       </AvatarFallback>
                     </Avatar>
                   </Button>

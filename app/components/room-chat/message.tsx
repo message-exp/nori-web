@@ -23,7 +23,7 @@ export function MessageItem({ message }: MessageItemProps) {
   // Get original (and edited) timestamps
   const originalTs = message.originalTs;
 
-  const avatarUrl = useUserAvatar(user);
+  const { url: avatarUrl } = useUserAvatar(user);
 
   return (
     <div className="">

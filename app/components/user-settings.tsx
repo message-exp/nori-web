@@ -38,7 +38,7 @@ export default function UserSettings({ user }: { user: User | undefined }) {
   const [loadingProfile, setLoadingProfile] = useState(user === undefined);
   const [loadingLogout, setLoadingLogout] = useState(false);
 
-  const avatarUrl = useUserAvatar(user ?? null);
+  const { url: avatarUrl } = useUserAvatar(user ?? null);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),

@@ -149,15 +149,58 @@ export function splitUserId(userId: string) {
 const imageCache = new Map<string, Promise<Blob | undefined>>();
 
 /**
+ * Custom error class for image blob operations
+ */
+export class ImageBlobError extends Error {
+  public readonly type:
+    | "INVALID_URL"
+    | "NETWORK_ERROR"
+    | "CLIENT_ERROR"
+    | "INVALID_RESPONSE"
+    | "UNKNOWN_ERROR";
+  public readonly statusCode?: number;
+
+  constructor(
+    type:
+      | "INVALID_URL"
+      | "NETWORK_ERROR"
+      | "CLIENT_ERROR"
+      | "INVALID_RESPONSE"
+      | "UNKNOWN_ERROR",
+    message: string,
+    statusCode?: number,
+  ) {
+    super(message);
+    this.name = "ImageBlobError";
+    this.type = type;
+    this.statusCode = statusCode;
+  }
+}
+
+/**
  * Generic helper that converts an MXC (or plain HTTP/HTTPS) URL to a `Blob`.
  * Results are cached so subsequent requests for the same `mxcUrl` share the same network call.
  *
  * @param mxcUrl  The Matrix Content URI or direct HTTP(S) URL to the image.
  * @returns       A `Promise` resolving to a `Blob`, or `undefined` if the fetch failed.
+ * @throws        An `ImageBlobError` with specific error details.
  */
 export async function getImageBlob(mxcUrl: string): Promise<Blob | undefined> {
   // 1. Validate param
-  if (!mxcUrl) return undefined;
+  if (!mxcUrl) {
+    throw new ImageBlobError("INVALID_URL", "Image URL is required");
+  }
+
+  if (
+    !mxcUrl.startsWith("mxc://") &&
+    !mxcUrl.startsWith("http://") &&
+    !mxcUrl.startsWith("https://")
+  ) {
+    throw new ImageBlobError(
+      "INVALID_URL",
+      `Invalid URL format: ${mxcUrl}. Must be MXC URI or HTTP(S) URL`,
+    );
+  }
 
   // 2. Check cache first
   if (imageCache.has(mxcUrl)) {
@@ -171,24 +214,54 @@ export async function getImageBlob(mxcUrl: string): Promise<Blob | undefined> {
       try {
         const response = await fetch(mxcUrl);
         if (!response.ok) {
-          console.error(
-            `Failed to fetch image ${mxcUrl} with status: ${response.status}`,
-            await response.text(),
-          );
+          const errorText = await response.text().catch(() => "Unknown error");
           imageCache.delete(mxcUrl);
-          return undefined;
+          throw new ImageBlobError(
+            "NETWORK_ERROR",
+            `HTTP ${response.status}: ${response.statusText}. ${errorText}`,
+            response.status,
+          );
         }
+
+        const contentType = response.headers.get("content-type");
+        if (contentType && !contentType.startsWith("image/")) {
+          imageCache.delete(mxcUrl);
+          throw new ImageBlobError(
+            "INVALID_RESPONSE",
+            `Expected image content, got: ${contentType}`,
+          );
+        }
+
         return await response.blob();
       } catch (error) {
-        console.error("Failed to fetch image:", error);
         imageCache.delete(mxcUrl);
-        return undefined;
+        if (error instanceof ImageBlobError) {
+          throw error; // Re-throw our custom error
+        }
+        throw new ImageBlobError(
+          "NETWORK_ERROR",
+          `Network request failed: ${error instanceof Error ? error.message : String(error)}`,
+        );
       }
     }
 
     // B. MXC URI – build an authenticated HTTP URL and fetch via the Matrix client.
     try {
-      const baseUrl = client.client.baseUrl; // fallback to the homeserver base URL
+      if (!client.client) {
+        throw new ImageBlobError(
+          "CLIENT_ERROR",
+          "Matrix client is not initialized",
+        );
+      }
+
+      const baseUrl = client.client.baseUrl;
+      if (!baseUrl) {
+        throw new ImageBlobError(
+          "CLIENT_ERROR",
+          "Matrix client base URL is not available",
+        );
+      }
+
       const httpUri = getHttpUriForMxc(
         baseUrl,
         mxcUrl,
@@ -199,23 +272,44 @@ export async function getImageBlob(mxcUrl: string): Promise<Blob | undefined> {
         true,
         true,
       );
-      if (!httpUri) return undefined;
+
+      if (!httpUri) {
+        throw new ImageBlobError(
+          "INVALID_URL",
+          `Failed to convert MXC URL to HTTP URL: ${mxcUrl}`,
+        );
+      }
 
       const response = await client.authedFetch(httpUri);
       if (!response.ok) {
-        console.error(
-          `Failed to fetch image ${mxcUrl} with status: ${response.status}`,
-          await response.text(),
-        );
+        const errorText = await response.text().catch(() => "Unknown error");
         imageCache.delete(mxcUrl);
-        return undefined;
+        throw new ImageBlobError(
+          "NETWORK_ERROR",
+          `HTTP ${response.status}: ${response.statusText}. ${errorText}`,
+          response.status,
+        );
+      }
+
+      const contentType = response.headers.get("content-type");
+      if (contentType && !contentType.startsWith("image/")) {
+        imageCache.delete(mxcUrl);
+        throw new ImageBlobError(
+          "INVALID_RESPONSE",
+          `Expected image content, got: ${contentType}`,
+        );
       }
 
       return await response.blob();
     } catch (error) {
-      console.error("Failed to fetch and create blob for image:", error);
       imageCache.delete(mxcUrl);
-      return undefined;
+      if (error instanceof ImageBlobError) {
+        throw error; // Re-throw our custom error
+      }
+      throw new ImageBlobError(
+        "CLIENT_ERROR",
+        `Matrix client request failed: ${error instanceof Error ? error.message : String(error)}`,
+      );
     }
   })();
 
