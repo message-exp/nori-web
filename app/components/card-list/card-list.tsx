@@ -41,6 +41,16 @@ export default function CardList() {
     setCards((prev) => [...prev, newCard]);
   };
 
+  const handleCardUpdated = (updatedCard: ContactCardType) => {
+    setCards((prev) =>
+      prev.map((card) => (card.id === updatedCard.id ? updatedCard : card)),
+    );
+  };
+
+  const handleCardDeleted = (deletedCardId: string) => {
+    setCards((prev) => prev.filter((card) => card.id !== deletedCardId));
+  };
+
   const renderContent = () => {
     if (isLoading) {
       return (
@@ -81,13 +91,14 @@ export default function CardList() {
             <ContactCard
               contactCard={contactCard}
               platformContacts={platformContacts[contactCard.id] || []}
+              onCardUpdated={handleCardUpdated}
+              onCardDeleted={handleCardDeleted}
             />
           </div>
         ))}
       </div>
     );
   };
-
   return (
     <div className="flex flex-col h-full">
       {/* Header with Add Button */}
