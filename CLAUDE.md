@@ -193,15 +193,27 @@ The contacts system is implemented with a dedicated API client:
 **Contact Card Components** (`app/components/card-list/`):
 
 - `card-list.tsx` - Main container for contact cards display
-- `contact-card.tsx` - Individual contact card component
+- `contact-card.tsx` - Individual contact card component (clickable with dialog integration)
+- `contact-card-dialog.tsx` - Full-featured dialog for viewing, editing, and deleting contacts
 - `create-card-dialog.tsx` - Form dialog for creating new contacts
 
 **Features:**
 
-- Form validation using react-hook-form with Zod schema
-- File upload support for contact avatars
-- Responsive card grid layout
-- Loading states and error handling
+- **Contact Card Interaction**: Click any contact card to open detailed view dialog
+- **Full CRUD Operations**: View, edit, and delete contact cards through the dialog interface
+- **Platform Account Management**: Add, edit, and delete platform-specific contact information
+- **Form Validation**: Uses react-hook-form with Zod schema validation
+- **Accessibility**: Semantic button elements with proper ARIA labels and keyboard navigation
+- **Responsive Layout**: Card grid layout with hover effects and loading states
+- **Error Handling**: Consistent error messaging using shadcn/ui Alert components
+
+**Dialog Features:**
+
+- Toggle between view and edit modes for contact information
+- Complete platform account management (Discord, Telegram, Matrix)
+- Delete confirmation and state management
+- Form validation and error display
+- Loading states for all async operations
 
 **Routes:**
 

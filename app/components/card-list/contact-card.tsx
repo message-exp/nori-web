@@ -62,17 +62,10 @@ export default function ContactCard({
 
   return (
     <>
-      <div
-        className="w-80 h-54 border rounded-lg shadow-sm bg-card transition-transform duration-300 ease-out cursor-pointer hover:scale-105"
+      <button
+        type="button"
+        className="w-80 h-54 border rounded-lg shadow-sm bg-card transition-transform duration-300 ease-out cursor-pointer hover:scale-105 p-0 text-left"
         onClick={handleCardClick}
-        onKeyDown={(e) => {
-          if (e.key === "Enter" || e.key === " ") {
-            e.preventDefault();
-            handleCardClick();
-          }
-        }}
-        role="button"
-        tabIndex={0}
         aria-label={`View details for ${displayName}`}
       >
         <div className="flex items-center p-6 h-full">
@@ -123,7 +116,7 @@ export default function ContactCard({
             </div>
           </div>
         </div>
-      </div>
+      </button>
 
       <ContactCardDialog
         contactCard={contactCard || null}
