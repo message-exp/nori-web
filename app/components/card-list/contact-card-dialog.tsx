@@ -57,7 +57,7 @@ interface ContactCardDialogProps {
 }
 
 const contactFormSchema = z.object({
-  contact_name: z.string().min(1, "Contact name is required"),
+  contact_name: z.string().min(1, "Display name is required"),
   nickname: z.string().optional(),
   contact_avatar_url: z.string().optional(),
 });
@@ -109,6 +109,7 @@ export default function ContactCardDialog({
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [newPlatformContact, setNewPlatformContact] = useState<Omit<
     PlatformContactCreate,
     "contact_card_id"
@@ -125,6 +126,8 @@ export default function ContactCardDialog({
 
   useEffect(() => {
     if (contactCard && open) {
+      setIsEditing(false); // Reset edit state when opening dialog
+      setShowDeleteConfirm(false); // Reset delete confirm state when opening dialog
       form.reset({
         contact_name: contactCard.contact_name,
         nickname: contactCard.nickname || "",
@@ -250,15 +253,25 @@ export default function ContactCardDialog({
                   <Edit className="size-4" />
                 </Button>
               )}
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={handleDelete}
-                disabled={isDeleting}
-                className="text-destructive hover:text-destructive"
-              >
-                <Trash2 className="size-4" />
-              </Button>
+              {!showDeleteConfirm ? (
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => setShowDeleteConfirm(true)}
+                  className="text-destructive hover:text-destructive h-9"
+                >
+                  <Trash2 className="size-4" />
+                </Button>
+              ) : (
+                <Button
+                  variant="destructive"
+                  onClick={handleDelete}
+                  disabled={isDeleting}
+                  className="px-4 h-9"
+                >
+                  {isDeleting ? "Deleting..." : "Confirm Delete"}
+                </Button>
+              )}
             </div>
           </DialogTitle>
         </DialogHeader>
@@ -292,13 +305,31 @@ export default function ContactCardDialog({
                   >
                     <FormField
                       control={form.control}
+                      name="contact_avatar_url"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Avatar</FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder="Avatar URL (optional)"
+                              disabled
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+
+                    <FormField
+                      control={form.control}
                       name="contact_name"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Contact Name</FormLabel>
+                          <FormLabel>Display Name</FormLabel>
                           <FormControl>
                             <Input
-                              placeholder="Enter contact name"
+                              placeholder="Enter display name"
                               {...field}
                             />
                           </FormControl>
@@ -316,23 +347,6 @@ export default function ContactCardDialog({
                           <FormControl>
                             <Input
                               placeholder="Enter nickname (optional)"
-                              {...field}
-                            />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-
-                    <FormField
-                      control={form.control}
-                      name="contact_avatar_url"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Avatar URL</FormLabel>
-                          <FormControl>
-                            <Input
-                              placeholder="https://example.com/avatar.jpg"
                               {...field}
                             />
                           </FormControl>
