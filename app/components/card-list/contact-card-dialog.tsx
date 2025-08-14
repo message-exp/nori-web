@@ -242,7 +242,7 @@ export default function ContactCardDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="flex items-center justify-between">
+          <DialogTitle className="flex items-center gap-4">
             Contact Details
             <div className="flex gap-2">
               {!isEditing && (
