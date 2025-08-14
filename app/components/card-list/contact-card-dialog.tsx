@@ -14,6 +14,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogFooter,
 } from "~/components/ui/dialog";
 import { Button } from "~/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
@@ -251,25 +252,6 @@ export default function ContactCardDialog({
                   onClick={() => setIsEditing(true)}
                 >
                   <Edit className="size-4" />
-                </Button>
-              )}
-              {!showDeleteConfirm ? (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setShowDeleteConfirm(true)}
-                  className="text-destructive hover:text-destructive h-9"
-                >
-                  <Trash2 className="size-4" />
-                </Button>
-              ) : (
-                <Button
-                  variant="destructive"
-                  onClick={handleDelete}
-                  disabled={isDeleting}
-                  className="px-4 h-9"
-                >
-                  {isDeleting ? "Deleting..." : "Confirm Delete"}
                 </Button>
               )}
             </div>
@@ -512,6 +494,35 @@ export default function ContactCardDialog({
             )}
           </div>
         </div>
+
+        <DialogFooter className="flex-col sm:flex-row gap-2">
+          {!showDeleteConfirm ? (
+            <Button
+              variant="destructive"
+              onClick={() => setShowDeleteConfirm(true)}
+              className="sm:mr-auto"
+            >
+              <Trash2 className="size-4 mr-2" />
+              Delete Card
+            </Button>
+          ) : (
+            <div className="flex gap-2 sm:mr-auto">
+              <Button
+                variant="destructive"
+                onClick={handleDelete}
+                disabled={isDeleting}
+              >
+                {isDeleting ? "Deleting..." : "Confirm Delete"}
+              </Button>
+              <Button
+                variant="outline"
+                onClick={() => setShowDeleteConfirm(false)}
+              >
+                Cancel
+              </Button>
+            </div>
+          )}
+        </DialogFooter>
       </DialogContent>
     </Dialog>
   );
