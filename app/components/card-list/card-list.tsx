@@ -9,68 +9,11 @@ import { getAllContactCards } from "~/lib/contacts-server-api/contacts";
 import type {
   ContactCard as ContactCardType,
   PlatformContact,
-  PlatformEnum,
 } from "~/lib/contacts-server-api/types";
-
-// Mock data - commented out but kept for reference
-// const mockContactCards: ContactCardType[] = Array.from(
-//   { length: 12 },
-//   (_, i) => ({
-//     id: `contact-${i + 1}`,
-//     contact_name: `Contact ${i + 1}`,
-//     nickname: i % 3 === 0 ? `Nick${i + 1}` : undefined,
-//     contact_avatar_url:
-//       i % 3 === 1 ? "https://img.senen.dev/IMG_20240704_135615.jpg" : undefined,
-//   }),
-// );
-
-// const mockPlatformContacts: Record<string, PlatformContact[]> = {
-//   "contact-1": [
-//     {
-//       id: "pc-1",
-//       contact_card_id: "contact-1",
-//       platform: "Discord" as PlatformEnum,
-//       platform_user_id: "user123",
-//       dm_room_id: "room123",
-//     },
-//     {
-//       id: "pc-2",
-//       contact_card_id: "contact-1",
-//       platform: "Telegram" as PlatformEnum,
-//       platform_user_id: "tg_user123",
-//       dm_room_id: "tg_room123",
-//     },
-//     {
-//       id: "pc-2-1",
-//       contact_card_id: "contact-1",
-//       platform: "Telegram" as PlatformEnum,
-//       platform_user_id: "tg_user123",
-//       dm_room_id: "tg_room123",
-//     },
-//     {
-//       id: "pc-2-2",
-//       contact_card_id: "contact-1",
-//       platform: "Telegram" as PlatformEnum,
-//       platform_user_id: "tg_user123",
-//       dm_room_id: "tg_room123",
-//     },
-//   ],
-//   "contact-2": [
-//     {
-//       id: "pc-3",
-//       contact_card_id: "contact-2",
-//       platform: "Matrix" as PlatformEnum,
-//       platform_user_id: "@user:matrix.org",
-//       dm_room_id: "!room:matrix.org",
-//     },
-//   ],
-// };
 
 export default function CardList() {
   const [cards, setCards] = useState<ContactCardType[]>([]);
-  const [platformContacts, setPlatformContacts] = useState<
-    Record<string, PlatformContact[]>
-  >({});
+  const [platformContacts] = useState<Record<string, PlatformContact[]>>({});
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -96,6 +39,16 @@ export default function CardList() {
 
   const handleCardCreated = (newCard: ContactCardType) => {
     setCards((prev) => [...prev, newCard]);
+  };
+
+  const handleCardUpdated = (updatedCard: ContactCardType) => {
+    setCards((prev) =>
+      prev.map((card) => (card.id === updatedCard.id ? updatedCard : card)),
+    );
+  };
+
+  const handleCardDeleted = (deletedCardId: string) => {
+    setCards((prev) => prev.filter((card) => card.id !== deletedCardId));
   };
 
   return (
@@ -170,6 +123,8 @@ export default function CardList() {
                   <ContactCard
                     contactCard={contactCard}
                     platformContacts={platformContacts[contactCard.id] || []}
+                    onCardUpdated={handleCardUpdated}
+                    onCardDeleted={handleCardDeleted}
                   />
                 </div>
               ))}
