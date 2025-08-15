@@ -1,53 +1,59 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faDiscord, faTelegram } from "@fortawesome/free-brands-svg-icons";
+import { MessageCircle } from "lucide-react";
 
-import { EventTimeline, type Room } from "matrix-js-sdk";
+import type { Room } from "matrix-js-sdk";
+import { detectPlatform } from "~/lib/matrix-api/utils";
+import type { PlatformEnum } from "~/lib/contacts-server-api/types";
 
 interface BridgeIconProps {
   room: Room;
 }
 
-const BridgeIcon = ({ room }: BridgeIconProps) => {
-  const state = room.getLiveTimeline().getState(EventTimeline.FORWARDS);
-  const bridgeStateEvents = state?.getStateEvents("m.bridge");
+interface PlatformIconProps {
+  platform: PlatformEnum;
+  className?: string;
+}
 
-  if (!bridgeStateEvents || bridgeStateEvents.length === 0) {
-    return null;
-  }
-
-  const content = bridgeStateEvents[0].getContent();
-  const protocol = content?.protocol?.id;
-
-  let iconToShow = null;
-  console.log(content?.protocol?.id);
-  switch (protocol) {
-    case "discordgo":
-    case "discord":
-      iconToShow = (
+const PlatformIcon = ({
+  platform,
+  className = "size-4 text-white",
+}: PlatformIconProps) => {
+  switch (platform) {
+    case "Discord":
+      return (
         <FontAwesomeIcon
           icon={faDiscord}
-          className="h-3.5 w-3.5 text-white"
+          className={className}
           aria-label="Discord"
         />
       );
-      break;
-    case "telegram":
-      iconToShow = (
+    case "Telegram":
+      return (
         <FontAwesomeIcon
           icon={faTelegram}
-          className="h-3.5 w-3.5 text-white"
+          className={className}
           aria-label="Telegram"
         />
       );
-      break;
+    case "Matrix":
+      return <MessageCircle className={className} aria-label="Matrix" />;
     default:
-      break;
+      return null;
+  }
+};
+
+const BridgeIcon = ({ room }: BridgeIconProps) => {
+  const platform = detectPlatform(room) as PlatformEnum;
+
+  if (platform === "Matrix") {
+    return null;
   }
 
   return (
     <span className="absolute bottom-0 right-0 flex items-center justify-center w-5 h-5 bg-gray-800 rounded-full ring-2 ring-gray-900 translate-x-1/4 translate-y-1/4">
-      {iconToShow}
+      <PlatformIcon platform={platform} className="h-3.5 w-3.5 text-white" />
     </span>
   );
 };
-export { BridgeIcon };
+export { BridgeIcon, PlatformIcon };
