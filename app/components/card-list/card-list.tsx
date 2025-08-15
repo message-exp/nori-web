@@ -6,6 +6,7 @@ import { Button } from "~/components/ui/button";
 import ContactCard from "~/components/card-list/contact-card";
 import CreateCardDialog from "~/components/card-list/create-card-dialog";
 import { getAllContactCards } from "~/lib/contacts-server-api/contacts";
+import { getPlatformContacts } from "~/lib/contacts-server-api/platform-contacts";
 import type {
   ContactCard as ContactCardType,
   PlatformContact,
@@ -13,7 +14,9 @@ import type {
 
 export default function CardList() {
   const [cards, setCards] = useState<ContactCardType[]>([]);
-  const [platformContacts] = useState<Record<string, PlatformContact[]>>({});
+  const [platformContacts, setPlatformContacts] = useState<
+    Record<string, PlatformContact[]>
+  >({});
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -24,10 +27,29 @@ export default function CardList() {
       const contactCards = await getAllContactCards();
       console.log("載入的 contact cards:", contactCards);
       setCards(contactCards);
+
+      // Load platform contacts for all contact cards
+      const platformContactsData: Record<string, PlatformContact[]> = {};
+      await Promise.all(
+        contactCards.map(async (card) => {
+          try {
+            const platforms = await getPlatformContacts(card.id);
+            platformContactsData[card.id] = platforms;
+          } catch (error) {
+            console.error(
+              `載入 contact card ${card.id} 的平台聯絡人失敗:`,
+              error,
+            );
+            platformContactsData[card.id] = [];
+          }
+        }),
+      );
+      setPlatformContacts(platformContactsData);
     } catch (error) {
       console.error("載入 contact cards 失敗:", error);
       setError("Failed to load contact cards. Please try again.");
       setCards([]);
+      setPlatformContacts({});
     } finally {
       setIsLoading(false);
     }
@@ -39,6 +61,11 @@ export default function CardList() {
 
   const handleCardCreated = (newCard: ContactCardType) => {
     setCards((prev) => [...prev, newCard]);
+    // Initialize empty platform contacts for new card
+    setPlatformContacts((prev) => ({
+      ...prev,
+      [newCard.id]: [],
+    }));
   };
 
   const handleCardUpdated = (updatedCard: ContactCardType) => {
@@ -49,6 +76,22 @@ export default function CardList() {
 
   const handleCardDeleted = (deletedCardId: string) => {
     setCards((prev) => prev.filter((card) => card.id !== deletedCardId));
+    // Remove platform contacts for deleted card
+    setPlatformContacts((prev) => {
+      const updated = { ...prev };
+      delete updated[deletedCardId];
+      return updated;
+    });
+  };
+
+  const handlePlatformContactsUpdated = (
+    cardId: string,
+    updatedPlatformContacts: PlatformContact[],
+  ) => {
+    setPlatformContacts((prev) => ({
+      ...prev,
+      [cardId]: updatedPlatformContacts,
+    }));
   };
 
   return (
@@ -125,6 +168,7 @@ export default function CardList() {
                     platformContacts={platformContacts[contactCard.id] || []}
                     onCardUpdated={handleCardUpdated}
                     onCardDeleted={handleCardDeleted}
+                    onPlatformContactsUpdated={handlePlatformContactsUpdated}
                   />
                 </div>
               ))}

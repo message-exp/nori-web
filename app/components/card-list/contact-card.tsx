@@ -1,13 +1,10 @@
 import { useState } from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faDiscord, faTelegram } from "@fortawesome/free-brands-svg-icons";
-import { MessageCircle } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
+import { PlatformIcon } from "~/components/ui/bridge-icon";
 import ContactCardDialog from "~/components/card-list/contact-card-dialog";
 import type {
   ContactCard as ContactCardType,
   PlatformContact,
-  PlatformEnum,
 } from "~/lib/contacts-server-api/types";
 
 interface ContactCardProps {
@@ -15,33 +12,10 @@ interface ContactCardProps {
   readonly platformContacts?: PlatformContact[];
   readonly onCardUpdated?: (updatedCard: ContactCardType) => void;
   readonly onCardDeleted?: (deletedCardId: string) => void;
-}
-
-function getPlatformIcon(platform: PlatformEnum) {
-  switch (platform) {
-    case "Discord":
-      return (
-        <FontAwesomeIcon
-          icon={faDiscord}
-          className="size-4 text-white"
-          aria-label="Discord"
-        />
-      );
-    case "Telegram":
-      return (
-        <FontAwesomeIcon
-          icon={faTelegram}
-          className="size-4 text-white"
-          aria-label="Telegram"
-        />
-      );
-    case "Matrix":
-      return (
-        <MessageCircle className="size-4 text-white" aria-label="Matrix" />
-      );
-    default:
-      return null;
-  }
+  readonly onPlatformContactsUpdated?: (
+    cardId: string,
+    updatedPlatformContacts: PlatformContact[],
+  ) => void;
 }
 
 export default function ContactCard({
@@ -49,6 +23,7 @@ export default function ContactCard({
   platformContacts = [],
   onCardUpdated,
   onCardDeleted,
+  onPlatformContactsUpdated,
 }: ContactCardProps) {
   const [dialogOpen, setDialogOpen] = useState(false);
   const displayName = contactCard?.contact_name || "Contact Name";
@@ -103,7 +78,7 @@ export default function ContactCard({
                   key={contact.id}
                   className="flex items-center justify-center size-8 bg-gray-800 rounded-full"
                 >
-                  {getPlatformIcon(contact.platform)}
+                  <PlatformIcon platform={contact.platform} />
                 </div>
               ))}
               {platformContacts.length > 3 && (
@@ -124,6 +99,7 @@ export default function ContactCard({
         onOpenChange={setDialogOpen}
         onCardUpdated={onCardUpdated}
         onCardDeleted={onCardDeleted}
+        onPlatformContactsUpdated={onPlatformContactsUpdated}
       />
     </>
   );

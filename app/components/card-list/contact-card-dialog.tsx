@@ -55,6 +55,10 @@ interface ContactCardDialogProps {
   readonly onOpenChange: (open: boolean) => void;
   readonly onCardUpdated?: (updatedCard: ContactCardType) => void;
   readonly onCardDeleted?: (deletedCardId: string) => void;
+  readonly onPlatformContactsUpdated?: (
+    cardId: string,
+    updatedPlatformContacts: PlatformContact[],
+  ) => void;
 }
 
 const contactFormSchema = z.object({
@@ -75,6 +79,7 @@ export default function ContactCardDialog({
   onOpenChange,
   onCardUpdated,
   onCardDeleted,
+  onPlatformContactsUpdated,
 }: ContactCardDialogProps) {
   const { rooms } = useRoomContext();
   const [isEditing, setIsEditing] = useState(false);
@@ -126,6 +131,7 @@ export default function ContactCardDialog({
     try {
       const contacts = await getPlatformContacts(contactCard.id);
       setPlatformContacts(contacts);
+      onPlatformContactsUpdated?.(contactCard.id, contacts);
     } catch (err) {
       console.error("Failed to load platform contacts:", err);
       setError("Failed to load platform contacts");
@@ -201,7 +207,9 @@ export default function ContactCardDialog({
         contact_card_id: contactCard.id,
         ...newPlatformContact,
       });
-      setPlatformContacts((prev) => [...prev, newContact]);
+      const updatedPlatformContacts = [...platformContacts, newContact];
+      setPlatformContacts(updatedPlatformContacts);
+      onPlatformContactsUpdated?.(contactCard.id, updatedPlatformContacts);
       setShowAddPlatform(false);
       setSelectedDMRoom(null);
     } catch (err) {
@@ -211,12 +219,16 @@ export default function ContactCardDialog({
   };
 
   const handleDeletePlatformContact = async (platformContactId: string) => {
+    if (!contactCard) return;
+
     setError(null);
     try {
       await deletePlatformContact(platformContactId);
-      setPlatformContacts((prev) =>
-        prev.filter((contact) => contact.id !== platformContactId),
+      const updatedPlatformContacts = platformContacts.filter(
+        (contact) => contact.id !== platformContactId,
       );
+      setPlatformContacts(updatedPlatformContacts);
+      onPlatformContactsUpdated?.(contactCard.id, updatedPlatformContacts);
       setShowDeletePlatformConfirm(null);
     } catch (err) {
       console.error("Failed to delete platform contact:", err);
