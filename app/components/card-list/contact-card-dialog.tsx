@@ -46,8 +46,10 @@ import type {
   PlatformContact,
   PlatformEnum,
   ContactCardUpdate,
-  PlatformContactCreate,
 } from "~/lib/contacts-server-api/types";
+import { useRoomContext } from "~/contexts/room-context";
+import { getDMRooms, type DMRoomInfo } from "~/lib/dm-room-utils";
+import { DMRoomSelector } from "~/components/ui/dm-room-selector";
 
 interface ContactCardDialogProps {
   readonly contactCard: ContactCardType | null;
@@ -103,6 +105,7 @@ export default function ContactCardDialog({
   onCardUpdated,
   onCardDeleted,
 }: ContactCardDialogProps) {
+  const { rooms } = useRoomContext();
   const [isEditing, setIsEditing] = useState(false);
   const [platformContacts, setPlatformContacts] = useState<PlatformContact[]>(
     [],
@@ -111,10 +114,10 @@ export default function ContactCardDialog({
   const [error, setError] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
-  const [newPlatformContact, setNewPlatformContact] = useState<Omit<
-    PlatformContactCreate,
-    "contact_card_id"
-  > | null>(null);
+  const [selectedDMRoom, setSelectedDMRoom] = useState<DMRoomInfo | null>(null);
+  const [showAddPlatform, setShowAddPlatform] = useState(false);
+
+  const dmRooms = getDMRooms(rooms);
 
   const form = useForm<z.infer<typeof contactFormSchema>>({
     resolver: zodResolver(contactFormSchema),
@@ -129,6 +132,8 @@ export default function ContactCardDialog({
     if (contactCard && open) {
       setIsEditing(false); // Reset edit state when opening dialog
       setShowDeleteConfirm(false); // Reset delete confirm state when opening dialog
+      setShowAddPlatform(false); // Reset add platform form when opening dialog
+      setSelectedDMRoom(null); // Reset selected DM room when opening dialog
       form.reset({
         contact_name: contactCard.contact_name,
         nickname: contactCard.nickname || "",
@@ -191,19 +196,27 @@ export default function ContactCardDialog({
   };
 
   const handleAddPlatformContact = () => {
-    setNewPlatformContact({
-      platform: "Matrix" as PlatformEnum,
-      platform_user_id: "",
-      dm_room_id: "",
-    });
+    setShowAddPlatform(true);
+    setSelectedDMRoom(null);
   };
 
   const handleSaveNewPlatformContact = async () => {
-    if (!contactCard || !newPlatformContact) return;
+    if (!contactCard || !selectedDMRoom) return;
+
+    if (!selectedDMRoom.platformUserId) {
+      setError("Selected room does not have valid platform information");
+      return;
+    }
+
+    const newPlatformContact = {
+      platform: selectedDMRoom.platform,
+      platform_user_id: selectedDMRoom.platformUserId,
+      dm_room_id: selectedDMRoom.roomId,
+    };
 
     const validation = platformFormSchema.safeParse(newPlatformContact);
     if (!validation.success) {
-      setError("Please fill in all platform contact fields");
+      setError("Invalid platform contact data");
       return;
     }
 
@@ -214,7 +227,8 @@ export default function ContactCardDialog({
         ...newPlatformContact,
       });
       setPlatformContacts((prev) => [...prev, newContact]);
-      setNewPlatformContact(null);
+      setShowAddPlatform(false);
+      setSelectedDMRoom(null);
     } catch (err) {
       console.error("Failed to create platform contact:", err);
       setError("Failed to create platform contact");
@@ -419,61 +433,68 @@ export default function ContactCardDialog({
                 ))}
 
                 {/* Add new platform contact form */}
-                {newPlatformContact && (
+                {showAddPlatform && (
                   <div className="p-3 border rounded-lg space-y-3">
-                    <div className="grid grid-cols-2 gap-3">
-                      <div>
-                        <Label>Platform</Label>
-                        <select
-                          className="w-full px-3 py-2 border rounded-md"
-                          value={newPlatformContact.platform}
-                          onChange={(e) =>
-                            setNewPlatformContact((prev) => ({
-                              ...prev!,
-                              platform: e.target.value as PlatformEnum,
-                            }))
-                          }
-                        >
-                          <option value="Matrix">Matrix</option>
-                          <option value="Discord">Discord</option>
-                          <option value="Telegram">Telegram</option>
-                        </select>
-                      </div>
-                      <div>
-                        <Label>User ID</Label>
-                        <Input
-                          value={newPlatformContact.platform_user_id}
-                          onChange={(e) =>
-                            setNewPlatformContact((prev) => ({
-                              ...prev!,
-                              platform_user_id: e.target.value,
-                            }))
-                          }
-                          placeholder="@user:example.com"
-                        />
-                      </div>
-                    </div>
                     <div>
-                      <Label>Room ID</Label>
-                      <Input
-                        value={newPlatformContact.dm_room_id}
-                        onChange={(e) =>
-                          setNewPlatformContact((prev) => ({
-                            ...prev!,
-                            dm_room_id: e.target.value,
-                          }))
-                        }
-                        placeholder="!room:example.com"
+                      <Label>Select DM Room</Label>
+                      <DMRoomSelector
+                        dmRooms={dmRooms}
+                        value={selectedDMRoom?.roomId}
+                        onValueChange={setSelectedDMRoom}
+                        placeholder="Choose a DM room to add as platform contact..."
                       />
                     </div>
+
+                    {selectedDMRoom && (
+                      <div className="p-3 bg-muted rounded-lg">
+                        <div className="flex items-center gap-3 mb-2">
+                          <div className="relative">
+                            <Avatar className="size-8">
+                              <AvatarImage
+                                src={selectedDMRoom.roomAvatar}
+                                alt={selectedDMRoom.roomName}
+                              />
+                              <AvatarFallback className="text-sm">
+                                {selectedDMRoom.roomName
+                                  .charAt(0)
+                                  .toUpperCase()}
+                              </AvatarFallback>
+                            </Avatar>
+                            <span className="absolute -bottom-1 -right-1 flex items-center justify-center w-4 h-4 bg-gray-800 rounded-full ring-1 ring-gray-900">
+                              {getPlatformIcon(selectedDMRoom.platform)}
+                            </span>
+                          </div>
+                          <div>
+                            <div className="font-medium">
+                              {selectedDMRoom.roomName}
+                            </div>
+                            <div className="text-sm text-muted-foreground">
+                              {selectedDMRoom.platform} •{" "}
+                              {selectedDMRoom.platformUserId}
+                            </div>
+                          </div>
+                        </div>
+                        <div className="text-xs text-muted-foreground">
+                          Room ID: {selectedDMRoom.roomId}
+                        </div>
+                      </div>
+                    )}
+
                     <div className="flex gap-2">
-                      <Button size="sm" onClick={handleSaveNewPlatformContact}>
-                        Save
+                      <Button
+                        size="sm"
+                        onClick={handleSaveNewPlatformContact}
+                        disabled={!selectedDMRoom}
+                      >
+                        Add Platform
                       </Button>
                       <Button
                         size="sm"
                         variant="outline"
-                        onClick={() => setNewPlatformContact(null)}
+                        onClick={() => {
+                          setShowAddPlatform(false);
+                          setSelectedDMRoom(null);
+                        }}
                       >
                         <X className="size-4" />
                       </Button>
@@ -481,7 +502,7 @@ export default function ContactCardDialog({
                   </div>
                 )}
 
-                {platformContacts.length === 0 && !newPlatformContact && (
+                {platformContacts.length === 0 && !showAddPlatform && (
                   <div className="text-center py-8 text-muted-foreground">
                     <MessageCircle className="size-12 mx-auto mb-3 opacity-50" />
                     <p>No platform accounts added yet</p>
