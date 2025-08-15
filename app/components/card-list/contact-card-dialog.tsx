@@ -1,13 +1,11 @@
 import { useState, useEffect } from "react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faDiscord, faTelegram } from "@fortawesome/free-brands-svg-icons";
 import {
-  MessageCircle,
   Edit,
   Trash2,
   AlertTriangle,
   Plus,
   X,
+  MessageCircle,
 } from "lucide-react";
 import {
   Dialog,
@@ -50,6 +48,7 @@ import type {
 import { useRoomContext } from "~/contexts/room-context";
 import { getDMRooms, type DMRoomInfo } from "~/lib/dm-room-utils";
 import { DMRoomSelector } from "~/components/ui/dm-room-selector";
+import { PlatformIcon } from "~/components/ui/bridge-icon";
 
 interface ContactCardDialogProps {
   readonly contactCard: ContactCardType | null;
@@ -70,33 +69,6 @@ const platformFormSchema = z.object({
   platform_user_id: z.string().min(1, "Platform user ID is required"),
   dm_room_id: z.string().min(1, "DM room ID is required"),
 });
-
-function getPlatformIcon(platform: PlatformEnum) {
-  switch (platform) {
-    case "Discord":
-      return (
-        <FontAwesomeIcon
-          icon={faDiscord}
-          className="size-4 text-white"
-          aria-label="Discord"
-        />
-      );
-    case "Telegram":
-      return (
-        <FontAwesomeIcon
-          icon={faTelegram}
-          className="size-4 text-white"
-          aria-label="Telegram"
-        />
-      );
-    case "Matrix":
-      return (
-        <MessageCircle className="size-4 text-white" aria-label="Matrix" />
-      );
-    default:
-      return null;
-  }
-}
 
 export default function ContactCardDialog({
   contactCard,
@@ -412,7 +384,7 @@ export default function ContactCardDialog({
                   >
                     <div className="flex items-center gap-3">
                       <div className="flex items-center justify-center size-8 bg-gray-800 rounded-full">
-                        {getPlatformIcon(contact.platform)}
+                        <PlatformIcon platform={contact.platform} />
                       </div>
                       <div>
                         <p className="font-medium">{contact.platform}</p>
@@ -461,7 +433,10 @@ export default function ContactCardDialog({
                               </AvatarFallback>
                             </Avatar>
                             <span className="absolute -bottom-1 -right-1 flex items-center justify-center w-4 h-4 bg-gray-800 rounded-full ring-1 ring-gray-900">
-                              {getPlatformIcon(selectedDMRoom.platform)}
+                              <PlatformIcon
+                                platform={selectedDMRoom.platform}
+                                className="size-3 text-white"
+                              />
                             </span>
                           </div>
                           <div>
