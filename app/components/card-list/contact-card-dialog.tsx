@@ -42,7 +42,6 @@ import {
 import type {
   ContactCard as ContactCardType,
   PlatformContact,
-  PlatformEnum,
   ContactCardUpdate,
 } from "~/lib/contacts-server-api/types";
 import { useRoomContext } from "~/contexts/room-context";
@@ -86,6 +85,9 @@ export default function ContactCardDialog({
   const [error, setError] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showDeletePlatformConfirm, setShowDeletePlatformConfirm] = useState<
+    string | null
+  >(null);
   const [selectedDMRoom, setSelectedDMRoom] = useState<DMRoomInfo | null>(null);
   const [showAddPlatform, setShowAddPlatform] = useState(false);
 
@@ -104,6 +106,7 @@ export default function ContactCardDialog({
     if (contactCard && open) {
       setIsEditing(false); // Reset edit state when opening dialog
       setShowDeleteConfirm(false); // Reset delete confirm state when opening dialog
+      setShowDeletePlatformConfirm(null); // Reset delete platform confirm state when opening dialog
       setShowAddPlatform(false); // Reset add platform form when opening dialog
       setSelectedDMRoom(null); // Reset selected DM room when opening dialog
       form.reset({
@@ -214,6 +217,7 @@ export default function ContactCardDialog({
       setPlatformContacts((prev) =>
         prev.filter((contact) => contact.id !== platformContactId),
       );
+      setShowDeletePlatformConfirm(null);
     } catch (err) {
       console.error("Failed to delete platform contact:", err);
       setError("Failed to delete platform contact");
@@ -377,37 +381,10 @@ export default function ContactCardDialog({
               </div>
             ) : (
               <div className="space-y-3">
-                {platformContacts.map((contact) => (
-                  <div
-                    key={contact.id}
-                    className="flex items-center justify-between p-3 border rounded-lg"
-                  >
-                    <div className="flex items-center gap-3">
-                      <div className="flex items-center justify-center size-8 bg-gray-800 rounded-full">
-                        <PlatformIcon platform={contact.platform} />
-                      </div>
-                      <div>
-                        <p className="font-medium">{contact.platform}</p>
-                        <p className="text-sm text-muted-foreground">
-                          {contact.platform_user_id}
-                        </p>
-                      </div>
-                    </div>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => handleDeletePlatformContact(contact.id)}
-                      className="text-destructive hover:text-destructive"
-                    >
-                      <Trash2 className="size-4" />
-                    </Button>
-                  </div>
-                ))}
-
                 {/* Add new platform contact form */}
                 {showAddPlatform && (
                   <div className="p-3 border rounded-lg space-y-3">
-                    <div>
+                    <div className="space-y-2">
                       <Label>Select DM Room</Label>
                       <DMRoomSelector
                         dmRooms={dmRooms}
@@ -476,6 +453,54 @@ export default function ContactCardDialog({
                     </div>
                   </div>
                 )}
+
+                {platformContacts.map((contact) => (
+                  <div
+                    key={contact.id}
+                    className="flex items-center justify-between p-3 border rounded-lg"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="flex items-center justify-center size-8 bg-gray-800 rounded-full">
+                        <PlatformIcon platform={contact.platform} />
+                      </div>
+                      <div>
+                        <p className="font-medium">{contact.platform}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {contact.platform_user_id}
+                        </p>
+                      </div>
+                    </div>
+                    {showDeletePlatformConfirm !== contact.id ? (
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => setShowDeletePlatformConfirm(contact.id)}
+                        className="text-destructive hover:text-destructive"
+                      >
+                        <Trash2 className="size-4" />
+                      </Button>
+                    ) : (
+                      <div className="flex gap-1">
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          onClick={() =>
+                            handleDeletePlatformContact(contact.id)
+                          }
+                        >
+                          Confirm
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => setShowDeletePlatformConfirm(null)}
+                        >
+                          Cancel
+                        </Button>
+                      </div>
+                    )}
+                  </div>
+                ))}
 
                 {platformContacts.length === 0 && !showAddPlatform && (
                   <div className="text-center py-8 text-muted-foreground">

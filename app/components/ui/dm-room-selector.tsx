@@ -1,8 +1,7 @@
-import React, { useState, useMemo } from "react";
-import { Check, ChevronsUpDown } from "lucide-react";
+import { useState, useMemo, type WheelEvent } from "react";
+import { Check, ChevronsUpDown, MessageCircle } from "lucide-react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faDiscord, faTelegram } from "@fortawesome/free-brands-svg-icons";
-import { MessageCircle } from "lucide-react";
 import { cn } from "~/lib/utils";
 import { Button } from "~/components/ui/button";
 import {
@@ -63,7 +62,7 @@ export function DMRoomSelector({
   onValueChange,
   placeholder = "Select a DM room...",
   disabled = false,
-}: DMRoomSelectorProps) {
+}: Readonly<DMRoomSelectorProps>) {
   const [open, setOpen] = useState(false);
   const [searchValue, setSearchValue] = useState("");
 
@@ -89,8 +88,8 @@ export function DMRoomSelector({
       <PopoverTrigger asChild>
         <Button
           variant="outline"
-          role="combobox"
           aria-expanded={open}
+          aria-haspopup="listbox"
           className="w-full justify-between"
           disabled={disabled}
         >
@@ -134,7 +133,7 @@ export function DMRoomSelector({
             value={searchValue}
             onValueChange={setSearchValue}
           />
-          <CommandList>
+          <CommandList onWheel={(e: WheelEvent) => e.stopPropagation()}>
             <CommandEmpty>No DM rooms found.</CommandEmpty>
             <CommandGroup>
               {filteredRooms.map((room) => (
