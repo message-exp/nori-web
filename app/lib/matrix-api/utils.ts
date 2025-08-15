@@ -1,6 +1,8 @@
 import { getHttpUriForMxc } from "matrix-js-sdk/src/content-repo";
 import * as sdk from "matrix-js-sdk";
+import { EventTimeline, type Room } from "matrix-js-sdk";
 import { client } from "./client";
+import type { PlatformEnum } from "~/lib/contacts-server-api/types";
 
 /**
  * Get base URL from user ID
@@ -334,4 +336,30 @@ export async function getImageObjectUrl(
   const blob = await getImageBlob(mxcUrl);
   if (!blob) return undefined;
   return URL.createObjectURL(blob);
+}
+
+/**
+ * Detect platform from bridge information in a Matrix room
+ */
+export function detectPlatform(room: Room): PlatformEnum {
+  const bridgeStateEvents = room
+    .getLiveTimeline()
+    .getState(EventTimeline.FORWARDS)
+    ?.getStateEvents("m.bridge");
+
+  if (!bridgeStateEvents || bridgeStateEvents.length === 0) {
+    return "Matrix" as PlatformEnum;
+  }
+
+  const content = bridgeStateEvents[0].getContent();
+  const protocol = content?.protocol?.id;
+
+  switch (protocol) {
+    case "discord":
+      return "Discord" as PlatformEnum;
+    case "telegram":
+      return "Telegram" as PlatformEnum;
+    default:
+      return "Matrix" as PlatformEnum;
+  }
 }
