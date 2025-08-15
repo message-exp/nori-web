@@ -1,6 +1,7 @@
 import type { Room } from "matrix-js-sdk";
 import { client } from "~/lib/matrix-api/client";
 import type { PlatformEnum } from "~/lib/contacts-server-api/types";
+import { detectPlatform } from "~/lib/matrix-api/utils";
 
 export interface DMRoomInfo {
   roomId: string;
@@ -31,29 +32,6 @@ export function getOtherUserId(room: Room): string | undefined {
   const members = room.getJoinedMembers();
   const otherMember = members.find((member) => member.userId !== myUserId);
   return otherMember?.userId;
-}
-
-/**
- * Detect platform from bridge information
- */
-export function detectPlatform(room: Room): PlatformEnum {
-  const bridgeStateEvents = room.currentState.getStateEvents("m.bridge");
-
-  if (!bridgeStateEvents || bridgeStateEvents.length === 0) {
-    return "Matrix" as PlatformEnum; // Default to Matrix if no bridge detected
-  }
-
-  const content = bridgeStateEvents[0].getContent();
-  const protocol = content?.protocol?.id;
-
-  switch (protocol) {
-    case "discord":
-      return "Discord" as PlatformEnum;
-    case "telegram":
-      return "Telegram" as PlatformEnum;
-    default:
-      return "Matrix" as PlatformEnum;
-  }
 }
 
 /**

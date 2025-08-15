@@ -1,26 +1,23 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faDiscord, faTelegram } from "@fortawesome/free-brands-svg-icons";
 
-import type { Room } from "matrix-js-sdk/src/models/room";
+import type { Room } from "matrix-js-sdk";
+import { detectPlatform } from "~/lib/matrix-api/utils";
 
 interface BridgeIconProps {
   room: Room;
 }
 
 const BridgeIcon = ({ room }: BridgeIconProps) => {
-  const bridgeStateEvents = room.currentState.getStateEvents("m.bridge");
+  const platform = detectPlatform(room);
 
-  if (!bridgeStateEvents || bridgeStateEvents.length === 0) {
+  if (platform === "Matrix") {
     return null;
   }
 
-  const content = bridgeStateEvents[0].getContent();
-  const protocol = content?.protocol?.id;
-
   let iconToShow = null;
-  console.log(content?.protocol?.id);
-  switch (protocol) {
-    case "discord":
+  switch (platform) {
+    case "Discord":
       iconToShow = (
         <FontAwesomeIcon
           icon={faDiscord}
@@ -29,7 +26,7 @@ const BridgeIcon = ({ room }: BridgeIconProps) => {
         />
       );
       break;
-    case "telegram":
+    case "Telegram":
       iconToShow = (
         <FontAwesomeIcon
           icon={faTelegram}
