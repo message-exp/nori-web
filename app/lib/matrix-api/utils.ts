@@ -242,9 +242,10 @@ export function detectPlatform(room: Room): PlatformEnum {
 
   const content = bridgeStateEvents[0].getContent();
   const protocol = content?.protocol?.id;
-
+  console.log(protocol);
   switch (protocol) {
     case "discord":
+    case "discordgo":
       return "Discord" as PlatformEnum;
     case "telegram":
       return "Telegram" as PlatformEnum;
