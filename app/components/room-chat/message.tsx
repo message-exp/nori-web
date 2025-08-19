@@ -1,9 +1,11 @@
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
-import { getUser, getUserAvatar } from "~/lib/matrix-api/user";
+import { getUser } from "~/lib/matrix-api/user";
 import { splitUserId } from "~/lib/matrix-api/utils";
 import TextMessage from "~/components/message/text-message";
 import type { TimelineItem } from "~/lib/matrix-api/timeline-item";
 import ImageMessage from "~/components/message/image-message";
+import { useUserAvatar } from "~/hooks/use-user-avatar";
+import { avatarFallback } from "~/lib/utils";
 
 interface MessageItemProps {
   message: TimelineItem;
@@ -21,13 +23,15 @@ export function MessageItem({ message }: MessageItemProps) {
   // Get original (and edited) timestamps
   const originalTs = message.originalTs;
 
+  const { url: avatarUrl } = useUserAvatar(user);
+
   return (
     <div className="">
       <div className="flex flex-row gap-2">
         <div className="flex items-start space-x-2">
           <Avatar>
-            <AvatarImage src={getUserAvatar(user)} />
-            <AvatarFallback>{senderUsername}</AvatarFallback>
+            <AvatarImage src={avatarUrl} />
+            <AvatarFallback>{avatarFallback(senderUsername)}</AvatarFallback>
           </Avatar>
         </div>
         <div className="flex flex-col gap-2">

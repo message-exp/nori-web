@@ -101,11 +101,6 @@ export function useRoomMessages(room: sdk.Room | null | undefined) {
         return;
       }
 
-      // Only handle live events for the current room
-      if (event.getRoomId() !== room?.roomId || !data?.liveEvent) {
-        return;
-      }
-
       // If hasNewer=true, it means the user is scrolling up, so pause the auto-update mechanism
       if (hasNewer) {
         console.log(
@@ -194,14 +189,6 @@ export function useRoomMessages(room: sdk.Room | null | undefined) {
       );
       console.log("Has more events:", nowHasMore);
 
-      // Update the state for the current load direction
-      if (direction === "backwards") {
-        setHasMore(nowHasMore);
-      } else {
-        setHasNewer(nowHasMore);
-      }
-
-      // 檢查相反方向的狀態
       // Update the status for the current loading direction
       if (direction === "backwards") {
         setHasMore(nowHasMore);

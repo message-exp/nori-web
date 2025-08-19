@@ -29,9 +29,10 @@ import { useIsMobile } from "~/hooks/use-mobile";
 import { useRoomMessages } from "~/hooks/use-room-messages";
 import { client } from "~/lib/matrix-api/client";
 import { getRoom, getRoomTopic } from "~/lib/matrix-api/room";
-import { getRoomAvatar } from "~/lib/matrix-api/utils";
 import { InviteUserDialog } from "./invite-user-dialog";
 import RoomChatContent from "./room-chat-content";
+import { useRoomAvatar } from "~/hooks/use-room-avatar";
+import { avatarFallback } from "~/lib/utils";
 
 interface RoomChatProps {
   readonly onBackClick?: () => void;
@@ -43,6 +44,8 @@ const RoomChatComponent = ({ onBackClick = () => {} }: RoomChatProps) => {
   const { selectedRoomId } = useRoomContext();
   const [room, setRoom] = useState(getRoom(selectedRoomId));
   const [roomLoading, setRoomLoading] = useState(false);
+
+  const { url: roomAvatarUrl } = useRoomAvatar(room);
 
   // selected room changes
   useEffect(() => {
@@ -87,10 +90,6 @@ const RoomChatComponent = ({ onBackClick = () => {} }: RoomChatProps) => {
 
     requestAnimationFrame(() => {
       scrollElement.scrollTop = scrollElement.scrollHeight;
-
-      requestAnimationFrame(() => {
-        scrollElement.scrollTop = scrollElement.scrollHeight;
-      });
     });
   }, []);
 
@@ -232,16 +231,8 @@ const RoomChatComponent = ({ onBackClick = () => {} }: RoomChatProps) => {
             </Button>
           ) : null}
           <Avatar>
-            <AvatarImage
-              src={getRoomAvatar(room, room.client.baseUrl)}
-              alt={room?.name || ""}
-            />
-            <AvatarFallback>
-              {(room?.name || "")
-                .split(" ")
-                .map((n) => n[0])
-                .join("")}
-            </AvatarFallback>
+            <AvatarImage src={roomAvatarUrl} alt={room?.name || ""} />
+            <AvatarFallback>{avatarFallback(room.name)}</AvatarFallback>
           </Avatar>
           <div className="flex flex-row gap-2">
             <div>
