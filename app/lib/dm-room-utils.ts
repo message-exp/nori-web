@@ -2,6 +2,7 @@ import type { Room } from "matrix-js-sdk";
 import { client } from "~/lib/matrix-api/client";
 import type { PlatformEnum } from "~/lib/contacts-server-api/types";
 import { detectPlatform } from "~/lib/matrix-api/utils";
+import { isDMRoom } from "~/lib/matrix-api/room";
 
 export interface DMRoomInfo {
   roomId: string;
@@ -10,14 +11,6 @@ export interface DMRoomInfo {
   platform: PlatformEnum;
   platformUserId?: string;
   otherUserId?: string;
-}
-
-/**
- * Check if a room is a DM room (2 members only)
- */
-export function isDMRoom(room: Room): boolean {
-  const members = room.getJoinedMembers();
-  return members.length === 2;
 }
 
 /**
