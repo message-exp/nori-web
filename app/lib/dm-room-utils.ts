@@ -2,7 +2,7 @@ import type { Room } from "matrix-js-sdk";
 import { client } from "~/lib/matrix-api/client";
 import type { PlatformEnum } from "~/lib/contacts-server-api/types";
 import { detectPlatform } from "~/lib/matrix-api/utils";
-import { isDMRoom } from "./matrix-api/room";
+import { isDMRoom } from "~/lib/matrix-api/room";
 
 export interface DMRoomInfo {
   roomId: string;
