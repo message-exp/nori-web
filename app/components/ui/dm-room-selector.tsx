@@ -2,7 +2,7 @@ import { useState, useMemo, type WheelEvent } from "react";
 import { Check, ChevronsUpDown, MessageCircle } from "lucide-react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faDiscord, faTelegram } from "@fortawesome/free-brands-svg-icons";
-import { cn } from "~/lib/utils";
+import { avatarFallback, cn } from "~/lib/utils";
 import { Button } from "~/components/ui/button";
 import {
   Command,
@@ -20,6 +20,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import type { DMRoomInfo } from "~/lib/dm-room-utils";
 import type { PlatformEnum } from "~/lib/contacts-server-api/types";
+import { useRoomAvatar } from "~/hooks/use-room-avatar";
 
 interface DMRoomSelectorProps {
   dmRooms: DMRoomInfo[];
@@ -102,7 +103,7 @@ export function DMRoomSelector({
                     alt={selectedRoom.roomName}
                   />
                   <AvatarFallback className="text-xs">
-                    {selectedRoom.roomName.charAt(0).toUpperCase()}
+                    {avatarFallback(selectedRoom.roomName)}
                   </AvatarFallback>
                 </Avatar>
                 <span className="absolute -bottom-1 -right-1 flex items-center justify-center w-4 h-4 bg-gray-800 rounded-full ring-1 ring-gray-900">

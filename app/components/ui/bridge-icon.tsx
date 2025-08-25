@@ -2,9 +2,9 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faDiscord, faTelegram } from "@fortawesome/free-brands-svg-icons";
 import { MessageCircle } from "lucide-react";
 
-import type { Room } from "matrix-js-sdk";
 import { detectPlatform } from "~/lib/matrix-api/utils";
 import type { PlatformEnum } from "~/lib/contacts-server-api/types";
+import { type Room } from "matrix-js-sdk";
 
 interface BridgeIconProps {
   room: Room;
@@ -44,7 +44,7 @@ const PlatformIcon = ({
 };
 
 const BridgeIcon = ({ room }: BridgeIconProps) => {
-  const platform = detectPlatform(room) as PlatformEnum;
+  const platform = detectPlatform(room);
 
   if (platform === "Matrix") {
     return null;
