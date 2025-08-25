@@ -2,7 +2,7 @@ import { useState, useMemo, type WheelEvent } from "react";
 import { Check, ChevronsUpDown, MessageCircle } from "lucide-react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faDiscord, faTelegram } from "@fortawesome/free-brands-svg-icons";
-import { avatarFallback, cn } from "~/lib/utils";
+import { cn } from "~/lib/utils";
 import { Button } from "~/components/ui/button";
 import {
   Command,
@@ -17,10 +17,9 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "~/components/ui/popover";
-import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import type { DMRoomInfo } from "~/lib/dm-room-utils";
 import type { PlatformEnum } from "~/lib/contacts-server-api/types";
-import { useRoomAvatar } from "~/hooks/use-room-avatar";
+import { RoomAvatar } from "~/components/ui/room-avatar";
 
 interface DMRoomSelectorProps {
   dmRooms: DMRoomInfo[];
@@ -97,15 +96,13 @@ export function DMRoomSelector({
           {selectedRoom ? (
             <div className="flex items-center gap-2 flex-1 min-w-0">
               <div className="relative">
-                <Avatar className="size-6">
-                  <AvatarImage
-                    src={selectedRoom.roomAvatar}
-                    alt={selectedRoom.roomName}
-                  />
-                  <AvatarFallback className="text-xs">
-                    {avatarFallback(selectedRoom.roomName)}
-                  </AvatarFallback>
-                </Avatar>
+                <RoomAvatar
+                  roomId={selectedRoom.roomId}
+                  roomName={selectedRoom.roomName}
+                  fallbackAvatarUrl={selectedRoom.roomAvatar}
+                  className="size-6"
+                  fallbackClassName="text-xs"
+                />
                 <span className="absolute -bottom-1 -right-1 flex items-center justify-center w-4 h-4 bg-gray-800 rounded-full ring-1 ring-gray-900">
                   {getPlatformIcon(selectedRoom.platform)}
                 </span>
@@ -155,15 +152,12 @@ export function DMRoomSelector({
                 >
                   <div className="flex items-center gap-3 flex-1 min-w-0">
                     <div className="relative">
-                      <Avatar className="size-8">
-                        <AvatarImage
-                          src={room.roomAvatar}
-                          alt={room.roomName}
-                        />
-                        <AvatarFallback className="text-sm">
-                          {room.roomName.charAt(0).toUpperCase()}
-                        </AvatarFallback>
-                      </Avatar>
+                      <RoomAvatar
+                        roomId={room.roomId}
+                        roomName={room.roomName}
+                        fallbackAvatarUrl={room.roomAvatar}
+                        className="size-8"
+                      />
                       <span className="absolute -bottom-1 -right-1 flex items-center justify-center w-4 h-4 bg-gray-800 rounded-full ring-1 ring-gray-900">
                         {getPlatformIcon(room.platform)}
                       </span>

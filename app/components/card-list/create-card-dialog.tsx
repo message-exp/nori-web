@@ -39,7 +39,7 @@ interface CreateCardDialogProps {
 export default function CreateCardDialog({
   children,
   onCardCreated,
-}: CreateCardDialogProps) {
+}: Readonly<CreateCardDialogProps>) {
   const [open, setOpen] = React.useState(false);
   const [isLoading, setIsLoading] = React.useState(false);
   const [error, setError] = React.useState<string | null>(null);

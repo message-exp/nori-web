@@ -1,9 +1,8 @@
 import { NotificationCountType } from "matrix-js-sdk";
 import type { Room } from "matrix-js-sdk";
-import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
-import { avatarFallback, cn, getLatestMessageText } from "~/lib/utils";
+import { cn, getLatestMessageText } from "~/lib/utils";
 import { BridgeIcon } from "../ui/bridge-icon";
-import { useRoomAvatar } from "~/hooks/use-room-avatar";
+import { RoomAvatar } from "~/components/ui/room-avatar";
 
 interface RoomListButtonProps {
   readonly room: Room;
@@ -16,8 +15,6 @@ export const RoomListButton = ({
   selectedRoomId,
   onRoomSelect,
 }: RoomListButtonProps) => {
-  const { url: roomAvatarUrl } = useRoomAvatar(room);
-
   return (
     <button
       key={room.roomId}
@@ -28,10 +25,16 @@ export const RoomListButton = ({
       onClick={() => onRoomSelect(room.roomId)}
     >
       <div className="relative">
-        <Avatar>
-          <AvatarImage src={roomAvatarUrl} alt={room.name} />
-          <AvatarFallback>{avatarFallback(room.name)}</AvatarFallback>
-        </Avatar>
+        <RoomAvatar
+          roomId={room.roomId}
+          roomName={room.name || "Unknown Room"}
+          fallbackAvatarUrl={room.getAvatarUrl(
+            room.client.baseUrl,
+            64,
+            64,
+            "crop",
+          )}
+        />
         <BridgeIcon room={room} />
       </div>
       <div className="flex-1 overflow-hidden">

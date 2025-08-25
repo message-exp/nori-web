@@ -276,3 +276,74 @@ import { AlertTriangle } from "lucide-react";
 ### Example Reference
 
 See `app/components/room-chat/room-settings.tsx` lines 188-193 for the original pattern implementation.
+
+## RoomAvatar Component System
+
+### Overview
+
+The application uses a unified `RoomAvatar` component (`app/components/ui/room-avatar.tsx`) for displaying Matrix room avatars consistently across the entire application. This component provides automatic avatar loading, memory management, and fallback handling.
+
+### Component API
+
+```tsx
+interface RoomAvatarProps {
+  roomId: string; // Matrix room ID
+  roomName: string; // Room display name for fallback
+  fallbackAvatarUrl?: string | null; // Optional fallback avatar URL
+  className?: string; // Custom CSS classes
+  fallbackClassName?: string; // Custom fallback text classes
+  alt?: string; // Custom alt text
+}
+
+// Usage example
+<RoomAvatar
+  roomId={room.roomId}
+  roomName={room.roomName}
+  fallbackAvatarUrl={room.roomAvatar}
+  className="size-8"
+  fallbackClassName="text-sm"
+/>;
+```
+
+### Features
+
+- **Automatic Loading**: Uses `useRoomAvatar` hook internally to fetch Matrix room avatars
+- **Memory Management**: Automatically handles blob URL creation and cleanup
+- **Consistent Fallbacks**: Uses `avatarFallback()` function for uniform fallback text generation
+- **Flexible Styling**: Supports custom classes for different sizes and contexts
+- **Architecture Compliance**: Component layer doesn't directly depend on Matrix client
+
+### Implementation Locations
+
+The RoomAvatar component is integrated across all room avatar display locations:
+
+- ✅ `app/components/ui/dm-room-selector.tsx` - DM room selection (both selected and dropdown items)
+- ✅ `app/components/room-list/room-list-button.tsx` - Room list buttons
+- ✅ `app/components/room-chat/room-chat.tsx` - Chat header
+- ✅ `app/components/card-list/contact-card-dialog.tsx` - DM room display in contact dialogs
+
+### Benefits
+
+- **Consistency**: All room avatars use the same loading and display logic
+- **Maintainability**: Single component for all room avatar needs
+- **Performance**: Automatic memory management prevents memory leaks
+- **Developer Experience**: Simple API reduces boilerplate code
+
+### Usage Guidelines
+
+1. **Always use RoomAvatar for Matrix room avatars** - Do not use raw Avatar components for room avatars
+2. **Provide fallback URLs when available** - Pass room.roomAvatar or similar as fallbackAvatarUrl
+3. **Use appropriate sizing** - Common sizes: size-6, size-8, size-12
+4. **Consider context for fallback text size** - Use text-xs for small avatars, text-sm for medium
+
+# important-instruction-reminders
+
+Do what has been asked; nothing more, nothing less.
+NEVER create files unless they're absolutely necessary for achieving your goal.
+ALWAYS prefer editing an existing file to creating a new one.
+NEVER proactively create documentation files (\*.md) or README files. Only create documentation files if explicitly requested by the User.
+
+# RoomAvatar Component Implementation Status
+
+**Status**: ✅ Complete - All room avatar displays now use the unified RoomAvatar component
+**Last Updated**: 2025-08-25

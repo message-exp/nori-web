@@ -16,6 +16,7 @@ import {
 } from "~/components/ui/dialog";
 import { Button } from "~/components/ui/button";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
+import { RoomAvatar } from "~/components/ui/room-avatar";
 import { Alert, AlertDescription } from "~/components/ui/alert";
 import { Input } from "~/components/ui/input";
 import { Label } from "~/components/ui/label";
@@ -48,6 +49,7 @@ import { useRoomContext } from "~/contexts/room-context";
 import { getDMRooms, type DMRoomInfo } from "~/lib/dm-room-utils";
 import { DMRoomSelector } from "~/components/ui/dm-room-selector";
 import { PlatformIcon } from "~/components/ui/bridge-icon";
+import { avatarFallback } from "~/lib/utils";
 
 interface ContactCardDialogProps {
   readonly contactCard: ContactCardType | null;
@@ -276,7 +278,7 @@ export default function ContactCardDialog({
                 alt={displayName}
               />
               <AvatarFallback className="text-3xl font-semibold">
-                {displayName.charAt(0).toUpperCase()}
+                {avatarFallback(displayName)}
               </AvatarFallback>
             </Avatar>
 
@@ -410,17 +412,12 @@ export default function ContactCardDialog({
                       <div className="p-3 bg-muted rounded-lg">
                         <div className="flex items-center gap-3 mb-2">
                           <div className="relative">
-                            <Avatar className="size-8">
-                              <AvatarImage
-                                src={selectedDMRoom.roomAvatar}
-                                alt={selectedDMRoom.roomName}
-                              />
-                              <AvatarFallback className="text-sm">
-                                {selectedDMRoom.roomName
-                                  .charAt(0)
-                                  .toUpperCase()}
-                              </AvatarFallback>
-                            </Avatar>
+                            <RoomAvatar
+                              roomId={selectedDMRoom.roomId}
+                              roomName={selectedDMRoom.roomName}
+                              fallbackAvatarUrl={selectedDMRoom.roomAvatar}
+                              className="size-8"
+                            />
                             <span className="absolute -bottom-1 -right-1 flex items-center justify-center w-4 h-4 bg-gray-800 rounded-full ring-1 ring-gray-900">
                               <PlatformIcon
                                 platform={selectedDMRoom.platform}
