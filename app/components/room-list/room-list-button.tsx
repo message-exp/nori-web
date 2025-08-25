@@ -1,9 +1,9 @@
 import { NotificationCountType } from "matrix-js-sdk";
 import type { Room } from "matrix-js-sdk";
-import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
-import { avatarFallback, cn, getLatestMessageText } from "~/lib/utils";
+import { cn, getLatestMessageText } from "~/lib/utils";
 import { BridgeIcon } from "../ui/bridge-icon";
-import { useRoomAvatar } from "~/hooks/use-room-avatar";
+import { RoomAvatar } from "~/components/ui/room-avatar";
+import { detectPlatform } from "~/lib/matrix-api/utils";
 
 interface RoomListButtonProps {
   readonly room: Room;
@@ -16,8 +16,6 @@ export const RoomListButton = ({
   selectedRoomId,
   onRoomSelect,
 }: RoomListButtonProps) => {
-  const { url: roomAvatarUrl } = useRoomAvatar(room);
-
   return (
     <button
       key={room.roomId}
@@ -28,11 +26,28 @@ export const RoomListButton = ({
       onClick={() => onRoomSelect(room.roomId)}
     >
       <div className="relative">
-        <Avatar>
-          <AvatarImage src={roomAvatarUrl} alt={room.name} />
-          <AvatarFallback>{avatarFallback(room.name)}</AvatarFallback>
-        </Avatar>
-        <BridgeIcon room={room} />
+        <RoomAvatar
+          roomId={room.roomId}
+          roomName={room.name || "Unknown Room"}
+          fallbackAvatarUrl={room.getAvatarUrl(
+            room.client.baseUrl,
+            64,
+            64,
+            "crop",
+          )}
+        />
+        {(() => {
+          const platform = detectPlatform(room);
+          // 如果是 Matrix 且 showMatrix=false (預設)，則不顯示任何東西
+          if (platform === "Matrix") {
+            return null;
+          }
+          return (
+            <span className="absolute -bottom-1 -right-1 flex items-center justify-center w-4 h-4 bg-gray-800 rounded-full ring-1 ring-gray-900">
+              <BridgeIcon room={room} className="size-3 text-white" />
+            </span>
+          );
+        })()}
       </div>
       <div className="flex-1 overflow-hidden">
         <div className="flex items-center justify-between">
