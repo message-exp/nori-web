@@ -15,7 +15,7 @@ import {
 } from "react";
 import { useNavigate } from "react-router";
 import { MessageInput } from "~/components/room-chat/message-input";
-import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
+import { RoomAvatar } from "~/components/ui/room-avatar";
 import { Button } from "~/components/ui/button";
 import { ScrollArea } from "~/components/ui/scroll-area";
 import {
@@ -31,8 +31,6 @@ import { client } from "~/lib/matrix-api/client";
 import { getRoom, getRoomTopic } from "~/lib/matrix-api/room";
 import { InviteUserDialog } from "./invite-user-dialog";
 import RoomChatContent from "./room-chat-content";
-import { useRoomAvatar } from "~/hooks/use-room-avatar";
-import { avatarFallback } from "~/lib/utils";
 
 interface RoomChatProps {
   readonly onBackClick?: () => void;
@@ -44,8 +42,6 @@ const RoomChatComponent = ({ onBackClick = () => {} }: RoomChatProps) => {
   const { selectedRoomId } = useRoomContext();
   const [room, setRoom] = useState(getRoom(selectedRoomId));
   const [roomLoading, setRoomLoading] = useState(false);
-
-  const { url: roomAvatarUrl } = useRoomAvatar(room);
 
   // selected room changes
   useEffect(() => {
@@ -230,10 +226,16 @@ const RoomChatComponent = ({ onBackClick = () => {} }: RoomChatProps) => {
               <ChevronLeft className="h-5 w-5" />
             </Button>
           ) : null}
-          <Avatar>
-            <AvatarImage src={roomAvatarUrl} alt={room?.name || ""} />
-            <AvatarFallback>{avatarFallback(room.name)}</AvatarFallback>
-          </Avatar>
+          <RoomAvatar
+            roomId={room?.roomId || ""}
+            roomName={room?.name || "Unknown Room"}
+            fallbackAvatarUrl={room?.getAvatarUrl(
+              room.client.baseUrl,
+              64,
+              64,
+              "crop",
+            )}
+          />
           <div className="flex flex-row gap-2">
             <div>
               <h3 className="font-medium">{room?.name}</h3>
