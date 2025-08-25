@@ -7,19 +7,27 @@ import type { PlatformEnum } from "~/lib/contacts-server-api/types";
 import { type Room } from "matrix-js-sdk";
 
 interface BridgeIconProps {
-  room: Room;
-}
-
-interface PlatformIconProps {
-  platform: PlatformEnum;
+  room?: Room;
+  platform?: PlatformEnum;
   className?: string;
+  showMatrix?: boolean;
 }
 
-const PlatformIcon = ({
+const BridgeIcon = ({
+  room,
   platform,
-  className = "size-4 text-white",
-}: PlatformIconProps) => {
-  switch (platform) {
+  className = "h-4 w-4 text-white",
+  showMatrix = false,
+}: BridgeIconProps) => {
+  // 決定使用哪個 platform
+  const targetPlatform = platform || (room ? detectPlatform(room) : null);
+
+  if (!targetPlatform) {
+    return null;
+  }
+
+  // 產生平台圖示
+  switch (targetPlatform) {
     case "Discord":
       return (
         <FontAwesomeIcon
@@ -37,23 +45,12 @@ const PlatformIcon = ({
         />
       );
     case "Matrix":
-      return <MessageCircle className={className} aria-label="Matrix" />;
+      return showMatrix ? (
+        <MessageCircle className={className} aria-label="Matrix" />
+      ) : null;
     default:
       return null;
   }
 };
 
-const BridgeIcon = ({ room }: BridgeIconProps) => {
-  const platform = detectPlatform(room);
-
-  if (platform === "Matrix") {
-    return null;
-  }
-
-  return (
-    <span className="absolute bottom-0 right-0 flex items-center justify-center w-5 h-5 bg-gray-800 rounded-full ring-2 ring-gray-900 translate-x-1/4 translate-y-1/4">
-      <PlatformIcon platform={platform} className="h-3.5 w-3.5 text-white" />
-    </span>
-  );
-};
-export { BridgeIcon, PlatformIcon };
+export { BridgeIcon };

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
-import { PlatformIcon } from "~/components/ui/bridge-icon";
+import { BridgeIcon } from "~/components/ui/bridge-icon";
 import ContactCardDialog from "~/components/card-list/contact-card-dialog";
 import type {
   ContactCard as ContactCardType,
@@ -78,7 +78,7 @@ export default function ContactCard({
                   key={contact.id}
                   className="flex items-center justify-center size-8 bg-gray-800 rounded-full"
                 >
-                  <PlatformIcon platform={contact.platform} />
+                  <BridgeIcon platform={contact.platform} showMatrix={true} />
                 </div>
               ))}
               {platformContacts.length > 3 && (

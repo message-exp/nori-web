@@ -3,6 +3,7 @@ import type { Room } from "matrix-js-sdk";
 import { cn, getLatestMessageText } from "~/lib/utils";
 import { BridgeIcon } from "../ui/bridge-icon";
 import { RoomAvatar } from "~/components/ui/room-avatar";
+import { detectPlatform } from "~/lib/matrix-api/utils";
 
 interface RoomListButtonProps {
   readonly room: Room;
@@ -35,7 +36,19 @@ export const RoomListButton = ({
             "crop",
           )}
         />
-        <BridgeIcon room={room} />
+        {(() => {
+          const platform = detectPlatform(room);
+          // 如果是 Matrix 且 showMatrix=false (預設)，則不顯示任何東西
+          if (platform === "Matrix") {
+            return null;
+          }
+          return (
+            <span className="absolute -bottom-1 -right-1 flex items-center justify-center w-4 h-4 bg-gray-800 rounded-full ring-1 ring-gray-900">
+              <BridgeIcon room={room} className="size-3 text-white" />
+            </span>
+          );
+        })()}
+        {/* <BridgeIcon room={room} className="h-3.5 w-3.5 text-white" /> */}
       </div>
       <div className="flex-1 overflow-hidden">
         <div className="flex items-center justify-between">

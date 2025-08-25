@@ -1,7 +1,5 @@
 import { useState, useMemo, type WheelEvent } from "react";
-import { Check, ChevronsUpDown, MessageCircle } from "lucide-react";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faDiscord, faTelegram } from "@fortawesome/free-brands-svg-icons";
+import { Check, ChevronsUpDown } from "lucide-react";
 import { cn } from "~/lib/utils";
 import { Button } from "~/components/ui/button";
 import {
@@ -18,8 +16,8 @@ import {
   PopoverTrigger,
 } from "~/components/ui/popover";
 import type { DMRoomInfo } from "~/lib/dm-room-utils";
-import type { PlatformEnum } from "~/lib/contacts-server-api/types";
 import { RoomAvatar } from "~/components/ui/room-avatar";
+import { BridgeIcon } from "~/components/ui/bridge-icon";
 
 interface DMRoomSelectorProps {
   dmRooms: DMRoomInfo[];
@@ -27,33 +25,6 @@ interface DMRoomSelectorProps {
   onValueChange: (roomInfo: DMRoomInfo | null) => void;
   placeholder?: string;
   disabled?: boolean;
-}
-
-function getPlatformIcon(platform: PlatformEnum) {
-  switch (platform) {
-    case "Discord":
-      return (
-        <FontAwesomeIcon
-          icon={faDiscord}
-          className="size-3 text-white"
-          aria-label="Discord"
-        />
-      );
-    case "Telegram":
-      return (
-        <FontAwesomeIcon
-          icon={faTelegram}
-          className="size-3 text-white"
-          aria-label="Telegram"
-        />
-      );
-    case "Matrix":
-      return (
-        <MessageCircle className="size-3 text-white" aria-label="Matrix" />
-      );
-    default:
-      return null;
-  }
 }
 
 export function DMRoomSelector({
@@ -104,7 +75,11 @@ export function DMRoomSelector({
                   fallbackClassName="text-xs"
                 />
                 <span className="absolute -bottom-1 -right-1 flex items-center justify-center w-4 h-4 bg-gray-800 rounded-full ring-1 ring-gray-900">
-                  {getPlatformIcon(selectedRoom.platform)}
+                  <BridgeIcon
+                    platform={selectedRoom.platform}
+                    className="size-3 text-white"
+                    showMatrix={true}
+                  />
                 </span>
               </div>
               <div className="flex-1 min-w-0 text-left">
@@ -159,7 +134,11 @@ export function DMRoomSelector({
                         className="size-8"
                       />
                       <span className="absolute -bottom-1 -right-1 flex items-center justify-center w-4 h-4 bg-gray-800 rounded-full ring-1 ring-gray-900">
-                        {getPlatformIcon(room.platform)}
+                        <BridgeIcon
+                          platform={room.platform}
+                          className="size-3 text-white"
+                          showMatrix={true}
+                        />
                       </span>
                     </div>
                     <div className="flex-1 min-w-0">

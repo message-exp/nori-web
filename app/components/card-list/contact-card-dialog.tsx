@@ -48,7 +48,7 @@ import type {
 import { useRoomContext } from "~/contexts/room-context";
 import { getDMRooms, type DMRoomInfo } from "~/lib/dm-room-utils";
 import { DMRoomSelector } from "~/components/ui/dm-room-selector";
-import { PlatformIcon } from "~/components/ui/bridge-icon";
+import { BridgeIcon } from "~/components/ui/bridge-icon";
 import { avatarFallback } from "~/lib/utils";
 
 interface ContactCardDialogProps {
@@ -419,9 +419,10 @@ export default function ContactCardDialog({
                               className="size-8"
                             />
                             <span className="absolute -bottom-1 -right-1 flex items-center justify-center w-4 h-4 bg-gray-800 rounded-full ring-1 ring-gray-900">
-                              <PlatformIcon
+                              <BridgeIcon
                                 platform={selectedDMRoom.platform}
                                 className="size-3 text-white"
+                                showMatrix={true}
                               />
                             </span>
                           </div>
@@ -470,7 +471,10 @@ export default function ContactCardDialog({
                   >
                     <div className="flex items-center gap-3">
                       <div className="flex items-center justify-center size-8 bg-gray-800 rounded-full">
-                        <PlatformIcon platform={contact.platform} />
+                        <BridgeIcon
+                          platform={contact.platform}
+                          showMatrix={true}
+                        />
                       </div>
                       <div>
                         <p className="font-medium">{contact.platform}</p>
