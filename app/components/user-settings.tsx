@@ -37,6 +37,7 @@ export default function UserSettings({ user }: { user: User | undefined }) {
   const navigate = useNavigate();
   const [loadingProfile, setLoadingProfile] = useState(user === undefined);
   const [loadingLogout, setLoadingLogout] = useState(false);
+  const [telegramConnected, setTelegramConnected] = useState(false); // 預設為已連接
 
   const { url: avatarUrl } = useUserAvatar(user ?? null);
 
@@ -159,6 +160,50 @@ export default function UserSettings({ user }: { user: User | undefined }) {
                   <div className="flex items-center justify-between">
                     <Label>Theme</Label>
                     <ThemeSelect />
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Messaging Networks */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Messaging Networks</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  {/* Telegram */}
+                  <div className="flex items-center justify-between">
+                    <div className="flex flex-row items-center gap-2">
+                      <Avatar>
+                        <AvatarImage src="/telegram.svg" />
+                        <AvatarFallback className="text-lg">TG</AvatarFallback>
+                      </Avatar>
+                      {telegramConnected ? (
+                        <div className="flex flex-col">
+                          <Label>Telegram</Label>
+                          <span className="text-sm text-muted-foreground">
+                            @john_doe (+886912345678)
+                          </span>
+                        </div>
+                      ) : (
+                        <Label>Telegram</Label>
+                      )}
+                    </div>
+                    {telegramConnected ? (
+                      <Button
+                        type="button"
+                        variant="destructive"
+                        onClick={() => setTelegramConnected(false)}
+                      >
+                        Disconnect
+                      </Button>
+                    ) : (
+                      <Button
+                        type="button"
+                        onClick={() => setTelegramConnected(true)}
+                      >
+                        Connect
+                      </Button>
+                    )}
                   </div>
                 </CardContent>
               </Card>
