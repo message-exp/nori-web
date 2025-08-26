@@ -28,18 +28,106 @@ import { Label } from "~/components/ui/label";
 import { useUserAvatar } from "~/hooks/use-user-avatar";
 import { logout } from "~/lib/matrix-api/logout";
 import { avatarFallback } from "~/lib/utils";
+import {
+  getUserInfo,
+  type UserInfoResponse,
+} from "~/lib/contacts-server-api/bridge/telegram";
 
 const formSchema = z.object({
   user_display_name: z.string().min(1),
 });
 
-export default function UserSettings({ user }: { user: User | undefined }) {
+export default function UserSettings({
+  user,
+}: {
+  readonly user: User | undefined;
+}) {
   const navigate = useNavigate();
   const [loadingProfile, setLoadingProfile] = useState(user === undefined);
   const [loadingLogout, setLoadingLogout] = useState(false);
-  const [telegramConnected, setTelegramConnected] = useState(false); // 預設為已連接
+  const [telegramUserInfo, setTelegramUserInfo] =
+    useState<UserInfoResponse | null>(null);
+  const [loadingTelegram, setLoadingTelegram] = useState(true);
 
   const { url: avatarUrl } = useUserAvatar(user ?? null);
+
+  const getTelegramDisplayText = (
+    telegram: NonNullable<UserInfoResponse["telegram"]>,
+  ): string => {
+    if (telegram.username && telegram.phone) {
+      return `@${telegram.username} (${telegram.phone})`;
+    }
+    if (telegram.username) {
+      return `@${telegram.username}`;
+    }
+    if (telegram.phone) {
+      return `(${telegram.phone})`;
+    }
+    const fullName =
+      `${telegram.first_name || ""} ${telegram.last_name || ""}`.trim();
+    return fullName || "";
+  };
+
+  const renderTelegramSection = () => {
+    if (loadingTelegram) {
+      return (
+        <div className="flex flex-col">
+          <Label>Telegram</Label>
+          <span className="text-sm text-muted-foreground">Loading...</span>
+        </div>
+      );
+    }
+
+    if (telegramUserInfo?.telegram) {
+      return (
+        <div className="flex flex-col">
+          <Label>Telegram</Label>
+          <span className="text-sm text-muted-foreground">
+            {getTelegramDisplayText(telegramUserInfo.telegram)}
+          </span>
+        </div>
+      );
+    }
+
+    return <Label>Telegram</Label>;
+  };
+
+  const renderTelegramButton = () => {
+    if (loadingTelegram) {
+      return (
+        <Button type="button" disabled>
+          <Loader className="h-4 w-4 animate-spin" />
+        </Button>
+      );
+    }
+
+    if (telegramUserInfo?.telegram) {
+      return (
+        <Button
+          type="button"
+          variant="destructive"
+          onClick={() => {
+            // Future: Implement disconnect functionality
+            console.log("Disconnect Telegram");
+          }}
+        >
+          Disconnect
+        </Button>
+      );
+    }
+
+    return (
+      <Button
+        type="button"
+        onClick={() => {
+          // Future: Implement connect functionality
+          console.log("Connect Telegram");
+        }}
+      >
+        Connect
+      </Button>
+    );
+  };
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -56,6 +144,23 @@ export default function UserSettings({ user }: { user: User | undefined }) {
       setLoadingProfile(false);
     }
   }, [user, form]);
+
+  useEffect(() => {
+    async function loadTelegramInfo() {
+      try {
+        setLoadingTelegram(true);
+        const userInfo = await getUserInfo();
+        setTelegramUserInfo(userInfo);
+      } catch (error) {
+        console.error("Failed to load Telegram info:", error);
+        setTelegramUserInfo(null);
+      } finally {
+        setLoadingTelegram(false);
+      }
+    }
+
+    loadTelegramInfo();
+  }, []);
 
   // async function onSubmit(values: z.infer<typeof formSchema>) {
   // setLoadingProfile(true);
@@ -177,41 +282,17 @@ export default function UserSettings({ user }: { user: User | undefined }) {
                         <AvatarImage src="/telegram.svg" />
                         <AvatarFallback className="text-lg">TG</AvatarFallback>
                       </Avatar>
-                      {telegramConnected ? (
-                        <div className="flex flex-col">
-                          <Label>Telegram</Label>
-                          <span className="text-sm text-muted-foreground">
-                            @john_doe (+886912345678)
-                          </span>
-                        </div>
-                      ) : (
-                        <Label>Telegram</Label>
-                      )}
+                      {renderTelegramSection()}
                     </div>
-                    {telegramConnected ? (
-                      <Button
-                        type="button"
-                        variant="destructive"
-                        onClick={() => setTelegramConnected(false)}
-                      >
-                        Disconnect
-                      </Button>
-                    ) : (
-                      <Button
-                        type="button"
-                        onClick={() => setTelegramConnected(true)}
-                      >
-                        Connect
-                      </Button>
-                    )}
+                    {renderTelegramButton()}
                   </div>
                 </CardContent>
               </Card>
 
-              {/* Save Changes */}
-              {/* <div className="flex justify-end gap-3">
-                <Button variant="outline" type="reset">
-                  Cancel (TODO: onClick → reset the form)
+              {/* Save Changes - Commented out until form submission is implemented
+              <div className="flex justify-end gap-3">
+                <Button variant="outline" type="reset" onClick={() => form.reset()}>
+                  Cancel
                 </Button>
                 <Button type="submit" disabled={isLoading}>
                   {isLoading ? (
