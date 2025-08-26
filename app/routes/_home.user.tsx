@@ -7,6 +7,7 @@ import UserSettings from "~/components/user-settings";
 
 export default function UserPage() {
   const [user, setUser] = useState<User>();
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -25,11 +26,24 @@ export default function UserPage() {
         }
       } catch (error) {
         console.error("Error fetching user data:", error);
+      } finally {
+        setLoading(false);
       }
     }
 
     fetchUserData();
   }, []);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-foreground mx-auto mb-2"></div>
+          載入中...
+        </div>
+      </div>
+    );
+  }
 
   return <UserSettings user={user} />;
 }
