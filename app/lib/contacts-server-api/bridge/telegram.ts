@@ -38,6 +38,7 @@ export interface SendVerifyCodeResponse {
 // API Functions
 export async function getUserInfo(): Promise<UserInfoResponse> {
   const response = await contactsApi.get("/api/bridge/telegram/users/info");
+  console.log("getUserInfo(): ", response);
   return response.data;
 }
 

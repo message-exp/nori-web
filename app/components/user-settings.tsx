@@ -54,18 +54,14 @@ export default function UserSettings({
   const getTelegramDisplayText = (
     telegram: NonNullable<UserInfoResponse["telegram"]>,
   ): string => {
-    if (telegram.username && telegram.phone) {
-      return `@${telegram.username} (${telegram.phone})`;
-    }
-    if (telegram.username) {
-      return `@${telegram.username}`;
-    }
-    if (telegram.phone) {
-      return `(${telegram.phone})`;
-    }
     const fullName =
       `${telegram.first_name || ""} ${telegram.last_name || ""}`.trim();
-    return fullName || "";
+    const username = telegram.username ? `@${telegram.username}` : "";
+    const phone = telegram.phone ? `(${telegram.phone})` : "";
+
+    // 組合可用的資訊
+    const parts = [fullName, username, phone].filter(Boolean);
+    return parts.length > 0 ? parts.join(" ") : "";
   };
 
   const renderTelegramSection = () => {
