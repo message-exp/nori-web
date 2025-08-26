@@ -1,56 +1,70 @@
 import contactsApi from "..";
-interface telegramLoginRequestCodeResponse {
-  message: string;
-}
 
-interface telegramLoginVerifyCodeResponse {
-  state: string;
-  username: string;
+// API Request Types (input)
+export interface LoginRequest {
   phone: string;
 }
-interface telegramLogoutRequestCodeResponse {
+
+export interface CodeRequest {
+  code: string;
+}
+
+// API Response Types (output) - matching OpenAPI schema exactly
+export interface MessageResponse {
   message: string;
 }
 
-interface telegramUserInfo {
-  id: string;
-  username: string;
-  first_name: string;
-  last_name: string;
+export interface TelegramInfo {
+  id: number;
+  username: string | null;
+  first_name: string | null;
+  last_name: string | null;
   phone: string;
   is_bot: boolean;
 }
-interface telegramGetUserInfoResponse {
-  telegram: telegramUserInfo;
+
+export interface UserInfoResponse {
+  telegram: TelegramInfo | null;
   mxid: string;
   permissions: string;
 }
-export function getTelegramUserInfo(): Promise<telegramGetUserInfoResponse> {
-  return contactsApi
-    .get("/api/bridge/telegram/users/info")
-    .then((response) => response.data);
+
+export interface SendVerifyCodeResponse {
+  state: string;
+  username: string | null;
+  phone: string;
 }
 
-export function telegramLoginRequestCode(
-  phone: string,
-): Promise<telegramLoginRequestCodeResponse> {
-  return contactsApi
-    .post("/api/bridge/telegram/users/login/code", {
-      phone,
-    })
-    .then((response) => response.data);
+// API Functions
+export async function getUserInfo(): Promise<UserInfoResponse> {
+  const response = await contactsApi.get("/api/bridge/telegram/users/info");
+  return response.data;
 }
-export function telegramLoginVerifyCode(
-  code: string,
-): Promise<telegramLoginVerifyCodeResponse> {
-  return contactsApi
-    .post("/api/bridge/telegram/users/login/code/verify", {
-      code,
-    })
-    .then((response) => response.data);
+
+export async function requestLoginCode(
+  request: LoginRequest,
+): Promise<MessageResponse> {
+  const response = await contactsApi.post(
+    "/api/bridge/telegram/users/login/code",
+    request,
+  );
+  return response.data;
 }
-export function telegramLogout(): Promise<telegramLogoutRequestCodeResponse> {
-  return contactsApi
-    .post("/api/bridge/telegram/users/logout", {})
-    .then((response) => response.data);
+
+export async function verifyLoginCode(
+  request: CodeRequest,
+): Promise<SendVerifyCodeResponse> {
+  const response = await contactsApi.post(
+    "/api/bridge/telegram/users/login/code/verify",
+    request,
+  );
+  return response.data;
+}
+
+export async function logout(): Promise<MessageResponse> {
+  const response = await contactsApi.post(
+    "/api/bridge/telegram/users/logout",
+    {},
+  );
+  return response.data;
 }
