@@ -4,6 +4,7 @@ import { useNavigate } from "react-router";
 import type { User } from "matrix-js-sdk";
 import { checkClientState } from "~/lib/matrix-api/refresh-token";
 import UserSettings from "~/components/user-settings";
+import { Loading } from "~/components/ui/loading";
 
 export default function UserPage() {
   const [user, setUser] = useState<User>();
@@ -35,14 +36,7 @@ export default function UserPage() {
   }, []);
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center h-full">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-foreground mx-auto mb-2"></div>
-          載入中...
-        </div>
-      </div>
-    );
+    return <Loading />;
   }
 
   return <UserSettings user={user} />;
