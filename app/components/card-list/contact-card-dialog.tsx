@@ -312,7 +312,9 @@ export default function ContactCardDialog({
                       name="contact_name"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel>Display Name</FormLabel>
+                          <FormLabel>
+                            Display Name <span className="text-red-500">*</span>
+                          </FormLabel>
                           <FormControl>
                             <Input
                               placeholder="Enter display name"
