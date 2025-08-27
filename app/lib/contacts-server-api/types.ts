@@ -7,8 +7,8 @@ export enum PlatformEnum {
 export interface ContactCard {
   id: string; // UUID
   contact_name: string;
-  nickname?: string;
-  contact_avatar_url?: string;
+  nickname: string | null;
+  contact_avatar_url: string | null;
 }
 
 export interface PlatformContact {

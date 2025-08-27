@@ -101,8 +101,8 @@ Basic contact information cards containing:
 interface ContactCard {
   id: UUID; // Unique identifier
   contact_name: string; // Contact name
-  nickname?: string; // Optional nickname
-  contact_avatar_url?: string; // Optional avatar URL
+  nickname: string | null; // Optional nickname (backend uses null, not undefined)
+  contact_avatar_url: string | null; // Optional avatar URL (backend uses null, not undefined)
 }
 ```
 
@@ -193,15 +193,27 @@ The contacts system is implemented with a dedicated API client:
 **Contact Card Components** (`app/components/card-list/`):
 
 - `card-list.tsx` - Main container for contact cards display
-- `contact-card.tsx` - Individual contact card component
+- `contact-card.tsx` - Individual contact card component (clickable with dialog integration)
+- `contact-card-dialog.tsx` - Full-featured dialog for viewing, editing, and deleting contacts
 - `create-card-dialog.tsx` - Form dialog for creating new contacts
 
 **Features:**
 
-- Form validation using react-hook-form with Zod schema
-- File upload support for contact avatars
-- Responsive card grid layout
-- Loading states and error handling
+- **Contact Card Interaction**: Click any contact card to open detailed view dialog
+- **Full CRUD Operations**: View, edit, and delete contact cards through the dialog interface
+- **Platform Account Management**: Add, edit, and delete platform-specific contact information
+- **Form Validation**: Uses react-hook-form with Zod schema validation
+- **Accessibility**: Semantic button elements with proper ARIA labels and keyboard navigation
+- **Responsive Layout**: Card grid layout with hover effects and loading states
+- **Error Handling**: Consistent error messaging using shadcn/ui Alert components
+
+**Dialog Features:**
+
+- Toggle between view and edit modes for contact information
+- Complete platform account management (Discord, Telegram, Matrix)
+- Delete confirmation and state management
+- Form validation and error display
+- Loading states for all async operations
 
 **Routes:**
 
@@ -217,9 +229,128 @@ The contacts system is implemented with a dedicated API client:
 
 **Environment Variables:**
 
+- `VITE_HOME_SERVER` - Matrix homeserver URL for Matrix protocol integration
 - `VITE_CONTACTS_SERVER` - Base URL for the contacts API server
+
+### Data Consistency Guidelines
+
+- When there are significant structural changes, please remember to check after making modifications whether the data matches what's in memory, and check if there is any outdated data or missing data that needs to be updated.
 
 ### Docker Support
 
 - Dockerfile available for containerized deployment
 - Production builds serve on port 3000
+
+### Language Guidelines
+
+- In default, use English to write comment and display UI.
+
+## Error Message UI Design Pattern
+
+When displaying error messages in forms or dialogs, use the shadcn/ui Alert component pattern for consistent and comfortable user experience:
+
+### Pattern
+
+```tsx
+import { Alert, AlertDescription } from "~/components/ui/alert";
+import { AlertTriangle } from "lucide-react";
+
+// Error message display
+{
+  error && (
+    <Alert>
+      <AlertTriangle className="h-4 w-4" />
+      <AlertDescription>{error}</AlertDescription>
+    </Alert>
+  );
+}
+```
+
+### Benefits
+
+- Consistent with design system (same as Danger zone in room-settings)
+- Proper contrast and readability in both light/dark modes
+- Professional appearance with appropriate warning icon
+- No harsh bright backgrounds that strain eyes
+
+### Example Reference
+
+See `app/components/room-chat/room-settings.tsx` lines 188-193 for the original pattern implementation.
+
+## RoomAvatar Component System
+
+### Overview
+
+The application uses a unified `RoomAvatar` component (`app/components/ui/room-avatar.tsx`) for displaying Matrix room avatars consistently across the entire application. This component provides automatic avatar loading, memory management, and fallback handling.
+
+### Component API
+
+```tsx
+interface RoomAvatarProps {
+  roomId: string; // Matrix room ID
+  roomName: string; // Room display name for fallback
+  fallbackAvatarUrl?: string | null; // Optional fallback avatar URL
+  className?: string; // Custom CSS classes
+  fallbackClassName?: string; // Custom fallback text classes
+  alt?: string; // Custom alt text
+}
+
+// Usage example
+<RoomAvatar
+  roomId={room.roomId}
+  roomName={room.roomName}
+  fallbackAvatarUrl={room.roomAvatar}
+  className="size-8"
+  fallbackClassName="text-sm"
+/>;
+```
+
+### Features
+
+- **Automatic Loading**: Uses `useRoomAvatar` hook internally to fetch Matrix room avatars
+- **Memory Management**: Automatically handles blob URL creation and cleanup
+- **Consistent Fallbacks**: Uses `avatarFallback()` function for uniform fallback text generation
+- **Flexible Styling**: Supports custom classes for different sizes and contexts
+- **Architecture Compliance**: Component layer doesn't directly depend on Matrix client
+
+### Implementation Locations
+
+The RoomAvatar component is integrated across all room avatar display locations:
+
+- ✅ `app/components/ui/dm-room-selector.tsx` - DM room selection (both selected and dropdown items)
+- ✅ `app/components/room-list/room-list-button.tsx` - Room list buttons
+- ✅ `app/components/room-chat/room-chat.tsx` - Chat header
+- ✅ `app/components/card-list/contact-card-dialog.tsx` - DM room display in contact dialogs
+
+### Benefits
+
+- **Consistency**: All room avatars use the same loading and display logic
+- **Maintainability**: Single component for all room avatar needs
+- **Performance**: Automatic memory management prevents memory leaks
+- **Developer Experience**: Simple API reduces boilerplate code
+
+### Usage Guidelines
+
+1. **Always use RoomAvatar for Matrix room avatars** - Do not use raw Avatar components for room avatars
+2. **Provide fallback URLs when available** - Pass room.roomAvatar or similar as fallbackAvatarUrl
+3. **Use appropriate sizing** - Common sizes: size-6, size-8, size-12
+4. **Consider context for fallback text size** - Use text-xs for small avatars, text-sm for medium
+
+# important-instruction-reminders
+
+Do what has been asked; nothing more, nothing less.
+NEVER create files unless they're absolutely necessary for achieving your goal.
+ALWAYS prefer editing an existing file to creating a new one.
+NEVER proactively create documentation files (\*.md) or README files. Only create documentation files if explicitly requested by the User.
+
+# RoomAvatar Component Implementation Status
+
+**Status**: ✅ Complete - All room avatar displays now use the unified RoomAvatar component
+**Last Updated**: 2025-08-25
+
+# important-instruction-reminders
+
+Do what has been asked; nothing more, nothing less.
+NEVER create files unless they're absolutely necessary for achieving your goal.
+ALWAYS prefer editing an existing file to creating a new one.
+NEVER proactively create documentation files (\*.md) or README files. Only create documentation files if explicitly requested by the User.
