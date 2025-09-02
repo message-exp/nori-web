@@ -54,7 +54,7 @@ export default function ContactCard({
         <div className="flex-shrink-0 mr-6">
           <Avatar className="size-20">
             <AvatarImage
-              src={contactCard?.contact_avatar_url}
+              src={contactCard?.contact_avatar_url || undefined}
               alt={displayName}
             />
             <AvatarFallback className="text-2xl font-semibold">
