@@ -1,43 +1,13 @@
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faDiscord, faTelegram } from "@fortawesome/free-brands-svg-icons";
-import { MessageCircle } from "lucide-react";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
+import { BridgeIcon } from "~/components/ui/bridge-icon";
 import type {
   ContactCard as ContactCardType,
   PlatformContact,
-  PlatformEnum,
 } from "~/lib/contacts-server-api/types";
 
 interface ContactCardProps {
   readonly contactCard?: ContactCardType;
   readonly platformContacts?: PlatformContact[];
-}
-
-function getPlatformIcon(platform: PlatformEnum) {
-  switch (platform) {
-    case "Discord":
-      return (
-        <FontAwesomeIcon
-          icon={faDiscord}
-          className="size-4 text-white"
-          aria-label="Discord"
-        />
-      );
-    case "Telegram":
-      return (
-        <FontAwesomeIcon
-          icon={faTelegram}
-          className="size-4 text-white"
-          aria-label="Telegram"
-        />
-      );
-    case "Matrix":
-      return (
-        <MessageCircle className="size-4 text-white" aria-label="Matrix" />
-      );
-    default:
-      return null;
-  }
 }
 
 export default function ContactCard({
@@ -84,7 +54,11 @@ export default function ContactCard({
                 key={contact.id}
                 className="flex items-center justify-center size-8 bg-gray-800 rounded-full"
               >
-                {getPlatformIcon(contact.platform)}
+                <BridgeIcon
+                  platform={contact.platform}
+                  className="size-4 text-white"
+                  showMatrix={true}
+                />
               </div>
             ))}
             {platformContacts.length > 3 && (

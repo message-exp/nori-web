@@ -20,10 +20,8 @@ export default function CardList() {
       setIsLoading(true);
       try {
         const contactCards = await getAllContactCards();
-        console.log("載入的 contact cards:", contactCards);
         setCards(contactCards);
-      } catch (error) {
-        console.error("載入 contact cards 失敗:", error);
+      } catch {
         setCards([]);
       } finally {
         setIsLoading(false);
