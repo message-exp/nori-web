@@ -1,17 +1,19 @@
 import { useEffect, useState } from "react";
 
 import CardList from "~/components/card-list/card-list";
+import { checkClientState } from "~/lib/matrix-api/refresh-token";
 
 export default function CardsPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // 模擬 3 秒載入時間
-    const timer = setTimeout(() => {
-      setLoading(false);
-    }, 3000);
-
-    return () => clearTimeout(timer);
+    const initClient = async () => {
+      const clientState = await checkClientState();
+      if (clientState) {
+        setLoading(false);
+      }
+    };
+    initClient();
   }, []);
 
   if (loading) {
