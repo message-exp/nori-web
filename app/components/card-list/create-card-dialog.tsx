@@ -26,8 +26,14 @@ import type { ContactCard } from "~/lib/contacts-server-api/types";
 import { createContactCards } from "~/lib/contacts-server-api/contacts";
 
 const formSchema = z.object({
-  contact_name: z.string().min(1, "Display name is required"),
-  nickname: z.string().optional(),
+  contact_name: z
+    .string()
+    .min(1, "Display name is required")
+    .max(100, "Display name must be less than 100 characters"),
+  nickname: z
+    .string()
+    .max(50, "Nickname must be less than 50 characters")
+    .optional(),
   contact_avatar_url: z.string().optional(),
 });
 
@@ -145,6 +151,7 @@ export default function CreateCardDialog({
                         <Input
                           placeholder="Enter display name"
                           className="col-span-3"
+                          maxLength={100}
                           {...field}
                         />
                       </FormControl>
@@ -169,6 +176,7 @@ export default function CreateCardDialog({
                         <Input
                           placeholder="Enter nickname (optional)"
                           className="col-span-3"
+                          maxLength={50}
                           {...field}
                         />
                       </FormControl>
