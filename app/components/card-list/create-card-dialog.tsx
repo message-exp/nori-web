@@ -158,7 +158,12 @@ export default function CreateCardDialog({
                     </div>
                     <div className="grid grid-cols-4 items-center gap-4">
                       <div></div>
-                      <FormMessage className="col-span-3" />
+                      <div className="col-span-3">
+                        <FormMessage />
+                        <div className="text-xs text-muted-foreground text-right mt-1">
+                          {field.value?.length || 0}/100
+                        </div>
+                      </div>
                     </div>
                   </FormItem>
                 )}
@@ -183,7 +188,12 @@ export default function CreateCardDialog({
                     </div>
                     <div className="grid grid-cols-4 items-center gap-4">
                       <div></div>
-                      <FormMessage className="col-span-3" />
+                      <div className="col-span-3">
+                        <FormMessage />
+                        <div className="text-xs text-muted-foreground text-right mt-1">
+                          {field.value?.length || 0}/50
+                        </div>
+                      </div>
                     </div>
                   </FormItem>
                 )}
