@@ -12,6 +12,10 @@ interface ContactCardProps {
   readonly platformContacts?: PlatformContact[];
   readonly onCardUpdated?: (updatedCard: ContactCardType) => void;
   readonly onCardDeleted?: (deletedCardId: string) => void;
+  readonly onPlatformContactsUpdated?: (
+    cardId: string,
+    updatedPlatformContacts: PlatformContact[],
+  ) => void;
 }
 
 export default function ContactCard({
@@ -19,6 +23,7 @@ export default function ContactCard({
   platformContacts = [],
   onCardUpdated,
   onCardDeleted,
+  onPlatformContactsUpdated,
 }: ContactCardProps) {
   const [dialogOpen, setDialogOpen] = useState(false);
   const displayName = contactCard?.contact_name || "Contact Name";
@@ -105,6 +110,7 @@ export default function ContactCard({
         onOpenChange={setDialogOpen}
         onCardUpdated={onCardUpdated}
         onCardDeleted={onCardDeleted}
+        onPlatformContactsUpdated={onPlatformContactsUpdated}
       />
     </>
   );
