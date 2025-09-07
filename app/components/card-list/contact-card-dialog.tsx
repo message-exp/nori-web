@@ -64,8 +64,14 @@ interface ContactCardDialogProps {
 }
 
 const contactFormSchema = z.object({
-  contact_name: z.string().min(1, "Display name is required"),
-  nickname: z.string().optional(),
+  contact_name: z
+    .string()
+    .min(1, "Display name is required")
+    .max(100, "Display name must be less than 100 characters"),
+  nickname: z
+    .string()
+    .max(50, "Nickname must be less than 50 characters")
+    .optional(),
   contact_avatar_url: z.string().optional(),
 });
 
@@ -318,10 +324,14 @@ export default function ContactCardDialog({
                           <FormControl>
                             <Input
                               placeholder="Enter display name"
+                              maxLength={100}
                               {...field}
                             />
                           </FormControl>
                           <FormMessage />
+                          <div className="text-xs text-muted-foreground text-right mt-1">
+                            {field.value?.length || 0}/100
+                          </div>
                         </FormItem>
                       )}
                     />
@@ -335,10 +345,14 @@ export default function ContactCardDialog({
                           <FormControl>
                             <Input
                               placeholder="Enter nickname (optional)"
+                              maxLength={50}
                               {...field}
                             />
                           </FormControl>
                           <FormMessage />
+                          <div className="text-xs text-muted-foreground text-right mt-1">
+                            {field.value?.length || 0}/50
+                          </div>
                         </FormItem>
                       )}
                     />
