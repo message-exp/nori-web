@@ -25,7 +25,7 @@ export default function CardList() {
     setError(null);
     try {
       const contactCards = await getAllContactCards();
-      console.log("載入的 contact cards:", contactCards);
+      console.log("loading contact cards:", contactCards);
       setCards(contactCards);
 
       // Load platform contacts for all contact cards
@@ -37,7 +37,7 @@ export default function CardList() {
             platformContactsData[card.id] = platforms;
           } catch (error) {
             console.error(
-              `載入 contact card ${card.id} 的平台聯絡人失敗:`,
+              `loading contact card ${card.id} platform contact failed:`,
               error,
             );
             platformContactsData[card.id] = [];
@@ -46,7 +46,7 @@ export default function CardList() {
       );
       setPlatformContacts(platformContactsData);
     } catch (error) {
-      console.error("載入 contact cards 失敗:", error);
+      console.error("Failed to load contact cards:", error);
       setError("Failed to load contact cards. Please try again.");
       setCards([]);
       setPlatformContacts({});
