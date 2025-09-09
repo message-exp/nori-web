@@ -17,7 +17,7 @@ import { useRoomContext } from "~/contexts/room-context";
 import { getDMRooms } from "~/lib/dm-room-utils";
 import { ContactBasicInfo } from "./contact-basic-info";
 import { PlatformContactsList } from "./platform-contacts-list";
-import { DeleteConfirmation } from "./delete-confirmation";
+import { DeleteConfirmation } from "~/components/ui/delete-confirmation";
 import { usePlatformContacts } from "~/hooks/use-platform-contacts";
 
 interface ContactCardDialogProps {
@@ -121,6 +121,8 @@ export default function ContactCardDialog({
             onShowConfirm={() => setShowDeleteConfirm(true)}
             onConfirmDelete={handleDelete}
             onCancel={() => setShowDeleteConfirm(false)}
+            buttonText="Delete Card"
+            className="sm:mr-auto"
           />
         </DialogFooter>
       </DialogContent>

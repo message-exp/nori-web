@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { Plus, Trash2, MessageCircle } from "lucide-react";
+import { Plus, MessageCircle } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { BridgeIcon } from "~/components/ui/bridge-icon";
+import { DeleteConfirmation } from "~/components/ui/delete-confirmation";
 import { AddPlatformContactForm } from "./add-platform-contact-form";
 import type { PlatformContact } from "~/lib/contacts-server-api/types";
 import type { DMRoomInfo } from "~/lib/dm-room-utils";
@@ -25,6 +26,7 @@ export function PlatformContactsList({
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(
     null,
   );
+  const [deletingContact, setDeletingContact] = useState<string | null>(null);
 
   const handleAddPlatform = async (selectedRoom: DMRoomInfo) => {
     const success = await onAddPlatformContact(selectedRoom);
@@ -35,7 +37,9 @@ export function PlatformContactsList({
   };
 
   const handleDeleteConfirm = async (contactId: string) => {
+    setDeletingContact(contactId);
     const success = await onDeletePlatformContact(contactId);
+    setDeletingContact(null);
     if (success) {
       setShowDeleteConfirm(null);
     }
@@ -88,33 +92,17 @@ export function PlatformContactsList({
                   </p>
                 </div>
               </div>
-              {showDeleteConfirm !== contact.id ? (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setShowDeleteConfirm(contact.id)}
-                  className="text-destructive hover:text-destructive"
-                >
-                  <Trash2 className="size-4" />
-                </Button>
-              ) : (
-                <div className="flex gap-1">
-                  <Button
-                    variant="destructive"
-                    size="sm"
-                    onClick={() => handleDeleteConfirm(contact.id)}
-                  >
-                    Confirm
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setShowDeleteConfirm(null)}
-                  >
-                    Cancel
-                  </Button>
-                </div>
-              )}
+              <DeleteConfirmation
+                showConfirm={showDeleteConfirm === contact.id}
+                isDeleting={deletingContact === contact.id}
+                onShowConfirm={() => setShowDeleteConfirm(contact.id)}
+                onConfirmDelete={() => handleDeleteConfirm(contact.id)}
+                onCancel={() => setShowDeleteConfirm(null)}
+                buttonVariant="outline"
+                buttonSize="sm"
+                showIcon={true}
+                className="text-destructive hover:text-destructive"
+              />
             </div>
           ))}
 

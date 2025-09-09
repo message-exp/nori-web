@@ -9,6 +9,10 @@ interface DeleteConfirmationProps {
   readonly onCancel: () => void;
   readonly buttonText?: string;
   readonly confirmText?: string;
+  readonly buttonVariant?: "destructive" | "ghost" | "outline" | "secondary";
+  readonly buttonSize?: "default" | "sm" | "lg" | "icon";
+  readonly className?: string;
+  readonly showIcon?: boolean;
 }
 
 export function DeleteConfirmation({
@@ -17,32 +21,38 @@ export function DeleteConfirmation({
   onShowConfirm,
   onConfirmDelete,
   onCancel,
-  buttonText = "Delete Card",
+  buttonText = "Delete",
   confirmText = "Confirm Delete",
+  buttonVariant = "destructive",
+  buttonSize = "default",
+  className = "",
+  showIcon = true,
 }: DeleteConfirmationProps) {
   if (!showConfirm) {
     return (
       <Button
-        variant="destructive"
+        variant={buttonVariant}
+        size={buttonSize}
         onClick={onShowConfirm}
-        className="sm:mr-auto"
+        className={className}
       >
-        <Trash2 className="size-4 mr-2" />
+        {showIcon && <Trash2 className="size-4 mr-2" />}
         {buttonText}
       </Button>
     );
   }
 
   return (
-    <div className="flex gap-2 sm:mr-auto">
+    <div className={`flex gap-2 ${className}`}>
       <Button
         variant="destructive"
+        size={buttonSize}
         onClick={onConfirmDelete}
         disabled={isDeleting}
       >
         {isDeleting ? "Deleting..." : confirmText}
       </Button>
-      <Button variant="outline" onClick={onCancel}>
+      <Button variant="outline" size={buttonSize} onClick={onCancel}>
         Cancel
       </Button>
     </div>
