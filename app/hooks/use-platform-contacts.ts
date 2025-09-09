@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import {
   getPlatformContacts,
   createPlatformContact,
@@ -27,7 +27,7 @@ export function usePlatformContacts({
   );
   const [isLoading, setIsLoading] = useState(false);
 
-  const loadPlatformContacts = async () => {
+  const loadPlatformContacts = useCallback(async () => {
     setIsLoading(true);
     try {
       const contacts = await getPlatformContacts(contactCardId);
@@ -39,7 +39,7 @@ export function usePlatformContacts({
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [contactCardId, onPlatformContactsUpdated, onError]);
 
   const addPlatformContact = async (selectedDMRoom: DMRoomInfo) => {
     if (!selectedDMRoom.platformUserId) {
@@ -93,7 +93,7 @@ export function usePlatformContacts({
 
   useEffect(() => {
     loadPlatformContacts();
-  }, [contactCardId]);
+  }, [loadPlatformContacts]);
 
   return {
     platformContacts,
