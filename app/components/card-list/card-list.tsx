@@ -1,5 +1,5 @@
 import { AlertTriangle, Plus, Users } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Alert, AlertDescription } from "~/components/ui/alert";
 import { Button } from "~/components/ui/button";
 
@@ -60,29 +60,29 @@ export default function CardList() {
     loadContactCards();
   }, []);
 
-  const handleCardCreated = (newCard: ContactCardType) => {
+  const handleCardCreated = useCallback((newCard: ContactCardType) => {
     setCards((prev) => [...prev, newCard]);
-  };
+  }, []);
 
-  const handleCardUpdated = (updatedCard: ContactCardType) => {
+  const handleCardUpdated = useCallback((updatedCard: ContactCardType) => {
     setCards((prev) =>
       prev.map((card) => (card.id === updatedCard.id ? updatedCard : card)),
     );
-  };
+  }, []);
 
-  const handleCardDeleted = (deletedCardId: string) => {
+  const handleCardDeleted = useCallback((deletedCardId: string) => {
     setCards((prev) => prev.filter((card) => card.id !== deletedCardId));
-  };
+  }, []);
 
-  const handlePlatformContactsUpdated = (
-    cardId: string,
-    updatedPlatformContacts: PlatformContact[],
-  ) => {
-    setPlatformContacts((prev) => ({
-      ...prev,
-      [cardId]: updatedPlatformContacts,
-    }));
-  };
+  const handlePlatformContactsUpdated = useCallback(
+    (cardId: string, updatedPlatformContacts: PlatformContact[]) => {
+      setPlatformContacts((prev) => ({
+        ...prev,
+        [cardId]: updatedPlatformContacts,
+      }));
+    },
+    [],
+  );
 
   const renderContent = () => {
     if (isLoading) {
