@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 
 import CardList from "~/components/card-list/card-list";
+import { Loading } from "~/components/ui/loading";
 import { checkClientState } from "~/lib/matrix-api/refresh-token";
 
 export default function CardsPage() {
@@ -17,9 +18,7 @@ export default function CardsPage() {
   }, []);
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center h-full">loading...</div>
-    );
+    return <Loading></Loading>;
   }
 
   return <CardList />;

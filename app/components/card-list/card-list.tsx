@@ -11,6 +11,7 @@ import type {
   ContactCard as ContactCardType,
   PlatformContact,
 } from "~/lib/contacts-server-api/types";
+import { Loading } from "../ui/loading";
 
 export default function CardList() {
   const [cards, setCards] = useState<ContactCardType[]>([]);
@@ -85,14 +86,7 @@ export default function CardList() {
 
   const renderContent = () => {
     if (isLoading) {
-      return (
-        <div className="flex items-center justify-center h-full">
-          <div className="flex flex-col items-center gap-3 text-muted-foreground">
-            <div className="animate-spin rounded-full h-8 w-8 border-2 border-primary border-r-transparent" />
-            <p className="text-sm">loading...</p>
-          </div>
-        </div>
-      );
+      return <Loading></Loading>;
     }
 
     if (cards.length === 0) {
