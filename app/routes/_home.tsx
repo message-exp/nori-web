@@ -2,6 +2,7 @@ import clsx from "clsx";
 import { House, Inbox } from "lucide-react";
 import type { User } from "matrix-js-sdk";
 import { useState, useEffect } from "react";
+import { TbCards } from "react-icons/tb";
 import { NavLink, Outlet } from "react-router";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
@@ -58,6 +59,18 @@ function HomeLayoutContent() {
               </NavLink>
             </div>
             <div className="flex flex-col gap-2">
+              <NavLink to="/cards">
+                {/* eslint-disable-next-line @typescript-eslint/no-unused-vars */}
+                {({ isActive, isPending, isTransitioning }) => (
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    className={clsx("size-12", isActive && "bg-accent")}
+                  >
+                    <TbCards className="size-6" />
+                  </Button>
+                )}
+              </NavLink>
               <NavLink to="/inbox">
                 {/* eslint-disable-next-line @typescript-eslint/no-unused-vars */}
                 {({ isActive, isPending, isTransitioning }) => (
