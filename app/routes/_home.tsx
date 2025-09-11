@@ -1,5 +1,5 @@
 import clsx from "clsx";
-import { House, Inbox } from "lucide-react";
+import { House, Inbox, MessageSquareMore } from "lucide-react";
 import type { User } from "matrix-js-sdk";
 import { useState, useEffect } from "react";
 import { TbCards } from "react-icons/tb";
@@ -54,6 +54,18 @@ function HomeLayoutContent() {
                     className={clsx("size-12", isActive && "bg-accent")}
                   >
                     <House className="size-6" />
+                  </Button>
+                )}
+              </NavLink>
+              <NavLink to="/merge">
+                {/* eslint-disable-next-line @typescript-eslint/no-unused-vars */}
+                {({ isActive, isPending, isTransitioning }) => (
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    className={clsx("size-12", isActive && "bg-accent")}
+                  >
+                    <MessageSquareMore className="size-6" />
                   </Button>
                 )}
               </NavLink>
