@@ -18,7 +18,7 @@ export default function CardsPage() {
   }, []);
 
   if (loading) {
-    return <Loading></Loading>;
+    return <Loading />;
   }
 
   return <CardList />;

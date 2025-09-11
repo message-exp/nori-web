@@ -86,7 +86,7 @@ export default function CardList() {
 
   const renderContent = () => {
     if (isLoading) {
-      return <Loading></Loading>;
+      return <Loading />;
     }
 
     if (cards.length === 0) {
