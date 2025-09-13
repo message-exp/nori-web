@@ -4,7 +4,7 @@ import { avatarFallback, cn } from "~/lib/utils";
 import { PlatformEnum } from "~/lib/contacts-server-api/types";
 import type { ContactCardWithPlatforms } from "~/hooks/use-contact-cards-with-platforms";
 
-interface ContactMergeItemProps {
+interface MergedContactItemProps {
   readonly contact: ContactCardWithPlatforms;
   readonly isSelected: boolean;
   readonly onSelect: () => void;
@@ -22,11 +22,11 @@ const platformNames = {
   [PlatformEnum.MATRIX]: "Matrix",
 };
 
-export function ContactMergeItem({
+export function MergedContactItem({
   contact,
   isSelected,
   onSelect,
-}: ContactMergeItemProps) {
+}: MergedContactItemProps) {
   const displayName = contact.nickname || contact.contact_name;
 
   return (

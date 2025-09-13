@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ContactMergeList } from "~/components/merge-room/contact-merge-list";
+import { MergedContactList } from "~/components/merged-contacts/merged-contact-list";
 import type { ContactCardWithPlatforms } from "~/hooks/use-contact-cards-with-platforms";
 
 export default function MergeIndex() {
@@ -12,9 +12,9 @@ export default function MergeIndex() {
 
   return (
     <div className="flex flex-row h-full overflow-hidden">
-      {/* Left sidebar - Contact Merge List */}
+      {/* Left sidebar - Merged Contact List */}
       <div className="w-80 border-r flex-shrink-0">
-        <ContactMergeList
+        <MergedContactList
           onContactSelect={handleContactSelect}
           selectedContactId={selectedContact?.id}
         />
@@ -31,7 +31,9 @@ export default function MergeIndex() {
                 </h2>
                 <div className="text-sm text-muted-foreground">
                   {selectedContact.platformContacts.length} platform
-                  {selectedContact.platformContacts.length !== 1 ? "s" : ""}{" "}
+                  {selectedContact.platformContacts.length !== 1
+                    ? "s"
+                    : ""}{" "}
                   connected
                 </div>
               </div>
