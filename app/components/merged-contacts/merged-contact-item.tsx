@@ -5,9 +5,9 @@ import { PlatformEnum } from "~/lib/contacts-server-api/types";
 import type { ContactCardWithPlatforms } from "~/hooks/use-contact-cards-with-platforms";
 
 interface MergedContactItemProps {
-  readonly contact: ContactCardWithPlatforms;
-  readonly isSelected: boolean;
-  readonly onSelect: () => void;
+  contact: ContactCardWithPlatforms;
+  isSelected: boolean;
+  onSelect: () => void;
 }
 
 const platformColors = {

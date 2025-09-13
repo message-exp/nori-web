@@ -3,7 +3,7 @@ import { faDiscord, faTelegram } from "@fortawesome/free-brands-svg-icons";
 import { MessageCircle } from "lucide-react";
 
 import { detectPlatform } from "~/lib/matrix-api/utils";
-import type { PlatformEnum } from "~/lib/contacts-server-api/types";
+import { PlatformEnum } from "~/lib/contacts-server-api/types";
 import { type Room } from "matrix-js-sdk";
 
 interface BridgeIconProps {
@@ -28,7 +28,7 @@ const BridgeIcon = ({
 
   // 產生平台圖示
   switch (targetPlatform) {
-    case "Discord":
+    case PlatformEnum.DISCORD:
       return (
         <FontAwesomeIcon
           icon={faDiscord}
@@ -36,7 +36,7 @@ const BridgeIcon = ({
           aria-label="Discord"
         />
       );
-    case "Telegram":
+    case PlatformEnum.TELEGRAM:
       return (
         <FontAwesomeIcon
           icon={faTelegram}
@@ -44,7 +44,7 @@ const BridgeIcon = ({
           aria-label="Telegram"
         />
       );
-    case "Matrix":
+    case PlatformEnum.MATRIX:
       return showMatrix ? (
         <MessageCircle className={className} aria-label="Matrix" />
       ) : null;

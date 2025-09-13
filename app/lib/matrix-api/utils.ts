@@ -1,7 +1,7 @@
 import { getHttpUriForMxc } from "matrix-js-sdk/src/content-repo";
 import * as sdk from "matrix-js-sdk";
 import { client } from "./client";
-import type { PlatformEnum } from "~/lib/contacts-server-api/types";
+import { PlatformEnum } from "~/lib/contacts-server-api/types";
 
 /**
  * Get base URL from user ID
@@ -347,7 +347,7 @@ export function detectPlatform(room: sdk.Room): PlatformEnum {
     ?.getStateEvents("m.bridge");
 
   if (!bridgeStateEvents || bridgeStateEvents.length === 0) {
-    return "Matrix" as PlatformEnum;
+    return PlatformEnum.MATRIX;
   }
 
   const content = bridgeStateEvents[0].getContent();
@@ -355,10 +355,10 @@ export function detectPlatform(room: sdk.Room): PlatformEnum {
   switch (protocol) {
     case "discord":
     case "discordgo":
-      return "Discord" as PlatformEnum;
+      return PlatformEnum.DISCORD;
     case "telegram":
-      return "Telegram" as PlatformEnum;
+      return PlatformEnum.TELEGRAM;
     default:
-      return "Matrix" as PlatformEnum;
+      return PlatformEnum.MATRIX;
   }
 }

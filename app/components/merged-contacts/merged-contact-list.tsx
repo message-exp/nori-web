@@ -8,8 +8,8 @@ import { AlertTriangle } from "lucide-react";
 import { ScrollArea } from "~/components/ui/scroll-area";
 
 interface MergedContactListProps {
-  readonly onContactSelect: (contact: ContactCardWithPlatforms) => void;
-  readonly selectedContactId?: string | null;
+  onContactSelect: (contact: ContactCardWithPlatforms) => void;
+  selectedContactId?: string | null;
 }
 
 export function MergedContactList({
@@ -22,8 +22,11 @@ export function MergedContactList({
   const renderContent = () => {
     if (loading) {
       return (
-        <div className="p-4 text-sm text-muted-foreground">
-          Loading contacts...
+        <div className="flex items-center justify-center p-8">
+          <div className="flex flex-col items-center gap-3 text-muted-foreground">
+            <div className="animate-spin rounded-full h-6 w-6 border-2 border-primary border-r-transparent" />
+            <p className="text-sm">Loading contacts...</p>
+          </div>
         </div>
       );
     }
@@ -69,7 +72,7 @@ export function MergedContactList({
         <div className="flex items-center justify-between">
           <h2 className="text-xl font-semibold">Merged Contacts</h2>
           <span className="text-sm text-muted-foreground">
-            {loading ? "..." : contactCards.length}
+            {contactCards.length}
           </span>
         </div>
       </div>

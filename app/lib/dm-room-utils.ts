@@ -1,6 +1,6 @@
 import type { Room } from "matrix-js-sdk";
 import { client } from "~/lib/matrix-api/client";
-import type { PlatformEnum } from "~/lib/contacts-server-api/types";
+import { PlatformEnum } from "~/lib/contacts-server-api/types";
 import { detectPlatform } from "~/lib/matrix-api/utils";
 import { isDMRoom } from "~/lib/matrix-api/room";
 
@@ -35,7 +35,7 @@ export function parsePlatformUserId(
   matrixUserId: string,
   platform: PlatformEnum,
 ): string {
-  if (platform === "Matrix") {
+  if (platform === PlatformEnum.MATRIX) {
     return matrixUserId;
   }
 

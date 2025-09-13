@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { PlatformEnum } from "~/lib/contacts-server-api/types";
 
 export const contactFormSchema = z.object({
   contact_name: z
@@ -13,7 +14,11 @@ export const contactFormSchema = z.object({
 });
 
 export const platformFormSchema = z.object({
-  platform: z.enum(["Discord", "Telegram", "Matrix"]),
+  platform: z.enum([
+    PlatformEnum.DISCORD,
+    PlatformEnum.TELEGRAM,
+    PlatformEnum.MATRIX,
+  ]),
   platform_user_id: z.string().min(1, "Platform user ID is required"),
   dm_room_id: z.string().min(1, "DM room ID is required"),
 });
