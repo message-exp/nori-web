@@ -57,7 +57,7 @@ function HomeLayoutContent() {
                   </Button>
                 )}
               </NavLink>
-              <NavLink to="/merge">
+              <NavLink to="/dms">
                 {/* eslint-disable-next-line @typescript-eslint/no-unused-vars */}
                 {({ isActive, isPending, isTransitioning }) => (
                   <Button
