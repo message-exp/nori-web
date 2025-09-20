@@ -11,6 +11,7 @@ import {
   TooltipTrigger,
 } from "~/components/ui/tooltip";
 import { useRoomContext } from "~/contexts/room-context";
+import { isDMRoom } from "~/lib/matrix-api/room";
 import { CreateRoomDialog } from "./create-room-dialog";
 import { RoomListButton } from "./room-list-button";
 interface RoomListProps {
@@ -20,6 +21,9 @@ interface RoomListProps {
 export const RoomList = React.memo(({ onRoomSelect }: RoomListProps) => {
   const { rooms, selectedRoomId, setSelectedRoomId } = useRoomContext();
   const navigate = useNavigate();
+
+  // Filter out DM rooms from the room list
+  const nonDMRooms = rooms.filter((room) => !isDMRoom(room));
 
   const handleRoomSelect = (roomId: string) => {
     setSelectedRoomId(roomId);
@@ -55,7 +59,7 @@ export const RoomList = React.memo(({ onRoomSelect }: RoomListProps) => {
       </div>
       <ScrollArea className="flex-1 h-[calc(100vh-60px)]">
         <div className="flex flex-col gap-1 p-2">
-          {rooms.map((room) => (
+          {nonDMRooms.map((room) => (
             <RoomListButton
               key={room.roomId}
               room={room}
