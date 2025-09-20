@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { useOutletContext } from "react-router";
+import { useNavigate, useOutletContext } from "react-router";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import {
@@ -22,12 +22,16 @@ type HomeLayoutContext = {
 type SelectedItem = SelectableItem;
 
 export default function DMsIndex() {
-  const { isMobile, showMobileList, setShowMobileList } =
-    useOutletContext<HomeLayoutContext>();
+  const { isMobile, setShowMobileList } = useOutletContext<HomeLayoutContext>();
+  const navigate = useNavigate();
   const [selectedItem, setSelectedItem] = useState<SelectedItem | null>(null);
 
   const handleItemSelect = (item: SelectableItem) => {
-    setSelectedItem(item);
+    if (item.type === "contact") {
+      navigate(`/dms/contact/${item.data.id}`);
+    } else {
+      navigate(`/dms/room/${item.data.roomId}`);
+    }
   };
 
   const handleBackToList = useCallback(() => {
@@ -48,12 +52,6 @@ export default function DMsIndex() {
     item: SelectedItem,
   ): item is SelectableItem & { type: "contact" } => {
     return item.type === "contact";
-  };
-
-  const isDMRoom = (
-    item: SelectedItem,
-  ): item is SelectableItem & { type: "dmRoom" } => {
-    return item.type === "dmRoom";
   };
 
   // Get display name for selected item
