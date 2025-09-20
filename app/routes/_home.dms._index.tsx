@@ -2,13 +2,16 @@ import { useCallback, useEffect, useState } from "react";
 import { useOutletContext } from "react-router";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "~/components/ui/button";
-import { MergedContactList } from "~/components/merged-contacts/merged-contact-list";
+import {
+  DMsList,
+  type SelectableItem,
+  type SelectableItemId,
+} from "~/components/dms-list/dms-list";
 import {
   ResizableHandle,
   ResizablePanel,
   ResizablePanelGroup,
 } from "~/components/ui/resizable";
-import type { ContactCardWithPlatforms } from "~/hooks/use-contact-cards-with-platforms";
 
 type HomeLayoutContext = {
   isMobile: boolean;
@@ -16,19 +19,59 @@ type HomeLayoutContext = {
   setShowMobileList: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
-export default function MergeIndex() {
+type SelectedItem = SelectableItem;
+
+export default function DMsIndex() {
   const { isMobile, showMobileList, setShowMobileList } =
     useOutletContext<HomeLayoutContext>();
-  const [selectedContact, setSelectedContact] =
-    useState<ContactCardWithPlatforms | null>(null);
+  const [selectedItem, setSelectedItem] = useState<SelectedItem | null>(null);
 
-  const handleContactSelect = (contact: ContactCardWithPlatforms) => {
-    setSelectedContact(contact);
+  const handleItemSelect = (item: SelectableItem) => {
+    setSelectedItem(item);
   };
 
   const handleBackToList = useCallback(() => {
-    setSelectedContact(null);
+    setSelectedItem(null);
   }, []);
+
+  // Get selected ID for DMsList
+  const getSelectedId = (): SelectableItemId | null => {
+    if (!selectedItem) return null;
+    if (selectedItem.type === "contact") {
+      return { type: "contact", id: selectedItem.data.id };
+    }
+    return { type: "dmRoom", id: selectedItem.data.roomId };
+  };
+
+  // Helper functions to determine item type
+  const isContactCard = (
+    item: SelectedItem,
+  ): item is SelectableItem & { type: "contact" } => {
+    return item.type === "contact";
+  };
+
+  const isDMRoom = (
+    item: SelectedItem,
+  ): item is SelectableItem & { type: "dmRoom" } => {
+    return item.type === "dmRoom";
+  };
+
+  // Get display name for selected item
+  const getDisplayName = (item: SelectedItem): string => {
+    if (isContactCard(item)) {
+      return item.data.nickname || item.data.contact_name;
+    }
+    return item.data.roomName;
+  };
+
+  // Get subtitle for selected item
+  const getSubtitle = (item: SelectedItem): string => {
+    if (isContactCard(item)) {
+      const count = item.data.platformContacts.length;
+      return `${count} platform${count !== 1 ? "s" : ""} connected`;
+    }
+    return `${item.data.platform} DM`;
+  };
 
   useEffect(() => {
     if (isMobile) {
@@ -40,11 +83,8 @@ export default function MergeIndex() {
     <div className="h-screen">
       {isMobile ? (
         <div className="h-full w-full transition-all duration-300">
-          {!selectedContact ? (
-            <MergedContactList
-              onContactSelect={handleContactSelect}
-              selectedContactId={null}
-            />
+          {!selectedItem ? (
+            <DMsList onSelect={handleItemSelect} selectedId={getSelectedId()} />
           ) : (
             <div className="flex flex-col h-full">
               <div className="flex items-center gap-3 p-4 border-b">
@@ -58,26 +98,25 @@ export default function MergeIndex() {
                 </Button>
                 <div className="flex-1">
                   <h2 className="text-xl font-semibold">
-                    {selectedContact?.nickname || selectedContact?.contact_name}
+                    {getDisplayName(selectedItem)}
                   </h2>
                   <div className="text-sm text-muted-foreground">
-                    {selectedContact?.platformContacts.length} platform
-                    {selectedContact?.platformContacts.length !== 1
-                      ? "s"
-                      : ""}{" "}
-                    connected
+                    {getSubtitle(selectedItem)}
                   </div>
                 </div>
               </div>
               <div className="flex-1 p-4">
                 <div className="text-center text-muted-foreground h-full flex items-center justify-center">
                   <div>
-                    <div className="text-lg mb-2">Merged Chat Coming Soon</div>
+                    <div className="text-lg mb-2">
+                      {isContactCard(selectedItem)
+                        ? "Merged Chat Coming Soon"
+                        : "DM Chat"}
+                    </div>
                     <div className="text-sm">
-                      Timeline view for{" "}
-                      {selectedContact?.nickname ||
-                        selectedContact?.contact_name}{" "}
-                      will be implemented in Phase 2
+                      {isContactCard(selectedItem)
+                        ? `Timeline view for ${getDisplayName(selectedItem)} will be implemented in Phase 2`
+                        : `DM conversation with ${getDisplayName(selectedItem)}`}
                     </div>
                   </div>
                 </div>
@@ -93,35 +132,32 @@ export default function MergeIndex() {
             minSize={20}
             className="flex flex-col"
           >
-            <MergedContactList
-              onContactSelect={handleContactSelect}
-              selectedContactId={selectedContact?.id}
-            />
+            <DMsList onSelect={handleItemSelect} selectedId={getSelectedId()} />
           </ResizablePanel>
           <ResizableHandle />
           <ResizablePanel defaultSize={75}>
             <div className="flex-1 p-4">
-              {selectedContact ? (
+              {selectedItem ? (
                 <div className="h-full">
                   <div className="border-b pb-4 mb-4">
                     <h2 className="text-xl font-semibold">
-                      {selectedContact.nickname || selectedContact.contact_name}
+                      {getDisplayName(selectedItem)}
                     </h2>
                     <div className="text-sm text-muted-foreground">
-                      {selectedContact.platformContacts.length} platform
-                      {selectedContact.platformContacts.length !== 1
-                        ? "s"
-                        : ""}{" "}
-                      connected
+                      {getSubtitle(selectedItem)}
                     </div>
                   </div>
 
                   <div className="text-center text-muted-foreground">
-                    <div className="text-lg mb-2">Merged Chat Coming Soon</div>
+                    <div className="text-lg mb-2">
+                      {isContactCard(selectedItem)
+                        ? "Merged Chat Coming Soon"
+                        : "DM Chat"}
+                    </div>
                     <div className="text-sm">
-                      Timeline view for{" "}
-                      {selectedContact.nickname || selectedContact.contact_name}{" "}
-                      will be implemented in Phase 2
+                      {isContactCard(selectedItem)
+                        ? `Timeline view for ${getDisplayName(selectedItem)} will be implemented in Phase 2`
+                        : `DM conversation with ${getDisplayName(selectedItem)}`}
                     </div>
                   </div>
                 </div>

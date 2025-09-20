@@ -5,7 +5,7 @@ import type { ContactCardWithPlatforms } from "~/hooks/use-contact-cards-with-pl
 import type { DMRoomInfo } from "~/lib/dm-room-utils";
 import { BridgeIcon } from "../ui/bridge-icon";
 
-type MergedContactItemProps =
+type DMsItemProps =
   | {
       itemType: "contact";
       contact: ContactCardWithPlatforms;
@@ -19,7 +19,7 @@ type MergedContactItemProps =
       onSelect: () => void;
     };
 
-export function MergedContactItem(props: Readonly<MergedContactItemProps>) {
+export function DMsItem(props: Readonly<DMsItemProps>) {
   const { isSelected, onSelect } = props;
 
   const displayName =
