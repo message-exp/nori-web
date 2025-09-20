@@ -1,8 +1,7 @@
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
-import { Badge } from "~/components/ui/badge";
 import { avatarFallback, cn } from "~/lib/utils";
-import { PlatformEnum } from "~/lib/contacts-server-api/types";
 import type { ContactCardWithPlatforms } from "~/hooks/use-contact-cards-with-platforms";
+import { BridgeIcon } from "../ui/bridge-icon";
 
 interface MergedContactItemProps {
   contact: ContactCardWithPlatforms;
@@ -10,23 +9,11 @@ interface MergedContactItemProps {
   onSelect: () => void;
 }
 
-const platformColors = {
-  [PlatformEnum.DISCORD]: "bg-indigo-500",
-  [PlatformEnum.TELEGRAM]: "bg-blue-500",
-  [PlatformEnum.MATRIX]: "bg-green-500",
-};
-
-const platformNames = {
-  [PlatformEnum.DISCORD]: "Discord",
-  [PlatformEnum.TELEGRAM]: "Telegram",
-  [PlatformEnum.MATRIX]: "Matrix",
-};
-
 export function MergedContactItem({
   contact,
   isSelected,
   onSelect,
-}: MergedContactItemProps) {
+}: Readonly<MergedContactItemProps>) {
   const displayName = contact.nickname || contact.contact_name;
 
   return (
@@ -51,22 +38,18 @@ export function MergedContactItem({
         <div className="flex items-center gap-2 mt-1">
           <div className="flex flex-wrap gap-1">
             {contact.platformContacts.map((platform) => (
-              <Badge
+              <div
                 key={platform.id}
-                variant="secondary"
-                className={cn(
-                  "text-xs px-1.5 py-0.5 text-white",
-                  platformColors[platform.platform],
-                )}
+                className="flex items-center justify-center size-6 bg-gray-800 rounded-full"
               >
-                {platformNames[platform.platform]}
-              </Badge>
+                <BridgeIcon
+                  platform={platform.platform}
+                  className="size-4 text-white"
+                  showMatrix={true}
+                />
+              </div>
             ))}
           </div>
-        </div>
-        <div className="text-sm text-muted-foreground truncate mt-0.5">
-          {contact.platformContacts.length} platform
-          {contact.platformContacts.length !== 1 ? "s" : ""} connected
         </div>
       </div>
     </button>

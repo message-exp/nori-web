@@ -15,7 +15,7 @@ interface MergedContactListProps {
 export function MergedContactList({
   onContactSelect,
   selectedContactId,
-}: MergedContactListProps) {
+}: Readonly<MergedContactListProps>) {
   const { contactCards, loading, error, refetch } =
     useContactCardsWithPlatforms();
 
@@ -71,9 +71,6 @@ export function MergedContactList({
       <div className="p-4 pr-2">
         <div className="flex items-center justify-between">
           <h2 className="text-xl font-semibold">Merged Contacts</h2>
-          <span className="text-sm text-muted-foreground">
-            {contactCards.length}
-          </span>
         </div>
       </div>
       <ScrollArea className="flex-1 h-[calc(100vh-60px)]">
