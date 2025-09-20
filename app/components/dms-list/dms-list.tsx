@@ -2,7 +2,7 @@ import {
   useContactCardsWithPlatforms,
   type ContactCardWithPlatforms,
 } from "~/hooks/use-contact-cards-with-platforms";
-import { MergedContactItem } from "./merged-contact-item";
+import { MergedContactItem } from "./dms-list-button";
 import { Alert, AlertDescription } from "~/components/ui/alert";
 import { AlertTriangle } from "lucide-react";
 import { ScrollArea } from "~/components/ui/scroll-area";
