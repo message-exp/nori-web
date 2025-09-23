@@ -32,7 +32,7 @@ const formSchema = z.object({
     .max(100, "Display name must be less than 100 characters"),
   nickname: z
     .string()
-    .max(50, "Nickname must be less than 50 characters")
+    .max(100, "Nickname must be less than 100 characters")
     .optional(),
   contact_avatar_url: z.string().optional(),
 });
@@ -181,7 +181,7 @@ export default function CreateCardDialog({
                         <Input
                           placeholder="Enter nickname (optional)"
                           className="col-span-3"
-                          maxLength={50}
+                          maxLength={100}
                           {...field}
                         />
                       </FormControl>
@@ -191,7 +191,7 @@ export default function CreateCardDialog({
                       <div className="col-span-3">
                         <FormMessage />
                         <div className="text-xs text-muted-foreground text-right mt-1">
-                          {field.value?.length || 0}/50
+                          {field.value?.length || 0}/100
                         </div>
                       </div>
                     </div>
