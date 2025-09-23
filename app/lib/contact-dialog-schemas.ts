@@ -7,7 +7,7 @@ export const contactFormSchema = z.object({
     .max(100, "Display name must be less than 100 characters"),
   nickname: z
     .string()
-    .max(50, "Nickname must be less than 50 characters")
+    .max(100, "Nickname must be less than 100 characters")
     .optional(),
   contact_avatar_url: z.string().optional(),
 });
