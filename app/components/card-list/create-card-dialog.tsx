@@ -144,8 +144,8 @@ export default function CreateCardDialog({
                 render={({ field }) => (
                   <FormItem>
                     <div className="grid grid-cols-4 items-center gap-4">
-                      <FormLabel className="text-right">
-                        Display Name *
+                      <FormLabel className="text-right whitespace-nowrap">
+                        Display Name <span className="text-red-500">*</span>
                       </FormLabel>
                       <FormControl>
                         <Input
