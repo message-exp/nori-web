@@ -4,9 +4,11 @@ import { useNavigate } from "react-router";
 import type { User } from "matrix-js-sdk";
 import { checkClientState } from "~/lib/matrix-api/refresh-token";
 import UserSettings from "~/components/user-settings";
+import { Loading } from "~/components/ui/loading";
 
 export default function UserPage() {
   const [user, setUser] = useState<User>();
+  const [loading, setLoading] = useState(true);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -25,11 +27,17 @@ export default function UserPage() {
         }
       } catch (error) {
         console.error("Error fetching user data:", error);
+      } finally {
+        setLoading(false);
       }
     }
 
     fetchUserData();
   }, []);
+
+  if (loading) {
+    return <Loading />;
+  }
 
   return <UserSettings user={user} />;
 }
