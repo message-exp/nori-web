@@ -8,6 +8,7 @@ import {
   ResizablePanelGroup,
 } from "~/components/ui/resizable";
 import { useRoomContext } from "~/contexts/room-context";
+import { Loading } from "~/components/ui/loading";
 
 type HomeLayoutContext = {
   isMobile: boolean;
@@ -36,11 +37,7 @@ export default function HomeRoom() {
   }, [isMobile, setShowMobileList]);
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center h-full">
-        Loading rooms...
-      </div>
-    );
+    return <Loading text="Loading rooms..." />;
   }
 
   return (

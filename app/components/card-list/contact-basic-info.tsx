@@ -116,13 +116,13 @@ export function ContactBasicInfo({
                     <FormControl>
                       <Input
                         placeholder="Enter nickname (optional)"
-                        maxLength={50}
+                        maxLength={100}
                         {...field}
                       />
                     </FormControl>
                     <FormMessage />
                     <div className="text-xs text-muted-foreground text-right mt-1">
-                      {field.value?.length || 0}/50
+                      {field.value?.length || 0}/100
                     </div>
                   </FormItem>
                 )}
