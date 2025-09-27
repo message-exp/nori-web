@@ -130,8 +130,8 @@ export function isDMRoom(room: Room | null): boolean {
   // Method 3: Check using getDMInviter if available (newer SDK versions)
   try {
     const myMember = room.getMember(currentUserId);
-    if (myMember && typeof (myMember as any).getDMInviter === "function") {
-      const dmInviter = (myMember as any).getDMInviter();
+    if (myMember && typeof myMember.getDMInviter === "function") {
+      const dmInviter = myMember.getDMInviter();
       if (dmInviter) {
         return true;
       }
