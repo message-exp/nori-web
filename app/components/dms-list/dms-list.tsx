@@ -9,6 +9,7 @@ import { AlertTriangle } from "lucide-react";
 import { ScrollArea } from "~/components/ui/scroll-area";
 import { ToggleGroup, ToggleGroupItem } from "~/components/ui/toggle-group";
 import { useDMRooms } from "~/hooks/use-dm-rooms";
+import { Loading } from "~/components/ui/loading";
 import type { DMRoomInfo } from "~/lib/dm-room-utils";
 
 // 顯示模式類型
@@ -73,14 +74,7 @@ export function DMsList({ onSelect, selectedId }: Readonly<DMsListProps>) {
 
   const renderContent = () => {
     if (contactsLoading || dmRoomsLoading) {
-      return (
-        <div className="flex items-center justify-center p-8">
-          <div className="flex flex-col items-center gap-3 text-muted-foreground">
-            <div className="animate-spin rounded-full h-6 w-6 border-2 border-primary border-r-transparent" />
-            <p className="text-sm">Loading contacts...</p>
-          </div>
-        </div>
-      );
+      return <Loading text="Loading DMs..." className="p-8" />;
     }
 
     if (contactsError || dmRoomsError) {

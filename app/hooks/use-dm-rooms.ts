@@ -1,37 +1,22 @@
-import { useState, useEffect } from "react";
-import { getRoomList } from "~/lib/matrix-api/room-list";
+import { useMemo } from "react";
+import { useRoomContext } from "~/contexts/room-context";
 import { getDMRooms, type DMRoomInfo } from "~/lib/dm-room-utils";
 
 export function useDMRooms() {
-  const [dmRooms, setDMRooms] = useState<DMRoomInfo[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { rooms, loading } = useRoomContext();
 
-  const fetchDMRooms = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-
-      const allRooms = await getRoomList();
-      const dmRoomsInfo = getDMRooms(allRooms);
-
-      setDMRooms(dmRoomsInfo);
-    } catch (error) {
-      console.error("Failed to fetch DM rooms:", error);
-      setError("Failed to load DM rooms");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchDMRooms();
-  }, []);
+  const dmRooms = useMemo<DMRoomInfo[]>(() => {
+    if (loading) return [];
+    return getDMRooms(rooms);
+  }, [rooms, loading]);
 
   return {
     dmRooms,
     loading,
-    error,
-    refetch: fetchDMRooms,
+    error: null, // 錯誤處理由 room-context 管理
+    refetch: () => {
+      // room-context 會自動重新獲取資料，這裡不需要額外實作
+      console.log("DM rooms will be refetched through room context");
+    },
   };
 }

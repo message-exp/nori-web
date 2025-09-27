@@ -12,6 +12,8 @@ import {
   ResizablePanel,
   ResizablePanelGroup,
 } from "~/components/ui/resizable";
+import { useRoomContext } from "~/contexts/room-context";
+import { Loading } from "~/components/ui/loading";
 
 type HomeLayoutContext = {
   isMobile: boolean;
@@ -23,6 +25,7 @@ type SelectedItem = SelectableItem;
 
 export default function DMsIndex() {
   const { isMobile, setShowMobileList } = useOutletContext<HomeLayoutContext>();
+  const { loading } = useRoomContext();
   const navigate = useNavigate();
   const [selectedItem, setSelectedItem] = useState<SelectedItem | null>(null);
 
@@ -76,6 +79,10 @@ export default function DMsIndex() {
       setShowMobileList(true); // show sidebar on mobile
     }
   }, [isMobile, setShowMobileList]);
+
+  if (loading) {
+    return <Loading text="Loading DMs..." />;
+  }
 
   return (
     <div className="h-screen">
