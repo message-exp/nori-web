@@ -16,6 +16,7 @@ import {
 import { useContactCardsWithPlatforms } from "~/hooks/use-contact-cards-with-platforms";
 import { useDMRooms } from "~/hooks/use-dm-rooms";
 import { useRoomContext } from "~/contexts/room-context";
+import { Loading } from "~/components/ui/loading";
 
 type HomeLayoutContext = {
   isMobile: boolean;
@@ -46,8 +47,6 @@ export default function DMsTypePage() {
 
   // State for current item
   const [currentItem, setCurrentItem] = useState<SelectableItem | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
   // Validate type parameter
   const isValidType = (type: string | undefined): type is ValidType => {
@@ -67,50 +66,28 @@ export default function DMsTypePage() {
 
   // Load current item based on type and id
   useEffect(() => {
-    if (!type || !id) {
-      setError("Missing type or id parameter");
-      setLoading(false);
-      return;
-    }
-
-    if (!isValidType(type)) {
-      setError(`Invalid type: ${type}. Must be 'contact' or 'room'`);
-      setLoading(false);
+    if (!type || !id || !isValidType(type)) {
+      setCurrentItem(null);
       return;
     }
 
     // Wait for data to load
     if (contactsLoading || dmRoomsLoading) {
-      setLoading(true);
-      return;
-    }
-
-    if (contactsError || dmRoomsError) {
-      setError(contactsError || dmRoomsError || "Failed to load data");
-      setLoading(false);
       return;
     }
 
     if (type === "contact") {
       const contact = contactCards.find((c) => c.id === id);
-      if (contact) {
-        setCurrentItem({ type: "contact", data: contact });
-        setError(null);
-      } else {
-        setError(`Contact with id ${id} not found`);
-      }
+      setCurrentItem(contact ? { type: "contact", data: contact } : null);
     } else if (type === "room") {
       const dmRoom = dmRooms.find((r) => r.roomId === id);
       if (dmRoom) {
         setCurrentItem({ type: "dmRoom", data: dmRoom });
         setSelectedRoomId(id); // Set selected room for RoomChat
-        setError(null);
       } else {
-        setError(`DM room with id ${id} not found`);
+        setCurrentItem(null);
       }
     }
-
-    setLoading(false);
   }, [
     type,
     id,
@@ -118,8 +95,6 @@ export default function DMsTypePage() {
     dmRooms,
     contactsLoading,
     dmRoomsLoading,
-    contactsError,
-    dmRoomsError,
     setSelectedRoomId,
   ]);
 
@@ -139,25 +114,18 @@ export default function DMsTypePage() {
     }
   }, [isMobile, setShowMobileList]);
 
-  // Loading state
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="flex flex-col items-center gap-3 text-muted-foreground">
-          <div className="animate-spin rounded-full h-6 w-6 border-2 border-primary border-r-transparent" />
-          <p className="text-sm">Loading...</p>
-        </div>
-      </div>
-    );
+  // Loading state - use unified loading pattern like _index.tsx
+  if (contactsLoading || dmRoomsLoading) {
+    return <Loading text="Loading DMs..." />;
   }
 
   // Error state
-  if (error) {
+  if (contactsError || dmRoomsError) {
     return (
       <div className="flex items-center justify-center h-screen">
         <div className="text-center text-muted-foreground">
           <div className="text-lg mb-2">Error</div>
-          <div className="text-sm mb-4">{error}</div>
+          <div className="text-sm mb-4">{contactsError || dmRoomsError}</div>
           <Button onClick={navigateBackToDMs} variant="outline">
             Back to DMs
           </Button>
@@ -166,8 +134,8 @@ export default function DMsTypePage() {
     );
   }
 
-  // No current item
-  if (!currentItem) {
+  // Invalid parameters or item not found
+  if (!type || !id || !isValidType(type) || !currentItem) {
     return (
       <div className="flex items-center justify-center h-screen">
         <div className="text-center text-muted-foreground">
