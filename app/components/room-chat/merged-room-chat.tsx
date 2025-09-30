@@ -193,9 +193,6 @@ const MergedRoomChatComponent = ({
     );
   }
 
-  // Convert MergedTimelineItem[] back to TimelineItem[] for RoomChatContent
-  const timelineItems = messages.map((m) => m.timelineItem);
-
   return (
     <div className="flex h-full flex-col">
       {/* Header */}
@@ -220,7 +217,7 @@ const MergedRoomChatComponent = ({
         <ScrollArea ref={scrollAreaRef} className="h-full">
           <RoomChatContent
             roomLoading={roomLoading}
-            messages={timelineItems}
+            messages={messages}
             hasMore={hasMore}
             hasNewer={hasNewer}
             loading={loading}
