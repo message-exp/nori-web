@@ -3,6 +3,7 @@ import { useNavigate, useOutletContext, useParams } from "react-router";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { RoomChat } from "~/components/room-chat/room-chat";
+import { MergedRoomChat } from "~/components/room-chat/merged-room-chat";
 import {
   DMsList,
   type SelectableItem,
@@ -17,6 +18,7 @@ import { useContactCardsWithPlatforms } from "~/hooks/use-contact-cards-with-pla
 import { useDMRooms } from "~/hooks/use-dm-rooms";
 import { useRoomContext } from "~/contexts/room-context";
 import { Loading } from "~/components/ui/loading";
+import { detectPlatform } from "~/lib/matrix-api/utils";
 
 type HomeLayoutContext = {
   isMobile: boolean;
@@ -195,18 +197,18 @@ export default function DMsTypePage() {
             {/* Mobile content */}
             <div className="flex-1">
               {currentItem.type === "contact" ? (
-                // Contact placeholder
-                <div className="h-full flex items-center justify-center p-4">
-                  <div className="text-center text-muted-foreground">
-                    <div className="text-lg mb-2">Merged Chat Coming Soon</div>
-                    <div className="text-sm">
-                      Timeline view for {getDisplayName(currentItem)} will be
-                      implemented in the next branch
-                    </div>
-                  </div>
-                </div>
+                // Merged room chat for contact
+                <MergedRoomChat
+                  roomConfigs={currentItem.data.platformContacts.map((pc) => ({
+                    roomId: pc.dm_room_id,
+                    platform: pc.platform,
+                  }))}
+                  contactName={
+                    currentItem.data.nickname || currentItem.data.contact_name
+                  }
+                />
               ) : (
-                // Room chat
+                // Single room chat
                 <RoomChat onBackClick={navigateBackToDMs} />
               )}
             </div>
@@ -227,26 +229,18 @@ export default function DMsTypePage() {
           <ResizablePanel defaultSize={75}>
             <div className="h-full">
               {currentItem.type === "contact" ? (
-                // Contact placeholder
-                <div className="h-full flex items-center justify-center p-4">
-                  <div className="text-center text-muted-foreground">
-                    <div className="border-b pb-4 mb-4">
-                      <h2 className="text-xl font-semibold">
-                        {getDisplayName(currentItem)}
-                      </h2>
-                      <div className="text-sm text-muted-foreground">
-                        {getSubtitle(currentItem)}
-                      </div>
-                    </div>
-                    <div className="text-lg mb-2">Merged Chat Coming Soon</div>
-                    <div className="text-sm">
-                      Timeline view for {getDisplayName(currentItem)} will be
-                      implemented in the next branch
-                    </div>
-                  </div>
-                </div>
+                // Merged room chat for contact
+                <MergedRoomChat
+                  roomConfigs={currentItem.data.platformContacts.map((pc) => ({
+                    roomId: pc.dm_room_id,
+                    platform: pc.platform,
+                  }))}
+                  contactName={
+                    currentItem.data.nickname || currentItem.data.contact_name
+                  }
+                />
               ) : (
-                // Room chat
+                // Single room chat
                 <RoomChat />
               )}
             </div>
