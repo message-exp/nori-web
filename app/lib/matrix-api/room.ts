@@ -82,32 +82,73 @@ export function isDMRoom(room: Room | null): boolean {
     return false;
   }
 
-  const members = room.getJoinedMembers();
-  const memberCount = members.length;
+  const roomName = room.name || room.roomId;
 
-  // DM room should have exactly 2 members
-  if (memberCount !== 2) {
-    return false;
-  }
-
-  // Check if room is marked as direct
   const currentUserId = client.client.getUserId();
   if (!currentUserId) {
     return false;
   }
 
-  // Get the m.direct event from account data to check if this room is a DM
+  // Method 1: Check m.direct account data first (most reliable)
   const directRooms =
     client.client
       .getAccountData("m.direct" as keyof AccountDataEvents)
       ?.getContent() || {};
 
-  // Check if this room is in any user's direct room list
   for (const userId in directRooms) {
     const roomIds = directRooms[userId];
     if (Array.isArray(roomIds) && roomIds.includes(room.roomId)) {
       return true;
     }
+  }
+
+  // Method 2: Check for is_direct flag in member events (Element's approach)
+  const members = room.getJoinedMembers();
+  const memberCount = members.length;
+
+  // Check if any member has is_direct flag set
+  for (const member of members) {
+    try {
+      const memberEvent = member.events?.member;
+      if (memberEvent?.event) {
+        const isDirectCurrent = memberEvent.event.content?.is_direct;
+        const isDirectPrev =
+          memberEvent.event.unsigned?.prev_content?.is_direct;
+
+        if (isDirectCurrent || isDirectPrev) {
+          return true;
+        }
+      }
+    } catch (error) {
+      console.error(
+        `isDMRoom: Error checking is_direct flag for member ${member.userId}:`,
+        error,
+      );
+    }
+  }
+
+  // Method 3: Check using getDMInviter if available (newer SDK versions)
+  try {
+    const myMember = room.getMember(currentUserId);
+    if (myMember && typeof myMember.getDMInviter === "function") {
+      const dmInviter = myMember.getDMInviter();
+      if (dmInviter) {
+        return true;
+      }
+    }
+  } catch (error) {
+    console.error(`isDMRoom: Error checking getDMInviter:`, error);
+  }
+
+  // Fallback: Traditional member count check (but more lenient for bridged rooms)
+  if (memberCount <= 3) {
+    console.log(
+      `isDMRoom: Room "${roomName}" has ≤3 members, might be DM but no direct markers found`,
+    );
+  } else {
+    console.log(
+      `isDMRoom: Room "${roomName}" is not DM - member count is ${memberCount}, likely a group chat`,
+    );
   }
 
   return false;

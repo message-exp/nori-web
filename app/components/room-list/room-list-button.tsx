@@ -4,6 +4,7 @@ import { cn, getLatestMessageText } from "~/lib/utils";
 import { BridgeIcon } from "../ui/bridge-icon";
 import { RoomAvatar } from "~/components/ui/room-avatar";
 import { detectPlatform } from "~/lib/matrix-api/utils";
+import { PlatformEnum } from "~/lib/contacts-server-api/types";
 
 interface RoomListButtonProps {
   readonly room: Room;
@@ -39,7 +40,7 @@ export const RoomListButton = ({
         {(() => {
           const platform = detectPlatform(room);
           // 如果是 Matrix 且 showMatrix=false (預設)，則不顯示任何東西
-          if (platform === "Matrix") {
+          if (platform === PlatformEnum.MATRIX) {
             return null;
           }
           return (
