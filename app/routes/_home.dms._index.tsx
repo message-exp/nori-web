@@ -14,6 +14,8 @@ import {
 } from "~/components/ui/resizable";
 import { useRoomContext } from "~/contexts/room-context";
 import { Loading } from "~/components/ui/loading";
+import { useContactCardsWithPlatforms } from "~/hooks/use-contact-cards-with-platforms";
+import { useDMRooms } from "~/hooks/use-dm-rooms";
 
 type HomeLayoutContext = {
   isMobile: boolean;
@@ -25,9 +27,15 @@ type SelectedItem = SelectableItem;
 
 export default function DMsIndex() {
   const { isMobile, setShowMobileList } = useOutletContext<HomeLayoutContext>();
-  const { loading } = useRoomContext();
+  const { loading: roomsLoading } = useRoomContext();
   const navigate = useNavigate();
   const [selectedItem, setSelectedItem] = useState<SelectedItem | null>(null);
+
+  // 預載資料以便後續路由可以使用快取
+  const { loading: contactsLoading } = useContactCardsWithPlatforms();
+  useDMRooms(); // 這個已經依賴 RoomContext，不需要額外處理
+
+  const loading = roomsLoading || contactsLoading;
 
   const handleItemSelect = (item: SelectableItem) => {
     if (item.type === "contact") {

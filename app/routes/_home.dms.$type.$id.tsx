@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import { useNavigate, useOutletContext, useParams } from "react-router";
 import { ArrowLeft } from "lucide-react";
 import { Button } from "~/components/ui/button";
@@ -17,8 +17,6 @@ import {
 import { useContactCardsWithPlatforms } from "~/hooks/use-contact-cards-with-platforms";
 import { useDMRooms } from "~/hooks/use-dm-rooms";
 import { useRoomContext } from "~/contexts/room-context";
-import { Loading } from "~/components/ui/loading";
-import { detectPlatform } from "~/lib/matrix-api/utils";
 
 type HomeLayoutContext = {
   isMobile: boolean;
@@ -32,23 +30,16 @@ export default function DMsTypePage() {
   const { isMobile, setShowMobileList } = useOutletContext<HomeLayoutContext>();
   const navigate = useNavigate();
   const { type, id } = useParams();
-  const { setSelectedRoomId } = useRoomContext();
+  const { setSelectedRoomId, loading: roomsLoading } = useRoomContext();
 
-  // Data loading hooks
+  // Data loading hooks - 這些資料會被快取
   const {
     contactCards,
     loading: contactsLoading,
     error: contactsError,
   } = useContactCardsWithPlatforms();
 
-  const {
-    dmRooms,
-    loading: dmRoomsLoading,
-    error: dmRoomsError,
-  } = useDMRooms();
-
-  // State for current item
-  const [currentItem, setCurrentItem] = useState<SelectableItem | null>(null);
+  const { dmRooms, error: dmRoomsError } = useDMRooms();
 
   // Validate type parameter
   const isValidType = (type: string | undefined): type is ValidType => {
@@ -66,39 +57,34 @@ export default function DMsTypePage() {
     return { type: type === "contact" ? "contact" : "dmRoom", id };
   };
 
-  // Load current item based on type and id
-  useEffect(() => {
+  // Load current item based on type and id using useMemo
+  const currentItem = useMemo<SelectableItem | null>(() => {
     if (!type || !id || !isValidType(type)) {
-      setCurrentItem(null);
-      return;
+      return null;
     }
 
     // Wait for data to load
-    if (contactsLoading || dmRoomsLoading) {
-      return;
+    if (contactsLoading || roomsLoading) {
+      return null;
     }
 
     if (type === "contact") {
       const contact = contactCards.find((c) => c.id === id);
-      setCurrentItem(contact ? { type: "contact", data: contact } : null);
+      return contact ? { type: "contact", data: contact } : null;
     } else if (type === "room") {
       const dmRoom = dmRooms.find((r) => r.roomId === id);
-      if (dmRoom) {
-        setCurrentItem({ type: "dmRoom", data: dmRoom });
-        setSelectedRoomId(id); // Set selected room for RoomChat
-      } else {
-        setCurrentItem(null);
-      }
+      return dmRoom ? { type: "dmRoom", data: dmRoom } : null;
     }
-  }, [
-    type,
-    id,
-    contactCards,
-    dmRooms,
-    contactsLoading,
-    dmRoomsLoading,
-    setSelectedRoomId,
-  ]);
+
+    return null;
+  }, [type, id, contactCards, dmRooms, contactsLoading, roomsLoading]);
+
+  // Set selected room ID when current item changes
+  useEffect(() => {
+    if (currentItem?.type === "dmRoom") {
+      setSelectedRoomId(currentItem.data.roomId);
+    }
+  }, [currentItem, setSelectedRoomId]);
 
   // Handle item selection from DMsList
   const handleItemSelect = (item: SelectableItem) => {
@@ -116,9 +102,41 @@ export default function DMsTypePage() {
     }
   }, [isMobile, setShowMobileList]);
 
-  // Loading state - use unified loading pattern like _index.tsx
-  if (contactsLoading || dmRoomsLoading) {
-    return <Loading text="Loading DMs..." />;
+  // Loading state - 只在初次載入時顯示 loading
+  const isLoading = contactsLoading || roomsLoading;
+
+  // 如果資料還在載入且沒有任何快取資料，顯示載入畫面
+  if (isLoading && contactCards.length === 0 && dmRooms.length === 0) {
+    return (
+      <div className="h-screen">
+        {!isMobile && (
+          <ResizablePanelGroup direction="horizontal" className="h-full">
+            <ResizablePanel
+              defaultSize={25}
+              maxSize={40}
+              minSize={20}
+              className="flex flex-col"
+            >
+              <DMsList
+                onSelect={handleItemSelect}
+                selectedId={getSelectedId()}
+              />
+            </ResizablePanel>
+            <ResizableHandle />
+            <ResizablePanel defaultSize={75}>
+              <div className="flex items-center justify-center h-full">
+                <div className="text-muted-foreground">Loading...</div>
+              </div>
+            </ResizablePanel>
+          </ResizablePanelGroup>
+        )}
+        {isMobile && (
+          <div className="flex items-center justify-center h-full">
+            <div className="text-muted-foreground">Loading...</div>
+          </div>
+        )}
+      </div>
+    );
   }
 
   // Error state
