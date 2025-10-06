@@ -109,7 +109,7 @@ function DesktopContent({ item }: Readonly<{ item: SelectedItem | null }>) {
 }
 
 export default function DMsIndex() {
-  const { isMobile, setShowMobileList } = useOutletContext<HomeLayoutContext>();
+  const context = useOutletContext<HomeLayoutContext>();
   const { loading } = useDMsContext();
   const navigate = useNavigate();
   const [selectedItem, setSelectedItem] = useState<SelectedItem | null>(null);
@@ -134,10 +134,17 @@ export default function DMsIndex() {
   };
 
   useEffect(() => {
-    if (isMobile) {
-      setShowMobileList(true);
+    if (context?.isMobile) {
+      context.setShowMobileList(true);
     }
-  }, [isMobile, setShowMobileList]);
+  }, [context]);
+
+  // Handle case where context is not ready yet
+  if (!context) {
+    return <Loading text="Loading..." />;
+  }
+
+  const { isMobile } = context;
 
   if (loading) {
     return <Loading text="Loading DMs..." />;

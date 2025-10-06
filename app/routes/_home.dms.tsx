@@ -10,6 +10,11 @@ type HomeLayoutContext = {
 export default function DMsLayout() {
   const context = useOutletContext<HomeLayoutContext>();
 
+  // Wait for context to be ready before rendering children
+  if (!context) {
+    return <div>Loading...</div>;
+  }
+
   return (
     <DMsProvider>
       <Outlet context={context} />

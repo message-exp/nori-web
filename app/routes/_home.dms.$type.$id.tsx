@@ -26,7 +26,7 @@ type HomeLayoutContext = {
 type ValidType = "contact" | "room";
 
 export default function DMsTypePage() {
-  const { isMobile, setShowMobileList } = useOutletContext<HomeLayoutContext>();
+  const context = useOutletContext<HomeLayoutContext>();
   const navigate = useNavigate();
   const { type, id } = useParams();
   const { setSelectedRoomId } = useRoomContext();
@@ -90,10 +90,17 @@ export default function DMsTypePage() {
 
   // Set mobile list visibility
   useEffect(() => {
-    if (isMobile) {
-      setShowMobileList(false); // Hide sidebar on mobile when viewing specific item
+    if (context?.isMobile) {
+      context.setShowMobileList(false); // Hide sidebar on mobile when viewing specific item
     }
-  }, [isMobile, setShowMobileList]);
+  }, [context]);
+
+  // Handle case where context is not ready yet
+  if (!context) {
+    return <div>Loading...</div>;
+  }
+
+  const { isMobile, setShowMobileList } = context;
 
   // Error state
   if (error) {
