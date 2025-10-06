@@ -14,8 +14,7 @@ import {
   ResizablePanel,
   ResizablePanelGroup,
 } from "~/components/ui/resizable";
-import { useContactCardsWithPlatforms } from "~/hooks/use-contact-cards-with-platforms";
-import { useDMRooms } from "~/hooks/use-dm-rooms";
+import { useDMsContext } from "~/contexts/dms-context";
 import { useRoomContext } from "~/contexts/room-context";
 
 type HomeLayoutContext = {
@@ -30,16 +29,10 @@ export default function DMsTypePage() {
   const { isMobile, setShowMobileList } = useOutletContext<HomeLayoutContext>();
   const navigate = useNavigate();
   const { type, id } = useParams();
-  const { setSelectedRoomId, loading: roomsLoading } = useRoomContext();
+  const { setSelectedRoomId } = useRoomContext();
 
-  // Data loading hooks - 這些資料會被快取
-  const {
-    contactCards,
-    loading: contactsLoading,
-    error: contactsError,
-  } = useContactCardsWithPlatforms();
-
-  const { dmRooms, error: dmRoomsError } = useDMRooms();
+  // 從 DMsContext 取得資料
+  const { contactCards, dmRooms, loading, error } = useDMsContext();
 
   // Validate type parameter
   const isValidType = (type: string | undefined): type is ValidType => {
@@ -64,7 +57,7 @@ export default function DMsTypePage() {
     }
 
     // Wait for data to load
-    if (contactsLoading || roomsLoading) {
+    if (loading) {
       return null;
     }
 
@@ -77,7 +70,7 @@ export default function DMsTypePage() {
     }
 
     return null;
-  }, [type, id, contactCards, dmRooms, contactsLoading, roomsLoading]);
+  }, [type, id, contactCards, dmRooms, loading]);
 
   // Set selected room ID when current item changes
   useEffect(() => {
@@ -102,50 +95,13 @@ export default function DMsTypePage() {
     }
   }, [isMobile, setShowMobileList]);
 
-  // Loading state - 只在初次載入時顯示 loading
-  const isLoading = contactsLoading || roomsLoading;
-
-  // 如果資料還在載入且沒有任何快取資料，顯示載入畫面
-  if (isLoading && contactCards.length === 0 && dmRooms.length === 0) {
-    return (
-      <div className="h-screen">
-        {!isMobile && (
-          <ResizablePanelGroup direction="horizontal" className="h-full">
-            <ResizablePanel
-              defaultSize={25}
-              maxSize={40}
-              minSize={20}
-              className="flex flex-col"
-            >
-              <DMsList
-                onSelect={handleItemSelect}
-                selectedId={getSelectedId()}
-              />
-            </ResizablePanel>
-            <ResizableHandle />
-            <ResizablePanel defaultSize={75}>
-              <div className="flex items-center justify-center h-full">
-                <div className="text-muted-foreground">Loading...</div>
-              </div>
-            </ResizablePanel>
-          </ResizablePanelGroup>
-        )}
-        {isMobile && (
-          <div className="flex items-center justify-center h-full">
-            <div className="text-muted-foreground">Loading...</div>
-          </div>
-        )}
-      </div>
-    );
-  }
-
   // Error state
-  if (contactsError || dmRoomsError) {
+  if (error) {
     return (
       <div className="flex items-center justify-center h-screen">
         <div className="text-center text-muted-foreground">
           <div className="text-lg mb-2">Error</div>
-          <div className="text-sm mb-4">{contactsError || dmRoomsError}</div>
+          <div className="text-sm mb-4">{error}</div>
           <Button onClick={navigateBackToDMs} variant="outline">
             Back to DMs
           </Button>
