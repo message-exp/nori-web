@@ -1,20 +1,14 @@
 import { useOutletContext } from "react-router";
+import type { HomeLayoutContext } from "./_home";
 import {
   ResizableHandle,
   ResizablePanel,
   ResizablePanelGroup,
 } from "~/components/ui/resizable";
 import { InviteList } from "~/components/invite-list";
-type HomeLayoutContext = {
-  isMobile: boolean;
-  showMobileList: boolean;
-  setShowMobileList: React.Dispatch<React.SetStateAction<boolean>>;
-};
 
 export default function Inbox() {
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { isMobile, showMobileList, setShowMobileList } =
-    useOutletContext<HomeLayoutContext>();
+  const { isMobile, showMobileList } = useOutletContext<HomeLayoutContext>();
 
   return (
     <div className="h-screen">

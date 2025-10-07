@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo } from "react";
 import { useNavigate, useOutletContext, useParams } from "react-router";
 import { ArrowLeft } from "lucide-react";
+import type { HomeLayoutContext } from "./_home";
 import { Button } from "~/components/ui/button";
 import { RoomChat } from "~/components/room-chat/room-chat";
 import { MergedRoomChat } from "~/components/room-chat/merged-room-chat";
@@ -16,12 +17,6 @@ import {
 } from "~/components/ui/resizable";
 import { useDMsContext } from "~/contexts/dms-context";
 import { useRoomContext } from "~/contexts/room-context";
-
-type HomeLayoutContext = {
-  isMobile: boolean;
-  showMobileList: boolean;
-  setShowMobileList: React.Dispatch<React.SetStateAction<boolean>>;
-};
 
 type ValidType = "contact" | "room";
 

@@ -1,11 +1,6 @@
 import { Outlet, useOutletContext } from "react-router";
+import type { HomeLayoutContext } from "./_home";
 import { DMsProvider } from "~/contexts/dms-context";
-
-type HomeLayoutContext = {
-  isMobile: boolean;
-  showMobileList: boolean;
-  setShowMobileList: React.Dispatch<React.SetStateAction<boolean>>;
-};
 
 export default function DMsLayout() {
   const context = useOutletContext<HomeLayoutContext>();

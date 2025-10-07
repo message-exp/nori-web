@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { useNavigate, useOutletContext } from "react-router";
 import { ArrowLeft } from "lucide-react";
+import type { HomeLayoutContext } from "./_home";
 import { Button } from "~/components/ui/button";
 import {
   DMsList,
@@ -14,12 +15,6 @@ import {
 } from "~/components/ui/resizable";
 import { useDMsContext } from "~/contexts/dms-context";
 import { Loading } from "~/components/ui/loading";
-
-type HomeLayoutContext = {
-  isMobile: boolean;
-  showMobileList: boolean;
-  setShowMobileList: React.Dispatch<React.SetStateAction<boolean>>;
-};
 
 type SelectedItem = SelectableItem;
 

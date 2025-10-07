@@ -1,5 +1,6 @@
 import { useCallback, useEffect } from "react";
 import { useNavigate, useOutletContext, useParams } from "react-router";
+import type { HomeLayoutContext } from "./_home";
 import { RoomChat } from "~/components/room-chat/room-chat";
 import { RoomList } from "~/components/room-list/room-list";
 import {
@@ -9,12 +10,6 @@ import {
 } from "~/components/ui/resizable";
 import { useRoomContext } from "~/contexts/room-context";
 import { Loading } from "~/components/ui/loading";
-
-type HomeLayoutContext = {
-  isMobile: boolean;
-  showMobileList: boolean;
-  setShowMobileList: React.Dispatch<React.SetStateAction<boolean>>;
-};
 
 export default function HomeRoom() {
   const { isMobile, setShowMobileList } = useOutletContext<HomeLayoutContext>();
