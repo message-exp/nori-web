@@ -36,7 +36,7 @@ export default function UserPage() {
   }, []);
 
   if (loading) {
-    return <Loading />;
+    return <Loading text="Loading user settings..." />;
   }
 
   return <UserSettings user={user} />;

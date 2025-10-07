@@ -17,6 +17,7 @@ import {
 } from "~/components/ui/resizable";
 import { useDMsContext } from "~/contexts/dms-context";
 import { useRoomContext } from "~/contexts/room-context";
+import { Loading } from "~/components/ui/loading";
 
 type ValidType = "contact" | "room";
 
@@ -91,8 +92,8 @@ export default function DMsTypePage() {
   }, [context]);
 
   // Handle case where context is not ready yet
-  if (!context) {
-    return <div>Loading...</div>;
+  if (!context || loading) {
+    return <Loading text="Loading direct messages..." />;
   }
 
   const { isMobile, setShowMobileList } = context;

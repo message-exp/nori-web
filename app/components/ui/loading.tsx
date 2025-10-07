@@ -1,9 +1,9 @@
 interface LoadingProps {
-  text?: string;
+  text: string;
   className?: string;
 }
 
-export function Loading({ text = "Loading...", className }: LoadingProps) {
+export function Loading({ text, className }: Readonly<LoadingProps>) {
   return (
     <div
       className={`flex items-center justify-center h-full ${className || ""}`}

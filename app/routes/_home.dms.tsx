@@ -8,7 +8,7 @@ export default function DMsLayout() {
 
   // Wait for context to be ready before rendering children
   if (!context) {
-    return <Loading text="Loading Context…" />;
+    return <Loading text="Loading application..." />;
   }
 
   return (
