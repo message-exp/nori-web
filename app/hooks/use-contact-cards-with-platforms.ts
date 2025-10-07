@@ -90,7 +90,7 @@ export function useContactCardsWithPlatforms() {
         if (isMountedRef.current) {
           setContactCards(data);
         }
-      } catch (error) {
+      } catch {
         if (isMountedRef.current) {
           setError("Failed to load contacts");
         }
@@ -119,7 +119,7 @@ export function useContactCardsWithPlatforms() {
       if (isMountedRef.current) {
         setContactCards(data);
       }
-    } catch (error) {
+    } catch {
       if (isMountedRef.current) {
         setError("Failed to load contacts");
       }

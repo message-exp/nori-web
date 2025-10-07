@@ -96,7 +96,7 @@ export default function DMsTypePage() {
     return <Loading text="Loading direct messages..." />;
   }
 
-  const { isMobile, setShowMobileList } = context;
+  const { isMobile } = context;
 
   // Error state
   if (error) {

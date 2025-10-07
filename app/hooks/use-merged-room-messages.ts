@@ -1,5 +1,5 @@
 import * as sdk from "matrix-js-sdk";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { client } from "~/lib/matrix-api/client";
 import { buildTimelineItems } from "~/lib/matrix-api/timeline-helper";
 import type { MergedTimelineItem } from "~/lib/matrix-api/timeline-item";
@@ -25,6 +25,18 @@ export function useMergedRoomMessages(roomConfigs: RoomConfig[]) {
     "user_scroll" | "new_message" | null
   >(null);
 
+  // Use ref to track hasNewer for event listener
+  const hasNewerRef = useRef(false);
+  useEffect(() => {
+    hasNewerRef.current = hasNewer;
+  }, [hasNewer]);
+
+  // Create stable roomIds dependency
+  const roomIds = useMemo(
+    () => roomConfigs.map((c) => c.roomId).join(","),
+    [roomConfigs],
+  );
+
   // Create TimelineWindows for each room
   const timelineWindows = useMemo(() => {
     if (!client.client || roomConfigs.length === 0) return [];
@@ -48,7 +60,7 @@ export function useMergedRoomMessages(roomConfigs: RoomConfig[]) {
         };
       })
       .filter((item): item is NonNullable<typeof item> => item !== null);
-  }, [roomConfigs.map((c) => c.roomId).join(",")]);
+  }, [roomIds]);
 
   function getEventsFromTimelineWindow(
     window: sdk.TimelineWindow,
@@ -148,10 +160,7 @@ export function useMergedRoomMessages(roomConfigs: RoomConfig[]) {
       }
 
       // If hasNewer=true, pause auto-update (user is scrolling up)
-      if (hasNewer) {
-        console.log(
-          "Pausing timeline updates - user scrolling up (hasNewer=true)",
-        );
+      if (hasNewerRef.current) {
         return;
       }
 
@@ -217,7 +226,7 @@ export function useMergedRoomMessages(roomConfigs: RoomConfig[]) {
         tw.room.removeListener(sdk.RoomEvent.Timeline, handleRoomTimeline);
       });
     };
-  }, [timelineWindows, hasNewer]);
+  }, [timelineWindows]);
 
   const loadMessages = async (
     direction: "backwards" | "forwards",

@@ -55,10 +55,6 @@ const MergedRoomChatComponent = ({
   const bottomMessageIdRef = useRef<string | undefined>(undefined);
 
   const scrollToBottom = useCallback((scrollElement: HTMLElement) => {
-    console.log("scroll to bottom");
-    console.log("scroll height: ", scrollElement.scrollHeight);
-    console.log("before scroll: ", scrollElement.scrollTop);
-
     requestAnimationFrame(() => {
       scrollElement.scrollTop = scrollElement.scrollHeight;
     });
@@ -88,10 +84,6 @@ const MergedRoomChatComponent = ({
       } else {
         scrollElement.scrollTop = refEl.offsetTop;
       }
-      console.log(
-        `scroll to (${lastLoadDirection || "initial"}): `,
-        referenceId,
-      );
     },
     [lastLoadDirection],
   );
@@ -102,11 +94,6 @@ const MergedRoomChatComponent = ({
     prevMessageIdRef.current = messages[0].timelineItem.event?.getId();
     bottomMessageIdRef.current =
       messages[messages.length - 1].timelineItem.event?.getId();
-    console.log("save top id:     ", messages[0].timelineItem.event?.getId());
-    console.log(
-      "save bottom id:  ",
-      messages[messages.length - 1].timelineItem.event?.getId(),
-    );
   }, [messages]);
 
   useLayoutEffect(() => {
@@ -121,10 +108,6 @@ const MergedRoomChatComponent = ({
     if (isInitialState) {
       scrollToBottom(scrollElement);
     } else {
-      console.log("top id:    ", prevMessageIdRef.current);
-      console.log("bottom id: ", bottomMessageIdRef.current);
-      console.log("load trigger: ", lastLoadTrigger);
-
       const referenceId = getReferenceId();
       if (referenceId) {
         scrollToReference(scrollElement, referenceId);
@@ -152,13 +135,11 @@ const MergedRoomChatComponent = ({
 
       // Load older messages when scrolled to top
       if (scrollTop === 0 && hasMore) {
-        console.log("has more: ", hasMore);
         loadMessages("backwards");
       }
 
       // Load newer messages when scrolled to bottom
       if (scrollTop + clientHeight >= scrollHeight - 1 && hasNewer) {
-        console.log("has newer: ", hasNewer);
         loadMessages("forwards", "user_scroll");
       }
     },
