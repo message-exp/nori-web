@@ -63,6 +63,14 @@ export function MessageInput({ roomConfigs }: Readonly<MessageInputProps>) {
   // Get current selected room config
   const selectedConfig = roomConfigs.find((rc) => rc.roomId === selectedRoomId);
 
+  // Sync selectedRoomId with roomConfigs when they change
+  useEffect(() => {
+    // When roomConfigs has data but selectedConfig is not found, reset to first room
+    if (roomConfigs.length > 0 && !selectedConfig) {
+      setSelectedRoomId(roomConfigs[0].roomId);
+    }
+  }, [roomConfigs, selectedConfig]);
+
   async function onSubmit(values: z.infer<typeof formSchema>) {
     if (!values.text || !client.client) return;
 
