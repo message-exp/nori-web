@@ -21,11 +21,13 @@ interface RoomConfig {
 interface MergedRoomChatProps {
   readonly roomConfigs: RoomConfig[];
   readonly contactName: string;
+  readonly contactId?: string;
 }
 
 const MergedRoomChatComponent = ({
   roomConfigs,
   contactName,
+  contactId,
 }: MergedRoomChatProps) => {
   const [roomLoading, setRoomLoading] = useState(false);
 
@@ -206,10 +208,10 @@ const MergedRoomChatComponent = ({
         </ScrollArea>
       </div>
 
-      {/* Message input - using the first room for now */}
+      {/* Message input */}
       <div className="border-t p-4">
         {roomConfigs.length > 0 && (
-          <MessageInput roomId={roomConfigs[0].roomId} />
+          <MessageInput roomConfigs={roomConfigs} contactId={contactId} />
         )}
       </div>
     </div>
