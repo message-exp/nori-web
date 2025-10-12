@@ -29,6 +29,7 @@ const formSchema = z.object({
 interface RoomConfig {
   roomId: string;
   platform: PlatformEnum;
+  platformUserId?: string;
 }
 
 interface MessageInputProps {
@@ -36,7 +37,10 @@ interface MessageInputProps {
   contactId?: string;
 }
 
-export function MessageInput({ roomConfigs, contactId }: MessageInputProps) {
+export function MessageInput({
+  roomConfigs,
+  contactId,
+}: Readonly<MessageInputProps>) {
   // State for selected room - using localStorage for persistence
   const [selectedRoomId, setSelectedRoomId] = useState<string>(() => {
     // Read from localStorage or default to first room
@@ -107,7 +111,7 @@ export function MessageInput({ roomConfigs, contactId }: MessageInputProps) {
         {/* Platform selector - only show if multiple rooms */}
         {roomConfigs.length > 1 && selectedConfig && (
           <Select value={selectedRoomId} onValueChange={setSelectedRoomId}>
-            <SelectTrigger className="w-[140px]">
+            <SelectTrigger className="w-fit min-w-[180px]">
               <SelectValue>
                 <div className="flex items-center gap-2">
                   <div
@@ -119,7 +123,19 @@ export function MessageInput({ roomConfigs, contactId }: MessageInputProps) {
                       showMatrix={true}
                     />
                   </div>
-                  <span>{getPlatformDisplayName(selectedConfig.platform)}</span>
+                  <span className="flex items-center gap-1.5">
+                    <span>
+                      {getPlatformDisplayName(selectedConfig.platform)}
+                    </span>
+                    {selectedConfig.platformUserId && (
+                      <>
+                        <span className="text-muted-foreground">·</span>
+                        <span className="text-muted-foreground">
+                          {selectedConfig.platformUserId}
+                        </span>
+                      </>
+                    )}
+                  </span>
                 </div>
               </SelectValue>
             </SelectTrigger>
@@ -136,7 +152,17 @@ export function MessageInput({ roomConfigs, contactId }: MessageInputProps) {
                         showMatrix={true}
                       />
                     </div>
-                    <span>{getPlatformDisplayName(config.platform)}</span>
+                    <span className="flex items-center gap-1.5">
+                      <span>{getPlatformDisplayName(config.platform)}</span>
+                      {config.platformUserId && (
+                        <>
+                          <span className="text-muted-foreground">·</span>
+                          <span className="text-muted-foreground">
+                            {config.platformUserId}
+                          </span>
+                        </>
+                      )}
+                    </span>
                   </div>
                 </SelectItem>
               ))}

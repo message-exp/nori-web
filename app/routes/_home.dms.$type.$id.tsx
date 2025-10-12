@@ -179,6 +179,7 @@ export default function DMsTypePage() {
                   roomConfigs={currentItem.data.platformContacts.map((pc) => ({
                     roomId: pc.dm_room_id,
                     platform: pc.platform,
+                    platformUserId: pc.platform_user_id,
                   }))}
                   contactName={
                     currentItem.data.nickname || currentItem.data.contact_name
@@ -212,6 +213,7 @@ export default function DMsTypePage() {
                   roomConfigs={currentItem.data.platformContacts.map((pc) => ({
                     roomId: pc.dm_room_id,
                     platform: pc.platform,
+                    platformUserId: pc.platform_user_id,
                   }))}
                   contactName={
                     currentItem.data.nickname || currentItem.data.contact_name
