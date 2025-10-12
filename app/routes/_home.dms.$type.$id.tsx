@@ -184,7 +184,6 @@ export default function DMsTypePage() {
                   contactName={
                     currentItem.data.nickname || currentItem.data.contact_name
                   }
-                  contactId={currentItem.data.id}
                 />
               ) : (
                 // Single room chat
@@ -218,7 +217,6 @@ export default function DMsTypePage() {
                   contactName={
                     currentItem.data.nickname || currentItem.data.contact_name
                   }
-                  contactId={currentItem.data.id}
                 />
               ) : (
                 // Single room chat

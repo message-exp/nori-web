@@ -22,13 +22,11 @@ interface RoomConfig {
 interface MergedRoomChatProps {
   readonly roomConfigs: RoomConfig[];
   readonly contactName: string;
-  readonly contactId?: string;
 }
 
 const MergedRoomChatComponent = ({
   roomConfigs,
   contactName,
-  contactId,
 }: MergedRoomChatProps) => {
   const [roomLoading, setRoomLoading] = useState(false);
 
@@ -211,9 +209,7 @@ const MergedRoomChatComponent = ({
 
       {/* Message input */}
       <div className="border-t p-4">
-        {roomConfigs.length > 0 && (
-          <MessageInput roomConfigs={roomConfigs} contactId={contactId} />
-        )}
+        {roomConfigs.length > 0 && <MessageInput roomConfigs={roomConfigs} />}
       </div>
     </div>
   );

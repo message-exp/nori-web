@@ -34,24 +34,13 @@ interface RoomConfig {
 
 interface MessageInputProps {
   roomConfigs: RoomConfig[];
-  contactId?: string;
 }
 
-export function MessageInput({
-  roomConfigs,
-  contactId,
-}: Readonly<MessageInputProps>) {
-  // State for selected room - using localStorage for persistence
-  const [selectedRoomId, setSelectedRoomId] = useState<string>(() => {
-    // Read from localStorage or default to first room
-    if (contactId && typeof window !== "undefined") {
-      const saved = localStorage.getItem(`message_target_room_${contactId}`);
-      if (saved && roomConfigs.some((rc) => rc.roomId === saved)) {
-        return saved;
-      }
-    }
-    return roomConfigs[0]?.roomId || "";
-  });
+export function MessageInput({ roomConfigs }: Readonly<MessageInputProps>) {
+  // State for selected room - default to first room
+  const [selectedRoomId, setSelectedRoomId] = useState<string>(
+    roomConfigs[0]?.roomId || "",
+  );
 
   const [isLoading, setIsLoading] = useState(false);
   const [isEmpty, setIsEmpty] = useState(true);
@@ -62,13 +51,6 @@ export function MessageInput({
       text: "",
     },
   });
-
-  // Save selected room to localStorage when it changes
-  useEffect(() => {
-    if (contactId && selectedRoomId && typeof window !== "undefined") {
-      localStorage.setItem(`message_target_room_${contactId}`, selectedRoomId);
-    }
-  }, [contactId, selectedRoomId]);
 
   // Watch the text field to update button state
   const text = form.watch("text");
