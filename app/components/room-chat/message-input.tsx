@@ -30,6 +30,7 @@ interface RoomConfig {
   roomId: string;
   platform: PlatformEnum;
   platformUserId?: string;
+  platformUserName?: string;
 }
 
 interface MessageInputProps {
@@ -117,11 +118,11 @@ export function MessageInput({ roomConfigs }: Readonly<MessageInputProps>) {
                     <span>
                       {getPlatformDisplayName(selectedConfig.platform)}
                     </span>
-                    {selectedConfig.platformUserId && (
+                    {selectedConfig.platformUserName && (
                       <>
                         <span className="text-muted-foreground">·</span>
                         <span className="text-muted-foreground">
-                          {selectedConfig.platformUserId}
+                          {selectedConfig.platformUserName}
                         </span>
                       </>
                     )}
@@ -144,11 +145,11 @@ export function MessageInput({ roomConfigs }: Readonly<MessageInputProps>) {
                     </div>
                     <span className="flex items-center gap-1.5">
                       <span>{getPlatformDisplayName(config.platform)}</span>
-                      {config.platformUserId && (
+                      {config.platformUserName && (
                         <>
                           <span className="text-muted-foreground">·</span>
                           <span className="text-muted-foreground">
-                            {config.platformUserId}
+                            {config.platformUserName}
                           </span>
                         </>
                       )}
