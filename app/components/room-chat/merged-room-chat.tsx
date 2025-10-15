@@ -17,8 +17,6 @@ import RoomChatContent from "./room-chat-content";
 interface RoomConfig {
   roomId: string;
   platform: PlatformEnum;
-  platformUserId?: string;
-  platformUserName?: string;
 }
 
 interface MergedRoomChatProps {
