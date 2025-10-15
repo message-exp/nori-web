@@ -18,7 +18,6 @@ import {
 import { useDMsContext } from "~/contexts/dms-context";
 import { useRoomContext } from "~/contexts/room-context";
 import { Loading } from "~/components/ui/loading";
-import { useRoomConfigsWithNames } from "~/hooks/use-room-configs-with-names";
 
 type ValidType = "contact" | "room";
 
@@ -85,8 +84,8 @@ export default function DMsTypePage() {
     }
   };
 
-  // Prepare room configs for the hook
-  const baseRoomConfigs = useMemo(() => {
+  // Prepare room configs
+  const roomConfigs = useMemo(() => {
     if (currentItem?.type !== "contact") return [];
     return currentItem.data.platformContacts.map((pc) => ({
       roomId: pc.dm_room_id,
@@ -94,9 +93,6 @@ export default function DMsTypePage() {
       platformUserId: pc.platform_user_id,
     }));
   }, [currentItem]);
-
-  // Get room configs enriched with display names
-  const roomConfigsWithNames = useRoomConfigsWithNames(baseRoomConfigs);
 
   // Set mobile list visibility
   useEffect(() => {
@@ -190,7 +186,7 @@ export default function DMsTypePage() {
               {currentItem.type === "contact" ? (
                 // Merged room chat for contact
                 <MergedRoomChat
-                  roomConfigs={roomConfigsWithNames}
+                  roomConfigs={roomConfigs}
                   contactName={
                     currentItem.data.nickname || currentItem.data.contact_name
                   }
@@ -219,7 +215,7 @@ export default function DMsTypePage() {
               {currentItem.type === "contact" ? (
                 // Merged room chat for contact
                 <MergedRoomChat
-                  roomConfigs={roomConfigsWithNames}
+                  roomConfigs={roomConfigs}
                   contactName={
                     currentItem.data.nickname || currentItem.data.contact_name
                   }
