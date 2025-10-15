@@ -6,41 +6,22 @@ import { z } from "zod";
 import { Button } from "~/components/ui/button";
 import { Form, FormControl, FormField, FormItem } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "~/components/ui/select";
-import { BridgeIcon } from "~/components/ui/bridge-icon";
+import { MessageInputSelector } from "./message-input-selector";
 import { client } from "~/lib/matrix-api/client";
 import { sendTextMessage } from "~/lib/matrix-api/room-messages";
-import type { PlatformEnum } from "~/lib/contacts-server-api/types";
-import {
-  getPlatformBgColor,
-  getPlatformDisplayName,
-} from "~/lib/platform-styles";
 
 const formSchema = z.object({
   text: z.string().trim(),
 });
 
-interface RoomConfig {
-  roomId: string;
-  platform: PlatformEnum;
-  platformUserId?: string;
-  platformUserName?: string;
-}
-
 interface MessageInputProps {
-  roomConfigs: RoomConfig[];
+  roomIds: string[];
 }
 
-export function MessageInput({ roomConfigs }: Readonly<MessageInputProps>) {
+export function MessageInput({ roomIds }: Readonly<MessageInputProps>) {
   // State for selected room - default to first room
   const [selectedRoomId, setSelectedRoomId] = useState<string>(
-    roomConfigs[0]?.roomId || "",
+    roomIds[0] || "",
   );
 
   const [isLoading, setIsLoading] = useState(false);
@@ -61,16 +42,13 @@ export function MessageInput({ roomConfigs }: Readonly<MessageInputProps>) {
     setIsEmpty(!text || text.trim() === "");
   }, [text]);
 
-  // Get current selected room config
-  const selectedConfig = roomConfigs.find((rc) => rc.roomId === selectedRoomId);
-
-  // Sync selectedRoomId with roomConfigs when they change
+  // Sync selectedRoomId with roomIds when they change
   useEffect(() => {
-    // When roomConfigs has data but selectedConfig is not found, reset to first room
-    if (roomConfigs.length > 0 && !selectedConfig) {
-      setSelectedRoomId(roomConfigs[0].roomId);
+    // When roomIds has data but selectedRoomId is not found, reset to first room
+    if (roomIds.length > 0 && !roomIds.includes(selectedRoomId)) {
+      setSelectedRoomId(roomIds[0]);
     }
-  }, [roomConfigs, selectedConfig]);
+  }, [roomIds, selectedRoomId]);
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     if (!values.text || !client.client) return;
@@ -100,66 +78,11 @@ export function MessageInput({ roomConfigs }: Readonly<MessageInputProps>) {
         className="flex flex-col gap-2"
       >
         {/* Platform selector - only show if multiple rooms */}
-        {roomConfigs.length > 1 && selectedConfig && (
-          <Select value={selectedRoomId} onValueChange={setSelectedRoomId}>
-            <SelectTrigger className="w-fit min-w-[180px]">
-              <SelectValue>
-                <div className="flex items-center gap-2">
-                  <div
-                    className={`size-5 ${getPlatformBgColor(selectedConfig.platform)} rounded-full flex items-center justify-center`}
-                  >
-                    <BridgeIcon
-                      platform={selectedConfig.platform}
-                      className="size-3 text-white"
-                      showMatrix={true}
-                    />
-                  </div>
-                  <span className="flex items-center gap-1.5">
-                    <span>
-                      {getPlatformDisplayName(selectedConfig.platform)}
-                    </span>
-                    {selectedConfig.platformUserName && (
-                      <>
-                        <span className="text-muted-foreground">·</span>
-                        <span className="text-muted-foreground">
-                          {selectedConfig.platformUserName}
-                        </span>
-                      </>
-                    )}
-                  </span>
-                </div>
-              </SelectValue>
-            </SelectTrigger>
-            <SelectContent>
-              {roomConfigs.map((config) => (
-                <SelectItem key={config.roomId} value={config.roomId}>
-                  <div className="flex items-center gap-2">
-                    <div
-                      className={`size-5 ${getPlatformBgColor(config.platform)} rounded-full flex items-center justify-center`}
-                    >
-                      <BridgeIcon
-                        platform={config.platform}
-                        className="size-3 text-white"
-                        showMatrix={true}
-                      />
-                    </div>
-                    <span className="flex items-center gap-1.5">
-                      <span>{getPlatformDisplayName(config.platform)}</span>
-                      {config.platformUserName && (
-                        <>
-                          <span className="text-muted-foreground">·</span>
-                          <span className="text-muted-foreground">
-                            {config.platformUserName}
-                          </span>
-                        </>
-                      )}
-                    </span>
-                  </div>
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        )}
+        <MessageInputSelector
+          roomIds={roomIds}
+          selectedRoomId={selectedRoomId}
+          onRoomChange={setSelectedRoomId}
+        />
 
         {/* Message input row */}
         <div className="flex gap-2">

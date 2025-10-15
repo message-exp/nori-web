@@ -29,7 +29,6 @@ import { useIsMobile } from "~/hooks/use-mobile";
 import { useRoomMessages } from "~/hooks/use-room-messages";
 import { client } from "~/lib/matrix-api/client";
 import { getRoom, getRoomTopic } from "~/lib/matrix-api/room";
-import { PlatformEnum } from "~/lib/contacts-server-api/types";
 import { InviteUserDialog } from "./invite-user-dialog";
 import RoomChatContent from "./room-chat-content";
 
@@ -306,11 +305,7 @@ const RoomChatComponent = ({ onBackClick = () => {} }: RoomChatProps) => {
         </ScrollArea>
       </div>
       <div className="border-t p-4">
-        <MessageInput
-          roomConfigs={[
-            { roomId: selectedRoomId, platform: PlatformEnum.MATRIX },
-          ]}
-        />
+        <MessageInput roomIds={[selectedRoomId]} />
       </div>
     </div>
   );
