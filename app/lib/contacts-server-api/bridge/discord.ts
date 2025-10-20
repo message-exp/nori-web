@@ -38,12 +38,12 @@ interface discordLoginWithTokenResponse {
 
 export function getDiscordUserInfo(): Promise<discordGetUserInfoResponse> {
   return contactsApi
-    .get("/api/bridge/discord/info")
+    .get("/api/bridge/discord/users/info")
     .then((response) => response.data);
 }
 export function logout(): Promise<discordLogoutResponse> {
   return contactsApi
-    .post("/api/bridge/discord/logout")
+    .post("/api/bridge/discord/users/logout")
     .then((response) => response.data);
 }
 export function loginWithQr(): Promise<discordLoginWithQrcodeResponse> {
