@@ -15,6 +15,13 @@ import {
   FormMessage,
 } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
+import { loginWithToken } from "~/lib/contacts-server-api/bridge/discord";
+import {
+  getTelegramUserInfo,
+  telegramLoginRequestCode,
+  telegramLoginVerifyCode,
+  telegramLogout,
+} from "~/lib/contacts-server-api/bridge/telegram";
 
 // Telegram Login Form Schemas
 const telegramPhoneFormSchema = z.object({
@@ -52,7 +59,7 @@ export function TelegramBridge({
   const [telegramStep, setTelegramStep] = React.useState<"phone" | "code">(
     "phone",
   );
-
+  console.log("Current state:", { isConnected, userInfo, isChecking });
   // Telegram Phone Form
   const telegramPhoneForm = useForm<z.infer<typeof telegramPhoneFormSchema>>({
     resolver: zodResolver(telegramPhoneFormSchema),
@@ -76,40 +83,16 @@ export function TelegramBridge({
       onCheckStart?.();
 
       try {
-        // TODO: Replace with actual API call to check Telegram connection status
-        // const response = await fetch('/api/bridge/telegram/users/info', {
-        //   headers: {
-        //     'Authorization': 'Bearer YOUR_TOKEN',
-        //   }
-        // });
-        // const data = await response.json();
-
-        // Simulated API response
+        const response = await getTelegramUserInfo();
         await new Promise((resolve) => setTimeout(resolve, 1000));
-
-        // TODO: Check the response to determine if user is connected
-        // Example response structure:
-        // {
-        //   "logged_in": true,
-        //   "username": "user123",
-        //   "phone": "+886912345678",
-        //   ...
-        // }
-
-        // Simulated: user not connected
-        const data = { logged_in: false };
-
-        if (data.logged_in) {
-          setIsConnected(true);
-          setUserInfo(data);
-          onSuccess?.("Already connected to Telegram");
-        } else {
-          setIsConnected(false);
-          setUserInfo(null);
-        }
+        // 測試用：直接設定為已連接
+        response.telegram == null
+          ? setIsConnected(false)
+          : setIsConnected(true);
+        setUserInfo(response);
+        onSuccess?.("Already connected to Telegram");
       } catch (err) {
         console.error("Failed to check Telegram connection:", err);
-        // If check fails, assume not connected and allow login
         setIsConnected(false);
         setUserInfo(null);
       } finally {
@@ -137,18 +120,8 @@ export function TelegramBridge({
 
     try {
       // TODO: Replace with actual API call
-      // const response = await fetch('/api/bridge/telegram/users/login/code', {
-      //   method: 'POST',
-      //   headers: {
-      //     'Authorization': 'Bearer YOUR_TOKEN',
-      //     'Content-Type': 'application/json'
-      //   },
-      //   body: JSON.stringify({ phone: values.phone })
-      // });
-      // const data = await response.json();
-
+      const response = await telegramLoginRequestCode(values.phone);
       // Simulated response
-      await new Promise((resolve) => setTimeout(resolve, 1000));
       setTelegramStep("code");
       onSuccess?.(`Verification code sent to ${values.phone}`);
       telegramCodeForm.reset();
@@ -156,6 +129,7 @@ export function TelegramBridge({
       onError?.(
         err instanceof Error ? err.message : "Failed to send verification code",
       );
+      console.log(err);
     } finally {
       setIsLoading(false);
     }
@@ -170,16 +144,8 @@ export function TelegramBridge({
 
     try {
       // TODO: Replace with actual API call
-      // const response = await fetch('/api/bridge/telegram/users/login/code/verify', {
-      //   method: 'POST',
-      //   headers: {
-      //     'Authorization': 'Bearer YOUR_TOKEN',
-      //     'Content-Type': 'application/json'
-      //   },
-      //   body: JSON.stringify({ code: values.code })
-      // });
-      // const data = await response.json();
-
+      const response = await telegramLoginVerifyCode(values.code);
+      console.log("response", response);
       // Simulated response
       await new Promise((resolve) => setTimeout(resolve, 1000));
       onSuccess?.("Successfully connected to Telegram!");
@@ -201,17 +167,9 @@ export function TelegramBridge({
     onError?.(null);
 
     try {
-      // TODO: Replace with actual API call to disconnect Telegram
-      // const response = await fetch('/api/bridge/telegram/users/logout', {
-      //   method: 'POST',
-      //   headers: {
-      //     'Authorization': 'Bearer YOUR_TOKEN',
-      //   }
-      // });
-
+      const response = await telegramLogout();
       // Simulated response
       await new Promise((resolve) => setTimeout(resolve, 1000));
-
       setIsConnected(false);
       setUserInfo(null);
       onSuccess?.("Successfully disconnected from Telegram");
