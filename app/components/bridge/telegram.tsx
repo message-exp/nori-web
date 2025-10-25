@@ -15,7 +15,6 @@ import {
   FormMessage,
 } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
-import { loginWithToken } from "~/lib/contacts-server-api/bridge/discord";
 import {
   getTelegramUserInfo,
   telegramLoginRequestCode,
