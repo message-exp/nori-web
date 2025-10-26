@@ -58,7 +58,11 @@ export function TelegramBridge({
   const [telegramStep, setTelegramStep] = React.useState<"phone" | "code">(
     "phone",
   );
+  const [phoneNumber, setPhoneNumber] = React.useState<string>(""); // 儲存電話號碼以供重新發送使用
+  const [isResending, setIsResending] = React.useState(false); // 重新發送的載入狀態
+
   console.log("Current state:", { isConnected, userInfo, isChecking });
+
   // Telegram Phone Form
   const telegramPhoneForm = useForm<z.infer<typeof telegramPhoneFormSchema>>({
     resolver: zodResolver(telegramPhoneFormSchema),
@@ -118,9 +122,8 @@ export function TelegramBridge({
     onError?.(null);
 
     try {
-      // TODO: Replace with actual API call
       const response = await telegramLoginRequestCode(values.phone);
-      // Simulated response
+      setPhoneNumber(values.phone); // 儲存電話號碼
       setTelegramStep("code");
       onSuccess?.(`Verification code sent to ${values.phone}`);
       telegramCodeForm.reset();
@@ -134,6 +137,25 @@ export function TelegramBridge({
     }
   }
 
+  // 重新發送驗證碼
+  async function handleResendCode() {
+    setIsResending(true);
+    onError?.(null);
+
+    try {
+      await telegramLoginRequestCode(phoneNumber);
+      onSuccess?.(`Verification code resent to ${phoneNumber}`);
+    } catch (err) {
+      onError?.(
+        err instanceof Error
+          ? err.message
+          : "Failed to resend verification code",
+      );
+    } finally {
+      setIsResending(false);
+    }
+  }
+
   // Telegram Code Submit
   async function onTelegramCodeSubmit(
     values: z.infer<typeof telegramCodeFormSchema>,
@@ -142,15 +164,22 @@ export function TelegramBridge({
     onError?.(null);
 
     try {
-      // TODO: Replace with actual API call
       const response = await telegramLoginVerifyCode(values.code);
       console.log("response", response);
-      // Simulated response
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      onSuccess?.("Successfully connected to Telegram!");
-      setTelegramStep("phone");
-      telegramPhoneForm.reset();
-      telegramCodeForm.reset();
+
+      // 檢查是否成功登入（state 為 "logged-in"）
+      if (response?.state === "logged-in") {
+        onSuccess?.("Successfully connected to Telegram!");
+
+        // 等待一下讓使用者看到成功訊息，然後重新整理頁面
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        window.location.reload();
+      } else {
+        // 如果不是成功登入，依然更新狀態但不重整
+        setTelegramStep("phone");
+        telegramPhoneForm.reset();
+        telegramCodeForm.reset();
+      }
     } catch (err) {
       onError?.(
         err instanceof Error ? err.message : "Invalid verification code",
@@ -338,6 +367,19 @@ export function TelegramBridge({
                   Verify & Connect
                 </Button>
               </div>
+              {/* 重新發送驗證碼按鈕 */}
+              <Button
+                type="button"
+                variant="ghost"
+                className="w-full"
+                onClick={handleResendCode}
+                disabled={isResending || isLoading}
+              >
+                {isResending ? (
+                  <Loader className="mr-2 h-4 w-4 animate-spin" />
+                ) : null}
+                Resend Verification Code
+              </Button>
             </form>
           </Form>
         </div>

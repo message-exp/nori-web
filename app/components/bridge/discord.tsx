@@ -22,7 +22,12 @@ import {
   SelectTrigger,
   SelectValue,
 } from "~/components/ui/select";
-
+import {
+  loginWithQr,
+  getDiscordUserInfo,
+  logoutDiscordBridge,
+} from "~/lib/contacts-server-api/bridge/discord";
+import { QRCodeSVG } from "qrcode.react";
 // Discord Login Form Schema
 const discordTokenFormSchema = z.object({
   token: z.string().trim().min(1, "Token is required"),
@@ -32,10 +37,20 @@ const discordTokenFormSchema = z.object({
 interface DiscordBridgeProps {
   onSuccess?: (message: string | null) => void;
   onError?: (error: string | null) => void;
+  onCheckStart?: () => void;
+  onCheckComplete?: () => void;
 }
 
-export function DiscordBridge({ onSuccess, onError }: DiscordBridgeProps) {
+export function DiscordBridge({
+  onSuccess,
+  onError,
+  onCheckStart,
+  onCheckComplete,
+}: DiscordBridgeProps) {
   const [isLoading, setIsLoading] = React.useState(false);
+  const [isChecking, setIsChecking] = React.useState(true);
+  const [isConnected, setIsConnected] = React.useState(false);
+  const [userInfo, setUserInfo] = React.useState<any>(null);
   const [qrCode, setQrCode] = React.useState<string | null>(null);
 
   // Discord Token Form
@@ -47,6 +62,44 @@ export function DiscordBridge({ onSuccess, onError }: DiscordBridgeProps) {
     },
   });
 
+  // Check if user is already connected to Discord
+  React.useEffect(() => {
+    async function checkConnection() {
+      setIsChecking(true);
+      onCheckStart?.();
+
+      try {
+        const response = await getDiscordUserInfo();
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+
+        const logged_in = response.Discord.logged_in;
+
+        if (logged_in) {
+          const discordUserInfo = {
+            userId: response.mxid,
+            // 可以根據實際 API response 調整欄位
+          };
+
+          setIsConnected(true);
+          setUserInfo(discordUserInfo);
+          onSuccess?.("Already connected to Discord");
+        } else {
+          setIsConnected(false);
+          setUserInfo(null);
+        }
+      } catch (err) {
+        console.error("Failed to check Discord connection:", err);
+        setIsConnected(false);
+        setUserInfo(null);
+      } finally {
+        setIsChecking(false);
+        onCheckComplete?.();
+      }
+    }
+
+    checkConnection();
+  }, []);
+
   // Discord QR Code Login
   async function onDiscordQRLogin() {
     setIsLoading(true);
@@ -55,17 +108,11 @@ export function DiscordBridge({ onSuccess, onError }: DiscordBridgeProps) {
     setQrCode(null);
 
     try {
-      // TODO: Replace with actual API call
-      // const response = await fetch('/api/bridge/discord/users/login/qrcode', {
-      //   headers: { 'Authorization': 'Bearer YOUR_TOKEN' }
-      // });
-      // const data = await response.json();
+      const response = await loginWithQr();
+      console.log(response);
 
-      // Simulated response
       await new Promise((resolve) => setTimeout(resolve, 1000));
-      setQrCode(
-        "https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=discord_qr_placeholder",
-      );
+      setQrCode(response.code);
       onSuccess?.("Scan the QR code with Discord mobile app");
     } catch (err) {
       onError?.(
@@ -86,15 +133,7 @@ export function DiscordBridge({ onSuccess, onError }: DiscordBridgeProps) {
 
     try {
       // TODO: Replace with actual API call
-      // const response = await fetch('/api/bridge/discord/users/login/token', {
-      //   method: 'POST',
-      //   headers: {
-      //     'Authorization': 'Bearer YOUR_TOKEN',
-      //     'Content-Type': 'application/json'
-      //   },
-      //   body: JSON.stringify(values)
-      // });
-      // const data = await response.json();
+      // const response = await loginWithToken(values);
 
       // Simulated response
       await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -109,6 +148,76 @@ export function DiscordBridge({ onSuccess, onError }: DiscordBridgeProps) {
     }
   }
 
+  // Handle disconnect
+  async function handleDisconnect() {
+    setIsLoading(true);
+    onError?.(null);
+
+    try {
+      // TODO: Replace with actual API call to disconnect Discord
+      // const response = await disconnectDiscord();
+      const response = await logoutDiscordBridge();
+
+      // Simulated response
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+
+      setIsConnected(false);
+      setUserInfo(null);
+      onSuccess?.("Successfully disconnected from Discord");
+    } catch (err) {
+      onError?.(err instanceof Error ? err.message : "Failed to disconnect");
+    } finally {
+      setIsLoading(false);
+    }
+  }
+
+  // Show loading state while checking
+  if (isChecking) {
+    return (
+      <div className="flex items-center justify-center py-8">
+        <Loader className="h-6 w-6 animate-spin text-muted-foreground" />
+        <span className="ml-2 text-sm text-muted-foreground">
+          Checking connection status...
+        </span>
+      </div>
+    );
+  }
+
+  // Show connected state
+  if (isConnected && userInfo) {
+    return (
+      <div className="space-y-4">
+        <div className="rounded-lg bg-muted p-4 space-y-2">
+          <p className="text-sm font-medium">Already Connected</p>
+          <p className="text-sm text-muted-foreground">
+            Your Discord account is already connected to Matrix.
+          </p>
+          {userInfo.username && (
+            <p className="text-sm">
+              <span className="font-medium">Username:</span> {userInfo.username}
+              {userInfo.discriminator && `#${userInfo.discriminator}`}
+            </p>
+          )}
+          {userInfo.userId && (
+            <p className="text-sm">
+              <span className="font-medium">User ID:</span> {userInfo.userId}
+            </p>
+          )}
+        </div>
+        <Button
+          variant="destructive"
+          className="w-full"
+          onClick={handleDisconnect}
+          disabled={isLoading}
+        >
+          {isLoading ? <Loader className="mr-2 h-4 w-4 animate-spin" /> : null}
+          Disconnect Discord
+        </Button>
+      </div>
+    );
+  }
+
+  // Show login form
   return (
     <div className="space-y-4">
       {/* QR Code Login */}
@@ -128,8 +237,13 @@ export function DiscordBridge({ onSuccess, onError }: DiscordBridgeProps) {
           Generate QR Code
         </Button>
         {qrCode && (
-          <div className="flex justify-center p-4 border rounded-lg">
-            <img src={qrCode} alt="Discord QR Code" className="w-48 h-48" />
+          <div className="flex justify-center p-4 border rounded-lg bg-white">
+            <QRCodeSVG
+              value={qrCode}
+              size={192} // 192px = w-48
+              level="H" // 高容錯率
+              includeMargin={true}
+            />
           </div>
         )}
       </div>

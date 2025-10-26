@@ -58,7 +58,6 @@ export function BridgeLogin({
         </CardDescription>
       </CardHeader>
       <CardContent>
-        {/* Global Alerts */}
         {error && (
           <Alert className="mb-4" variant="destructive">
             <AlertCircle className="h-4 w-4" />
@@ -73,7 +72,6 @@ export function BridgeLogin({
           </Alert>
         )}
 
-        {/* Bridge Selection Dropdown */}
         <div className="space-y-4">
           <div className="space-y-2">
             <label className="text-sm font-medium">
@@ -101,7 +99,6 @@ export function BridgeLogin({
             </Select>
           </div>
 
-          {/* Bridge Content */}
           <div className="pt-4">
             {activeBridge === "discord" && (
               <DiscordBridge onSuccess={setSuccess} onError={setError} />
