@@ -54,14 +54,13 @@ export function TelegramBridge({
   const [isLoading, setIsLoading] = React.useState(false);
   const [isChecking, setIsChecking] = React.useState(true);
   const [isConnected, setIsConnected] = React.useState(false);
-  const [userInfo, setUserInfo] = React.useState<any>(null);
   const [telegramStep, setTelegramStep] = React.useState<"phone" | "code">(
     "phone",
   );
-  const [phoneNumber, setPhoneNumber] = React.useState<string>(""); // 儲存電話號碼以供重新發送使用
-  const [isResending, setIsResending] = React.useState(false); // 重新發送的載入狀態
+  const [phoneNumber, setPhoneNumber] = React.useState<string>("");
+  const [isResending, setIsResending] = React.useState(false);
 
-  console.log("Current state:", { isConnected, userInfo, isChecking });
+  console.log("Current state:", { isConnected, isChecking });
 
   // Telegram Phone Form
   const telegramPhoneForm = useForm<z.infer<typeof telegramPhoneFormSchema>>({
@@ -87,17 +86,13 @@ export function TelegramBridge({
 
       try {
         const response = await getTelegramUserInfo();
-        await new Promise((resolve) => setTimeout(resolve, 1000));
-        // 測試用：直接設定為已連接
         response.telegram == null
           ? setIsConnected(false)
           : setIsConnected(true);
-        setUserInfo(response);
         onSuccess?.("Already connected to Telegram");
       } catch (err) {
         console.error("Failed to check Telegram connection:", err);
         setIsConnected(false);
-        setUserInfo(null);
       } finally {
         setIsChecking(false);
         onCheckComplete?.();
@@ -167,15 +162,11 @@ export function TelegramBridge({
       const response = await telegramLoginVerifyCode(values.code);
       console.log("response", response);
 
-      // 檢查是否成功登入（state 為 "logged-in"）
       if (response?.state === "logged-in") {
         onSuccess?.("Successfully connected to Telegram!");
-
-        // 等待一下讓使用者看到成功訊息，然後重新整理頁面
         await new Promise((resolve) => setTimeout(resolve, 1000));
         window.location.reload();
       } else {
-        // 如果不是成功登入，依然更新狀態但不重整
         setTelegramStep("phone");
         telegramPhoneForm.reset();
         telegramCodeForm.reset();
@@ -196,10 +187,8 @@ export function TelegramBridge({
 
     try {
       const response = await telegramLogout();
-      // Simulated response
       await new Promise((resolve) => setTimeout(resolve, 1000));
       setIsConnected(false);
-      setUserInfo(null);
       onSuccess?.("Successfully disconnected from Telegram");
     } catch (err) {
       onError?.(err instanceof Error ? err.message : "Failed to disconnect");
@@ -221,7 +210,7 @@ export function TelegramBridge({
   }
 
   // Show connected state
-  if (isConnected && userInfo) {
+  if (isConnected) {
     return (
       <div className="space-y-4">
         <div className="rounded-lg bg-muted p-4 space-y-2">
@@ -229,16 +218,6 @@ export function TelegramBridge({
           <p className="text-sm text-muted-foreground">
             Your Telegram account is already connected to Matrix.
           </p>
-          {userInfo.username && (
-            <p className="text-sm">
-              <span className="font-medium">Username:</span> {userInfo.username}
-            </p>
-          )}
-          {userInfo.phone && (
-            <p className="text-sm">
-              <span className="font-medium">Phone:</span> {userInfo.phone}
-            </p>
-          )}
         </div>
         <Button
           variant="destructive"
@@ -257,7 +236,7 @@ export function TelegramBridge({
   return (
     <div className="space-y-4">
       {telegramStep === "phone" ? (
-        // 步驟 1: 輸入電話號碼
+        // step 1: 輸入電話號碼
         <div className="space-y-4">
           <div className="text-sm text-muted-foreground">
             Step 1: Enter your phone number to receive a verification code
@@ -302,7 +281,7 @@ export function TelegramBridge({
           </Form>
         </div>
       ) : (
-        // 步驟 2: 輸入驗證碼
+        // step 2: 輸入驗證碼
         <div className="space-y-4">
           <div className="rounded-lg bg-muted p-4 space-y-2">
             <p className="text-sm font-medium">
@@ -367,7 +346,6 @@ export function TelegramBridge({
                   Verify & Connect
                 </Button>
               </div>
-              {/* 重新發送驗證碼按鈕 */}
               <Button
                 type="button"
                 variant="ghost"

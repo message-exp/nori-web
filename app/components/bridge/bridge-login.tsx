@@ -17,7 +17,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "~/components/ui/select";
-import { DiscordBridge } from "~/components/bridge/discord";
 import { TelegramBridge } from "~/components/bridge/telegram";
 
 type BridgeType = "discord" | "telegram";
@@ -100,9 +99,9 @@ export function BridgeLogin({
           </div>
 
           <div className="pt-4">
-            {activeBridge === "discord" && (
+            {/* {activeBridge === "discord" && (
               <DiscordBridge onSuccess={setSuccess} onError={setError} />
-            )}
+            )} */}
             {activeBridge === "telegram" && (
               <TelegramBridge onSuccess={setSuccess} onError={setError} />
             )}
