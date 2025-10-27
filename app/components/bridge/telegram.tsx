@@ -1,5 +1,3 @@
-"use client";
-
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader } from "lucide-react";
 import React from "react";
@@ -115,7 +113,7 @@ export function TelegramBridge({
     onError?.(null);
 
     try {
-      const response = await telegramLoginRequestCode(values.phone);
+      await telegramLoginRequestCode(values.phone);
       setPhoneNumber(values.phone);
       setTelegramStep("code");
       onSuccess?.(`Verification code sent to ${values.phone}`);
@@ -183,7 +181,7 @@ export function TelegramBridge({
     onError?.(null);
 
     try {
-      const response = await telegramLogout();
+      await telegramLogout();
       await new Promise((resolve) => setTimeout(resolve, 1000));
       setIsConnected(false);
       onSuccess?.("Successfully disconnected from Telegram");
