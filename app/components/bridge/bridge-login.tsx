@@ -27,8 +27,8 @@ const BRIDGES: Array<{
   name: string;
   icon?: React.ReactNode;
 }> = [
-  { id: "discord", name: "Discord" },
   { id: "telegram", name: "Telegram" },
+  { id: "discord", name: "Discord" },
 ];
 
 export function BridgeLogin({
@@ -38,7 +38,8 @@ export function BridgeLogin({
   className?: string;
   props?: React.HTMLAttributes<HTMLDivElement>;
 }) {
-  const [activeBridge, setActiveBridge] = React.useState<BridgeType>("discord");
+  const [activeBridge, setActiveBridge] =
+    React.useState<BridgeType>("telegram");
   const [error, setError] = React.useState<string | null>(null);
   const [success, setSuccess] = React.useState<string | null>(null);
 

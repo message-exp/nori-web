@@ -60,8 +60,6 @@ export function TelegramBridge({
   const [phoneNumber, setPhoneNumber] = React.useState<string>("");
   const [isResending, setIsResending] = React.useState(false);
 
-  console.log("Current state:", { isConnected, isChecking });
-
   // Telegram Phone Form
   const telegramPhoneForm = useForm<z.infer<typeof telegramPhoneFormSchema>>({
     resolver: zodResolver(telegramPhoneFormSchema),
@@ -86,13 +84,13 @@ export function TelegramBridge({
 
       try {
         const response = await getTelegramUserInfo();
-        response.telegram == null
-          ? setIsConnected(false)
-          : setIsConnected(true);
-        onSuccess?.("Already connected to Telegram");
+        console.log("Telegram connection check:", response);
+        const connected = response.telegram != null;
+        setIsConnected(connected);
       } catch (err) {
         console.error("Failed to check Telegram connection:", err);
         setIsConnected(false);
+        onError?.("Failed to check Telegram connection status");
       } finally {
         setIsChecking(false);
         onCheckComplete?.();
@@ -100,7 +98,7 @@ export function TelegramBridge({
     }
 
     checkConnection();
-  }, []);
+  }, [onCheckStart, onCheckComplete, onError]);
 
   // Reset code form when switching to code step
   React.useEffect(() => {
@@ -118,7 +116,7 @@ export function TelegramBridge({
 
     try {
       const response = await telegramLoginRequestCode(values.phone);
-      setPhoneNumber(values.phone); // 儲存電話號碼
+      setPhoneNumber(values.phone);
       setTelegramStep("code");
       onSuccess?.(`Verification code sent to ${values.phone}`);
       telegramCodeForm.reset();
@@ -132,7 +130,6 @@ export function TelegramBridge({
     }
   }
 
-  // 重新發送驗證碼
   async function handleResendCode() {
     setIsResending(true);
     onError?.(null);
