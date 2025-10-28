@@ -7,6 +7,7 @@ import { Button } from "~/components/ui/button";
 import { Form, FormControl, FormField, FormItem } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
 import { MessageInputSelector } from "./message-input-selector";
+import { MessageEmojiPicker } from "./emoji-picker";
 import { client } from "~/lib/matrix-api/client";
 import { sendTextMessage } from "~/lib/matrix-api/room-messages";
 
@@ -71,6 +72,12 @@ export function MessageInput({ roomIds }: Readonly<MessageInputProps>) {
     }
   };
 
+  // Handle emoji selection
+  const handleEmojiSelect = (emoji: string) => {
+    const currentText = form.getValues("text");
+    form.setValue("text", currentText + emoji);
+  };
+
   return (
     <Form {...form}>
       <form
@@ -101,6 +108,7 @@ export function MessageInput({ roomIds }: Readonly<MessageInputProps>) {
               </FormItem>
             )}
           />
+          <MessageEmojiPicker onEmojiSelect={handleEmojiSelect} />
           <Button
             type="submit"
             variant="default"
