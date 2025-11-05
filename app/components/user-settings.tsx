@@ -6,6 +6,7 @@ import { useForm } from "react-hook-form";
 import { useNavigate } from "react-router";
 import { z } from "zod";
 import { ThemeSelect } from "~/components/theme-select";
+import { NotificationSettings } from "~/components/notification-settings";
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
 import { Button } from "~/components/ui/button";
 import {
@@ -160,6 +161,17 @@ export default function UserSettings({ user }: { user: User | undefined }) {
                     <Label>Theme</Label>
                     <ThemeSelect />
                   </div>
+                </CardContent>
+              </Card>
+
+              {/* Notifications */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>通知設定</CardTitle>
+                  <CardDescription>管理您的通知偏好設定</CardDescription>
+                </CardHeader>
+                <CardContent className="space-y-6">
+                  <NotificationSettings />
                 </CardContent>
               </Card>
 

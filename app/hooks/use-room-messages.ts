@@ -3,6 +3,13 @@ import { useEffect, useMemo, useState } from "react";
 import { client } from "~/lib/matrix-api/client";
 import { buildTimelineItems } from "~/lib/matrix-api/timeline-helper";
 import type { TimelineItem } from "~/lib/matrix-api/timeline-item";
+import {
+  getNotificationPermission,
+  isPageInactive,
+  showNotification,
+} from "~/lib/notification";
+import { getUser } from "~/lib/matrix-api/user";
+import { splitUserId } from "~/lib/matrix-api/utils";
 
 export function useRoomMessages(room: sdk.Room | null | undefined) {
   const MESSAGE_LIMIT = 100;
@@ -99,6 +106,61 @@ export function useRoomMessages(room: sdk.Room | null | undefined) {
       // Only handle live events for the current room
       if (event.getRoomId() !== room?.roomId || !data?.liveEvent) {
         return;
+      }
+
+      // 發送瀏覽器通知
+      const currentUserId = client.client.getUserId();
+      const senderId = event.getSender();
+      const eventType = event.getType();
+
+      // 只在以下條件發送通知：
+      // 1. 訊息不是當前用戶發送的
+      // 2. 是訊息事件（m.room.message）
+      // 3. 有通知權限
+      // 4. 頁面不在前景（避免打擾正在使用的用戶）
+      if (
+        senderId !== currentUserId &&
+        eventType === "m.room.message" &&
+        getNotificationPermission() === "granted" &&
+        isPageInactive()
+      ) {
+        const content = event.getContent();
+        const sender = getUser(senderId || "");
+        const senderName =
+          sender?.displayName || splitUserId(senderId || "").username;
+        const roomName = room?.name || "聊天室";
+
+        // 取得訊息內容
+        let messageBody = "";
+        if (content.msgtype === "m.text") {
+          messageBody = content.body || "";
+        } else if (content.msgtype === "m.image") {
+          messageBody = "📷 傳送了一張圖片";
+        } else if (content.msgtype === "m.file") {
+          messageBody = "📎 傳送了一個檔案";
+        } else if (content.msgtype === "m.audio") {
+          messageBody = "🎵 傳送了一則語音訊息";
+        } else if (content.msgtype === "m.video") {
+          messageBody = "🎬 傳送了一個影片";
+        } else {
+          messageBody = content.body || "傳送了一則訊息";
+        }
+
+        // 顯示通知
+        const notification = showNotification({
+          title: `${senderName} @ ${roomName}`,
+          body: messageBody,
+          tag: `room-${room?.roomId}`,
+          requireInteraction: false,
+        });
+
+        // 點擊通知時聚焦到視窗
+        if (notification) {
+          notification.onclick = () => {
+            window.focus();
+            notification.close();
+          };
+        }
       }
 
       // If hasNewer=true, it means the user is scrolling up, so pause the auto-update mechanism
