@@ -15,6 +15,9 @@ interface RoomChatContentProps {
   readonly hasMore: boolean;
   readonly hasNewer: boolean;
   readonly loading: boolean;
+  readonly isSearching?: boolean;
+  readonly searchResults?: readonly TimelineItem[];
+  readonly onJumpToMessage?: (messageId: string) => void;
 }
 
 export default function RoomChatContent({
@@ -23,7 +26,13 @@ export default function RoomChatContent({
   hasMore,
   hasNewer,
   loading,
+  isSearching = false,
+  searchResults = [],
+  onJumpToMessage,
 }: RoomChatContentProps) {
+  const displayMessages = isSearching ? searchResults : messages;
+  const showLoadingDots = !isSearching;
+
   const renderContent = () => {
     if (roomLoading) {
       return (
@@ -33,25 +42,37 @@ export default function RoomChatContent({
       );
     }
 
-    if (messages.length > 0) {
+    if (isSearching && searchResults.length === 0) {
+      return (
+        <p className="text-center text-muted-foreground">
+          No messages found matching your search
+        </p>
+      );
+    }
+
+    if (displayMessages.length > 0) {
       return (
         <div className="message-list-wrapper space-y-2">
-          {hasMore && loading && (
+          {showLoadingDots && hasMore && loading && (
             <div className="py-4">
               <LoadingDots />
             </div>
           )}
 
-          {messages.map((message) => {
+          {displayMessages.map((message) => {
             const id = message.event?.getId();
             return (
               <div key={id} data-msg-id={id}>
-                <MessageItem message={message} />
+                <MessageItem
+                  message={message}
+                  showJumpButton={isSearching}
+                  onJumpToMessage={onJumpToMessage}
+                />
               </div>
             );
           })}
 
-          {hasNewer && loading && (
+          {showLoadingDots && hasNewer && loading && (
             <div className="py-4">
               <LoadingDots />
             </div>

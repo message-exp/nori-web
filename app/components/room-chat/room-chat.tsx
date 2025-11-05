@@ -2,8 +2,10 @@ import { DialogTrigger } from "@radix-ui/react-dialog";
 import {
   ChevronLeft,
   MessageSquare,
+  Search,
   Settings,
   UserRoundPlus,
+  X,
 } from "lucide-react";
 import {
   memo,
@@ -17,6 +19,7 @@ import { useNavigate } from "react-router";
 import { MessageInput } from "~/components/room-chat/message-input";
 import { RoomAvatar } from "~/components/ui/room-avatar";
 import { Button } from "~/components/ui/button";
+import { Input } from "~/components/ui/input";
 import { ScrollArea } from "~/components/ui/scroll-area";
 import {
   Tooltip,
@@ -29,6 +32,7 @@ import { useIsMobile } from "~/hooks/use-mobile";
 import { useRoomMessages } from "~/hooks/use-room-messages";
 import { client } from "~/lib/matrix-api/client";
 import { getRoom, getRoomTopic } from "~/lib/matrix-api/room";
+import type { TimelineItem } from "~/lib/matrix-api/timeline-item";
 import { InviteUserDialog } from "./invite-user-dialog";
 import RoomChatContent from "./room-chat-content";
 
@@ -42,6 +46,11 @@ const RoomChatComponent = ({ onBackClick = () => {} }: RoomChatProps) => {
   const { selectedRoomId } = useRoomContext();
   const [room, setRoom] = useState(getRoom(selectedRoomId));
   const [roomLoading, setRoomLoading] = useState(false);
+
+  // Search state
+  const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<TimelineItem[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
 
   // selected room changes
   useEffect(() => {
@@ -188,6 +197,88 @@ const RoomChatComponent = ({ onBackClick = () => {} }: RoomChatProps) => {
     [hasMore, hasNewer, loadMessages],
   );
 
+  // Search messages
+  const handleSearch = useCallback(() => {
+    if (!searchQuery.trim()) {
+      setSearchResults([]);
+      setIsSearching(false);
+      return;
+    }
+
+    const query = searchQuery.toLowerCase();
+    const results = messages.filter((message) => {
+      if (!message.isMessage() || !message.event) return false;
+
+      const content =
+        message.event.getContent()["m.new_content"] ||
+        message.event.getContent();
+      const body = content.body || "";
+
+      return body.toLowerCase().includes(query);
+    });
+
+    setSearchResults(results);
+    setIsSearching(true);
+  }, [searchQuery, messages]);
+
+  // Handle search input change
+  const handleSearchInputChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      setSearchQuery(e.target.value);
+    },
+    [],
+  );
+
+  // Handle search submit
+  const handleSearchSubmit = useCallback(
+    (e: React.FormEvent) => {
+      e.preventDefault();
+      handleSearch();
+    },
+    [handleSearch],
+  );
+
+  // Clear search
+  const handleClearSearch = useCallback(() => {
+    setSearchQuery("");
+    setSearchResults([]);
+    setIsSearching(false);
+  }, []);
+
+  // Jump to message
+  const handleJumpToMessage = useCallback((messageId: string) => {
+    // First, clear search to show all messages
+    setSearchQuery("");
+    setSearchResults([]);
+    setIsSearching(false);
+
+    // Wait for the next tick to ensure the message list is rendered
+    setTimeout(() => {
+      const scrollElement = scrollAreaRef.current?.querySelector(
+        "[data-radix-scroll-area-viewport]",
+      ) as HTMLElement | null;
+
+      if (!scrollElement) return;
+
+      const messageElement = scrollElement.querySelector<HTMLElement>(
+        `[data-msg-id="${messageId}"]`,
+      );
+
+      if (messageElement) {
+        messageElement.scrollIntoView({
+          behavior: "smooth",
+          block: "center",
+        });
+
+        // Highlight the message briefly
+        messageElement.style.backgroundColor = "rgba(59, 130, 246, 0.1)";
+        setTimeout(() => {
+          messageElement.style.backgroundColor = "";
+        }, 2000);
+      }
+    }, 100);
+  }, []);
+
   useEffect(() => {
     const scrollElement = scrollAreaRef.current?.querySelector(
       "[data-radix-scroll-area-viewport]",
@@ -236,7 +327,7 @@ const RoomChatComponent = ({ onBackClick = () => {} }: RoomChatProps) => {
               "crop",
             )}
           />
-          <div className="flex flex-row gap-2">
+          <div className="flex flex-row gap-2 items-center">
             <div>
               <h3 className="font-medium">{room?.name}</h3>
             </div>
@@ -245,18 +336,43 @@ const RoomChatComponent = ({ onBackClick = () => {} }: RoomChatProps) => {
                 {getRoomTopic(room)}
               </span>
             </div>
-            {/* <p className="text-sm text-muted-foreground">
-              {room?.online
-                ? "Online"
-                : "Offline"}
-            </p> */}
+            {/* Search input */}
+            <form
+              onSubmit={handleSearchSubmit}
+              className="flex items-center gap-2 ml-4"
+            >
+              <div className="relative">
+                <Input
+                  type="text"
+                  placeholder="Search messages..."
+                  value={searchQuery}
+                  onChange={handleSearchInputChange}
+                  className="w-48 h-8 pr-8"
+                />
+                {searchQuery && (
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="absolute right-0 top-0 h-8 w-8"
+                    onClick={handleClearSearch}
+                  >
+                    <X className="h-4 w-4" />
+                  </Button>
+                )}
+              </div>
+              <Button
+                type="submit"
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8"
+              >
+                <Search className="h-4 w-4" />
+              </Button>
+            </form>
           </div>
         </div>
         <div className="flex gap-1">
-          {/* <Button variant="ghost" size="icon">
-            <Search className="h-5 w-5" />
-            <span className="sr-only">Search</span>
-          </Button> */}
           <InviteUserDialog room={room}>
             <TooltipProvider>
               <Tooltip>
@@ -301,6 +417,9 @@ const RoomChatComponent = ({ onBackClick = () => {} }: RoomChatProps) => {
             hasMore={hasMore}
             hasNewer={hasNewer}
             loading={loading}
+            isSearching={isSearching}
+            searchResults={searchResults}
+            onJumpToMessage={handleJumpToMessage}
           />
         </ScrollArea>
       </div>

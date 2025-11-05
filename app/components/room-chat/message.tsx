@@ -1,4 +1,5 @@
 import { Avatar, AvatarFallback, AvatarImage } from "~/components/ui/avatar";
+import { Button } from "~/components/ui/button";
 import { getUser } from "~/lib/matrix-api/user";
 import { splitUserId } from "~/lib/matrix-api/utils";
 import TextMessage from "~/components/message/text-message";
@@ -9,9 +10,15 @@ import { avatarFallback } from "~/lib/utils";
 
 interface MessageItemProps {
   message: TimelineItem;
+  showJumpButton?: boolean;
+  onJumpToMessage?: (messageId: string) => void;
 }
 
-export function MessageItem({ message }: MessageItemProps) {
+export function MessageItem({
+  message,
+  showJumpButton = false,
+  onJumpToMessage,
+}: MessageItemProps) {
   const content =
     message.event!.getContent()["m.new_content"] || message.event!.getContent();
   const sender = message.event!.getSender();
@@ -25,68 +32,89 @@ export function MessageItem({ message }: MessageItemProps) {
 
   const { url: avatarUrl } = useUserAvatar(user);
 
+  const handleJumpClick = () => {
+    const messageId = message.event?.getId();
+    if (messageId && onJumpToMessage) {
+      onJumpToMessage(messageId);
+    }
+  };
+
   return (
     <div className="">
-      <div className="flex flex-row gap-2">
-        <div className="flex items-start space-x-2">
-          <Avatar>
-            <AvatarImage src={avatarUrl} />
-            <AvatarFallback>{avatarFallback(senderUsername)}</AvatarFallback>
-          </Avatar>
-        </div>
-        <div className="flex flex-col gap-2">
-          <div className="flex flex-row gap-2">
-            <div className="font-medium text-xs">{senderUsername}</div>
-            <div className="text-xs text-muted-foreground">
-              {originalTs
-                ? new Date(originalTs).toLocaleString()
-                : "Invalid time"}
-            </div>
-            {/* Show Message ID - only visible in development environment */}
-            {process.env.NODE_ENV === "development" && (
-              <div className="text-xs text-gray-400 font-mono">
-                ID: {message.event?.getId() || "unknown"}{" "}
+      <div className="flex flex-row gap-2 items-start justify-between">
+        <div className="flex flex-row gap-2 flex-1">
+          <div className="flex items-start space-x-2">
+            <Avatar>
+              <AvatarImage src={avatarUrl} />
+              <AvatarFallback>{avatarFallback(senderUsername)}</AvatarFallback>
+            </Avatar>
+          </div>
+          <div className="flex flex-col gap-2">
+            <div className="flex flex-row gap-2">
+              <div className="font-medium text-xs">{senderUsername}</div>
+              <div className="text-xs text-muted-foreground">
+                {originalTs
+                  ? new Date(originalTs).toLocaleString()
+                  : "Invalid time"}
               </div>
-            )}
-            {message.isEdited() && (
-              <span className="text-xs text-muted-foreground italic">
-                edited&nbsp;
-                {/* <span title={new Date(editedTs).toLocaleString()}>
-                  ({new Date(editedTs).toLocaleTimeString()})
-                </span> */}
-              </span>
-            )}
-          </div>
-          <div className="bg-card p-3 rounded-lg w-fit max-w-2xs md:max-w-md">
-            {/* reference: https://spec.matrix.org/v1.14/client-server-api/#mroommessage-msgtypes */}
-            {content.msgtype === "m.text" ? (
-              <TextMessage content={content} />
-            ) : content.msgtype === "m.emote" ? (
-              // TODO: Emote message type
-              <TextMessage content={content} />
-            ) : content.msgtype === "m.notice" ? (
-              // TODO: Notice message type
-              <TextMessage content={content} />
-            ) : content.msgtype === "m.image" ? (
-              // TODO: Image message type
-              <ImageMessage message={message} />
-            ) : content.msgtype === "m.file" ? (
-              // TODO: File message type
-              <TextMessage content={content} />
-            ) : content.msgtype === "m.audio" ? (
-              // TODO: Audio message type
-              <TextMessage content={content} />
-            ) : content.msgtype === "m.video" ? (
-              // TODO: Video message type
-              <TextMessage content={content} />
-            ) : content.msgtype === "m.location" ? (
-              // TODO: Location message type
-              <TextMessage content={content} />
-            ) : (
-              <TextMessage content={content} />
-            )}
+              {/* Show Message ID - only visible in development environment */}
+              {process.env.NODE_ENV === "development" && (
+                <div className="text-xs text-gray-400 font-mono">
+                  ID: {message.event?.getId() || "unknown"}{" "}
+                </div>
+              )}
+              {message.isEdited() && (
+                <span className="text-xs text-muted-foreground italic">
+                  edited&nbsp;
+                  {/* <span title={new Date(editedTs).toLocaleString()}>
+                    ({new Date(editedTs).toLocaleTimeString()})
+                  </span> */}
+                </span>
+              )}
+            </div>
+            <div className="bg-card p-3 rounded-lg w-fit max-w-2xs md:max-w-md">
+              {/* reference: https://spec.matrix.org/v1.14/client-server-api/#mroommessage-msgtypes */}
+              {content.msgtype === "m.text" ? (
+                <TextMessage content={content} />
+              ) : content.msgtype === "m.emote" ? (
+                // TODO: Emote message type
+                <TextMessage content={content} />
+              ) : content.msgtype === "m.notice" ? (
+                // TODO: Notice message type
+                <TextMessage content={content} />
+              ) : content.msgtype === "m.image" ? (
+                // TODO: Image message type
+                <ImageMessage message={message} />
+              ) : content.msgtype === "m.file" ? (
+                // TODO: File message type
+                <TextMessage content={content} />
+              ) : content.msgtype === "m.audio" ? (
+                // TODO: Audio message type
+                <TextMessage content={content} />
+              ) : content.msgtype === "m.video" ? (
+                // TODO: Video message type
+                <TextMessage content={content} />
+              ) : content.msgtype === "m.location" ? (
+                // TODO: Location message type
+                <TextMessage content={content} />
+              ) : (
+                <TextMessage content={content} />
+              )}
+            </div>
           </div>
         </div>
+        {showJumpButton && (
+          <div className="flex-shrink-0">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={handleJumpClick}
+              className="h-8"
+            >
+              Jump
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   );
