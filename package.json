@@ -70,6 +70,8 @@
     "@types/node": "^22.18.10",
     "@types/react": "^19.2.2",
     "@types/react-dom": "^19.2.2",
+    "@vite-pwa/assets-generator": "^1.0.1",
+    "@vitejs/plugin-react": "^5.0.4",
     "eslint": "^9.37.0",
     "eslint-config-prettier": "^10.1.8",
     "husky": "^9.1.7",
@@ -80,7 +82,11 @@
     "typescript": "^5.9.3",
     "typescript-eslint": "^8.46.1",
     "vite": "^6.3.6",
-    "vite-tsconfig-paths": "^5.1.4"
+    "vite-plugin-pwa": "^1.1.0",
+    "vite-tsconfig-paths": "^5.1.4",
+    "workbox-core": "^7.3.0",
+    "workbox-precaching": "^7.3.0",
+    "workbox-routing": "^7.3.0"
   },
   "packageManager": "pnpm@10.18.2"
 }
