@@ -29,7 +29,6 @@ import {
   logout,
 } from "~/lib/contacts-server-api/bridge/discord";
 
-// Discord Token Form Schema
 const discordTokenFormSchema = z.object({
   token: z.string().trim().min(1, "Token is required"),
   tokenType: z.enum(["user", "bot"]),
@@ -55,7 +54,6 @@ export function DiscordBridge({
   const [timeLeft, setTimeLeft] = React.useState<number>(0);
   const [isExpired, setIsExpired] = React.useState(false);
 
-  // Discord Token Form
   const discordTokenForm = useForm<z.infer<typeof discordTokenFormSchema>>({
     resolver: zodResolver(discordTokenFormSchema),
     defaultValues: {
@@ -64,7 +62,6 @@ export function DiscordBridge({
     },
   });
 
-  // Check if user is already connected to Discord
   const checkConnection = React.useCallback(async () => {
     setIsChecking(true);
     onCheckStart?.();
@@ -77,7 +74,6 @@ export function DiscordBridge({
     } catch (err) {
       console.error("Failed to check Discord connection:", err);
       setIsConnected(false);
-      // Don't show error on initial check to avoid annoying user if they just haven't logged in yet
     } finally {
       setIsChecking(false);
       onCheckComplete?.();
@@ -88,7 +84,6 @@ export function DiscordBridge({
     checkConnection();
   }, [checkConnection]);
 
-  // Poll for connection status if QR code is displayed
   React.useEffect(() => {
     let intervalId: NodeJS.Timeout;
 
@@ -101,13 +96,10 @@ export function DiscordBridge({
             setQrCodeText(null);
             onSuccess?.("Successfully connected to Discord!");
             clearInterval(intervalId);
-            // Reload to refresh state
             await new Promise((resolve) => setTimeout(resolve, 1000));
             window.location.reload();
           }
-        } catch (err) {
-          // Ignore errors during polling
-        }
+        } catch (err) {}
       }, 3000);
     }
 
@@ -116,7 +108,6 @@ export function DiscordBridge({
     };
   }, [qrCodeText, isConnected, onSuccess, isExpired]);
 
-  // Timer effect
   React.useEffect(() => {
     let timerId: NodeJS.Timeout;
 
@@ -138,7 +129,6 @@ export function DiscordBridge({
     };
   }, [timeLeft, isConnected]);
 
-  // Generate QR Code
   async function handleGenerateQr() {
     setIsLoading(true);
     onError?.(null);
@@ -151,7 +141,7 @@ export function DiscordBridge({
 
       if (response.code) {
         setQrCodeText(response.code);
-        setTimeLeft(response.timeout || 120); // Default to 120s if not provided
+        setTimeLeft(response.timeout || 120);
       } else {
         throw new Error(response.error || "Failed to generate QR code");
       }
@@ -164,7 +154,6 @@ export function DiscordBridge({
     }
   }
 
-  // Token Submit
   async function onTokenSubmit(values: z.infer<typeof discordTokenFormSchema>) {
     setIsLoading(true);
     onError?.(null);
@@ -188,7 +177,6 @@ export function DiscordBridge({
     }
   }
 
-  // Handle disconnect
   async function handleDisconnect() {
     setIsLoading(true);
     onError?.(null);
@@ -205,7 +193,6 @@ export function DiscordBridge({
     }
   }
 
-  // Show loading state while checking
   if (isChecking) {
     return (
       <div className="flex items-center justify-center py-8">
@@ -217,7 +204,6 @@ export function DiscordBridge({
     );
   }
 
-  // Show connected state
   if (isConnected) {
     return (
       <div className="space-y-4">
