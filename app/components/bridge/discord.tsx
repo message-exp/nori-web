@@ -99,7 +99,9 @@ export function DiscordBridge({
             await new Promise((resolve) => setTimeout(resolve, 1000));
             window.location.reload();
           }
-        } catch (err) {}
+        } catch (err) {
+          console.error("Failed to poll Discord connection status:", err);
+        }
       }, 3000);
     }
 
