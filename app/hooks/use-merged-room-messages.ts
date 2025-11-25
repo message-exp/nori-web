@@ -1,5 +1,5 @@
 import * as sdk from "matrix-js-sdk";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { client } from "~/lib/matrix-api/client";
 import { buildTimelineItems } from "~/lib/matrix-api/timeline-helper";
 import type { MergedTimelineItem } from "~/lib/matrix-api/timeline-item";
@@ -31,23 +31,27 @@ export function useMergedRoomMessages(roomConfigs: RoomConfig[]) {
     hasNewerRef.current = hasNewer;
   }, [hasNewer]);
 
-  // Create stable roomIds dependency
+  // Create stable roomIds dependency - only recreate when actual roomIds change
   const roomIds = useMemo(
-    () => roomConfigs.map((c) => c.roomId).join(","),
+    () => roomConfigs.map((c) => c.roomId),
     [roomConfigs],
   );
 
+  // Create stable dependency string for timelineWindows
+  const roomIdKey = roomIds.join(",");
+
   // Create TimelineWindows for each room
+  // Only recreate when roomId list changes, not when platform or order changes
   const timelineWindows = useMemo(() => {
     if (!client.client || roomConfigs.length === 0) return [];
 
     return roomConfigs
       .map((config) => {
-        const room = client.client!.getRoom(config.roomId);
+        const room = client.client?.getRoom(config.roomId);
         if (!room) return null;
 
         const window = new sdk.TimelineWindow(
-          client.client!,
+          client.client,
           room.getUnfilteredTimelineSet(),
           { windowLimit: MESSAGE_LIMIT },
         );
@@ -60,43 +64,49 @@ export function useMergedRoomMessages(roomConfigs: RoomConfig[]) {
         };
       })
       .filter((item): item is NonNullable<typeof item> => item !== null);
-  }, [roomIds]);
+  }, [roomIdKey]);
 
-  function getEventsFromTimelineWindow(
-    window: sdk.TimelineWindow,
-    roomId: string,
-    platform: PlatformEnum,
-  ): MergedTimelineItem[] {
-    const events = window.getEvents();
-    const timelineItems = buildTimelineItems(events);
+  const getEventsFromTimelineWindow = useCallback(
+    (
+      window: sdk.TimelineWindow,
+      roomId: string,
+      platform: PlatformEnum,
+    ): MergedTimelineItem[] => {
+      const events = window.getEvents();
+      const timelineItems = buildTimelineItems(events);
 
-    return timelineItems.map((item) => ({
-      timelineItem: item,
-      roomId,
-      platform,
-    }));
-  }
+      return timelineItems.map((item) => ({
+        timelineItem: item,
+        roomId,
+        platform,
+      }));
+    },
+    [],
+  );
 
-  const initializeTimelineWindow = async (
-    window: sdk.TimelineWindow,
-    roomId: string,
-    platform: PlatformEnum,
-  ) => {
-    try {
-      // Load the latest events
-      await window.load(undefined, MESSAGE_PRE_LOAD);
-      // Paginate to get more history
-      await window.paginate(sdk.EventTimeline.BACKWARDS, MESSAGE_PRE_LOAD);
+  const initializeTimelineWindow = useCallback(
+    async (
+      window: sdk.TimelineWindow,
+      roomId: string,
+      platform: PlatformEnum,
+    ) => {
+      try {
+        // Load the latest events
+        await window.load(undefined, MESSAGE_PRE_LOAD);
+        // Paginate to get more history
+        await window.paginate(sdk.EventTimeline.BACKWARDS, MESSAGE_PRE_LOAD);
 
-      return getEventsFromTimelineWindow(window, roomId, platform);
-    } catch (error) {
-      console.error(
-        `Failed to initialize timeline window for room ${roomId}:`,
-        error,
-      );
-      return [];
-    }
-  };
+        return getEventsFromTimelineWindow(window, roomId, platform);
+      } catch (error) {
+        console.error(
+          `Failed to initialize timeline window for room ${roomId}:`,
+          error,
+        );
+        return [];
+      }
+    },
+    [getEventsFromTimelineWindow],
+  );
 
   // Initialize all timeline windows
   useEffect(() => {
@@ -115,13 +125,12 @@ export function useMergedRoomMessages(roomConfigs: RoomConfig[]) {
     )
       .then((allMessages) => {
         // Merge all messages and sort by timestamp (ascending)
-        const merged = allMessages
-          .flat()
-          .sort(
-            (a, b) =>
-              (a.timelineItem.getTimestamp() ?? 0) -
-              (b.timelineItem.getTimestamp() ?? 0),
-          );
+        const flattened = allMessages.flat();
+        const merged = [...flattened].sort(
+          (a, b) =>
+            (a.timelineItem.getTimestamp() ?? 0) -
+            (b.timelineItem.getTimestamp() ?? 0),
+        );
 
         setMessages(merged);
 
@@ -145,9 +154,9 @@ export function useMergedRoomMessages(roomConfigs: RoomConfig[]) {
     // Set up Timeline event listeners for all rooms
     const handleRoomTimeline = (
       event: sdk.MatrixEvent,
-      roomArg: sdk.Room | undefined,
-      toStartOfTimeline?: boolean,
-      removed?: boolean,
+      _roomArg: sdk.Room | undefined,
+      _toStartOfTimeline?: boolean,
+      _removed?: boolean,
       data?: sdk.IRoomTimelineData,
     ) => {
       // Check if this event is from one of our tracked rooms and is a live event
@@ -180,7 +189,7 @@ export function useMergedRoomMessages(roomConfigs: RoomConfig[]) {
                 getEventsFromTimelineWindow(tw.window, tw.roomId, tw.platform),
               );
 
-              const merged = allMessages.sort(
+              const merged = [...allMessages].sort(
                 (a, b) =>
                   (a.timelineItem.getTimestamp() ?? 0) -
                   (b.timelineItem.getTimestamp() ?? 0),
@@ -202,7 +211,7 @@ export function useMergedRoomMessages(roomConfigs: RoomConfig[]) {
             getEventsFromTimelineWindow(tw.window, tw.roomId, tw.platform),
           );
 
-          const merged = allMessages.sort(
+          const merged = [...allMessages].sort(
             (a, b) =>
               (a.timelineItem.getTimestamp() ?? 0) -
               (b.timelineItem.getTimestamp() ?? 0),
@@ -216,17 +225,17 @@ export function useMergedRoomMessages(roomConfigs: RoomConfig[]) {
     };
 
     // Register listeners for all rooms
-    timelineWindows.forEach((tw) => {
+    for (const tw of timelineWindows) {
       tw.room.on(sdk.RoomEvent.Timeline, handleRoomTimeline);
-    });
+    }
 
     return () => {
       // Clean up listeners
-      timelineWindows.forEach((tw) => {
+      for (const tw of timelineWindows) {
         tw.room.removeListener(sdk.RoomEvent.Timeline, handleRoomTimeline);
-      });
+      }
     };
-  }, [timelineWindows]);
+  }, [timelineWindows, getEventsFromTimelineWindow, initializeTimelineWindow]);
 
   const loadMessages = async (
     direction: "backwards" | "forwards",
@@ -257,7 +266,7 @@ export function useMergedRoomMessages(roomConfigs: RoomConfig[]) {
       );
 
       // Merge and sort
-      const merged = allMessages.sort(
+      const merged = [...allMessages].sort(
         (a, b) =>
           (a.timelineItem.getTimestamp() ?? 0) -
           (b.timelineItem.getTimestamp() ?? 0),
