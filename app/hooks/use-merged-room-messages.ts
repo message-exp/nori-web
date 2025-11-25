@@ -31,17 +31,7 @@ export function useMergedRoomMessages(roomConfigs: RoomConfig[]) {
     hasNewerRef.current = hasNewer;
   }, [hasNewer]);
 
-  // Create stable roomIds dependency - only recreate when actual roomIds change
-  const roomIds = useMemo(
-    () => roomConfigs.map((c) => c.roomId),
-    [roomConfigs],
-  );
-
-  // Create stable dependency string for timelineWindows
-  const roomIdKey = roomIds.join(",");
-
   // Create TimelineWindows for each room
-  // Only recreate when roomId list changes, not when platform or order changes
   const timelineWindows = useMemo(() => {
     if (!client.client || roomConfigs.length === 0) return [];
 
@@ -64,7 +54,7 @@ export function useMergedRoomMessages(roomConfigs: RoomConfig[]) {
         };
       })
       .filter((item): item is NonNullable<typeof item> => item !== null);
-  }, [roomIdKey]);
+  }, [roomConfigs]);
 
   const getEventsFromTimelineWindow = useCallback(
     (
