@@ -151,7 +151,7 @@ export default function DMsTypePage() {
   const getSubtitle = (item: SelectableItem): string => {
     if (item.type === "contact") {
       const count = item.data.platformContacts.length;
-      return `${count} platform${count !== 1 ? "s" : ""} connected`;
+      return `${count} platform${count === 1 ? "" : "s"} connected`;
     }
     return `${item.data.platform} DM`;
   };
