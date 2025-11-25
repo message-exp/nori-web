@@ -77,15 +77,18 @@ export function MessageInputSelector({
       updateRoomInfos();
     };
 
-    if (client.client) {
-      client.client.on(ClientEvent.Sync, handleSync);
-      client.client.on(ClientEvent.AccountData, handleAccountData);
+    // Capture the current client instance for cleanup
+    const currentClient = client.client;
+
+    if (currentClient) {
+      currentClient.on(ClientEvent.Sync, handleSync);
+      currentClient.on(ClientEvent.AccountData, handleAccountData);
     }
 
     return () => {
-      if (client.client) {
-        client.client.off(ClientEvent.Sync, handleSync);
-        client.client.off(ClientEvent.AccountData, handleAccountData);
+      if (currentClient) {
+        currentClient.off(ClientEvent.Sync, handleSync);
+        currentClient.off(ClientEvent.AccountData, handleAccountData);
       }
     };
   }, [roomIds]);

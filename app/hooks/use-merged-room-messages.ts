@@ -11,7 +11,13 @@ interface RoomConfig {
 }
 
 export function useMergedRoomMessages(roomConfigs: RoomConfig[]) {
+  // Maximum number of messages to keep in the timeline window at once
+  // This prevents memory issues with very long chat histories
   const MESSAGE_LIMIT = 100;
+
+  // Number of messages to load per pagination request
+  // A smaller number provides faster initial load and smoother scrolling experience
+  // while still loading enough content to prevent frequent re-fetches
   const MESSAGE_PRE_LOAD = 23;
 
   const [messages, setMessages] = useState<MergedTimelineItem[]>([]);
