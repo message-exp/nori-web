@@ -57,6 +57,8 @@ export function DiscordBridge({
   const [qrCodeText, setQrCodeText] = React.useState<string | null>(null);
   const [timeLeft, setTimeLeft] = React.useState<number>(0);
   const [isExpired, setIsExpired] = React.useState(false);
+  const isExpiredRef = React.useRef(isExpired);
+  isExpiredRef.current = isExpired;
 
   const discordTokenForm = useForm<z.infer<typeof discordTokenFormSchema>>({
     resolver: zodResolver(discordTokenFormSchema),
@@ -91,11 +93,10 @@ export function DiscordBridge({
   React.useEffect(() => {
     let timeoutId: NodeJS.Timeout;
     let isActive = true;
-
     const poll = async () => {
       try {
         const response = await getDiscordUserInfo();
-        if (!isActive) return;
+        if (!isActive || isExpiredRef.current) return;
 
         if (response.Discord?.connected) {
           setIsConnected(true);
