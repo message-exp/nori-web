@@ -246,7 +246,7 @@ export function DiscordBridge({
           <div className="flex flex-col items-center justify-center space-y-4 rounded-lg border border-dashed p-8">
             {qrCodeText && !isExpired ? (
               <div className="text-center space-y-4">
-                <div className="relative mx-auto bg-white p-2 rounded-lg shadow-sm">
+                <div className="relative mx-auto bg-background p-2 rounded-lg shadow-sm">
                   <QRCodeSVG
                     value={qrCodeText}
                     size={200}
