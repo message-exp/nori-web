@@ -29,6 +29,10 @@ import {
   logout,
 } from "~/lib/contacts-server-api/bridge/discord";
 
+const DEFAULT_QR_TIMEOUT = 120;
+const POLLING_INTERVAL_MS = 3000;
+const RELOAD_DELAY_MS = 1000;
+
 const discordTokenFormSchema = z.object({
   token: z.string().trim().min(1, "Token is required"),
   tokenType: z.enum(["user", "bot"]),
@@ -100,7 +104,7 @@ export function DiscordBridge({
 
           setTimeout(() => {
             window.location.reload();
-          }, 1000);
+          }, RELOAD_DELAY_MS);
           return;
         }
       } catch (err) {
@@ -110,12 +114,12 @@ export function DiscordBridge({
       }
 
       if (isActive) {
-        timeoutId = setTimeout(poll, 3000);
+        timeoutId = setTimeout(poll, POLLING_INTERVAL_MS);
       }
     };
 
     if (qrCodeText && !isConnected && !isExpired) {
-      timeoutId = setTimeout(poll, 3000);
+      timeoutId = setTimeout(poll, POLLING_INTERVAL_MS);
     }
 
     return () => {
@@ -157,7 +161,7 @@ export function DiscordBridge({
 
       if (response.code) {
         setQrCodeText(response.code);
-        setTimeLeft(response.timeout || 120);
+        setTimeLeft(response.timeout || DEFAULT_QR_TIMEOUT);
       } else {
         throw new Error(response.error || "Failed to generate QR code");
       }
@@ -179,7 +183,7 @@ export function DiscordBridge({
       if (response.success) {
         onSuccess?.("Successfully connected to Discord!");
         setIsConnected(true);
-        await new Promise((resolve) => setTimeout(resolve, 1000));
+        await new Promise((resolve) => setTimeout(resolve, RELOAD_DELAY_MS));
         window.location.reload();
       } else {
         throw new Error(response.error || "Failed to login with token");
@@ -199,7 +203,7 @@ export function DiscordBridge({
 
     try {
       await logout();
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      await new Promise((resolve) => setTimeout(resolve, RELOAD_DELAY_MS));
       setIsConnected(false);
       onSuccess?.("Successfully disconnected from Discord");
     } catch (err) {
