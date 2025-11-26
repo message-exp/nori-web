@@ -85,28 +85,42 @@ export function DiscordBridge({
   }, [checkConnection]);
 
   React.useEffect(() => {
-    let intervalId: NodeJS.Timeout;
+    let timeoutId: NodeJS.Timeout;
+    let isActive = true;
 
-    if (qrCodeText && !isConnected && !isExpired) {
-      intervalId = setInterval(async () => {
-        try {
-          const response = await getDiscordUserInfo();
-          if (response.Discord?.connected) {
-            setIsConnected(true);
-            setQrCodeText(null);
-            onSuccess?.("Successfully connected to Discord!");
-            clearInterval(intervalId);
-            await new Promise((resolve) => setTimeout(resolve, 1000));
+    const poll = async () => {
+      try {
+        const response = await getDiscordUserInfo();
+        if (!isActive) return;
+
+        if (response.Discord?.connected) {
+          setIsConnected(true);
+          setQrCodeText(null);
+          onSuccess?.("Successfully connected to Discord!");
+
+          setTimeout(() => {
             window.location.reload();
-          }
-        } catch (err) {
+          }, 1000);
+          return;
+        }
+      } catch (err) {
+        if (isActive) {
           console.error("Failed to poll Discord connection status:", err);
         }
-      }, 3000);
+      }
+
+      if (isActive) {
+        timeoutId = setTimeout(poll, 3000);
+      }
+    };
+
+    if (qrCodeText && !isConnected && !isExpired) {
+      timeoutId = setTimeout(poll, 3000);
     }
 
     return () => {
-      if (intervalId) clearInterval(intervalId);
+      isActive = false;
+      if (timeoutId) clearTimeout(timeoutId);
     };
   }, [qrCodeText, isConnected, onSuccess, isExpired]);
 
