@@ -344,6 +344,7 @@ export function DiscordBridge({
                       <Input
                         type="password"
                         placeholder="Enter your Discord token"
+                        autoComplete="off"
                         {...field}
                       />
                     </FormControl>
