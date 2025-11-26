@@ -68,27 +68,38 @@ export function DiscordBridge({
     },
   });
 
-  const checkConnection = React.useCallback(async () => {
-    setIsChecking(true);
-    onCheckStart?.();
-
-    try {
-      const response = await getDiscordUserInfo();
-      console.log("Discord connection check:", response);
-      const connected = response.Discord?.connected ?? false;
-      setIsConnected(connected);
-    } catch (err) {
-      console.error("Failed to check Discord connection:", err);
-      setIsConnected(false);
-    } finally {
-      setIsChecking(false);
-      onCheckComplete?.();
-    }
-  }, [onCheckStart, onCheckComplete]);
-
   React.useEffect(() => {
-    checkConnection();
-  }, [checkConnection]);
+    let isActive = true;
+
+    const check = async () => {
+      setIsChecking(true);
+      onCheckStart?.();
+
+      try {
+        const response = await getDiscordUserInfo();
+        if (!isActive) return;
+
+        console.log("Discord connection check:", response);
+        const connected = response.Discord?.connected ?? false;
+        setIsConnected(connected);
+      } catch (err) {
+        if (!isActive) return;
+        console.error("Failed to check Discord connection:", err);
+        setIsConnected(false);
+      } finally {
+        if (isActive) {
+          setIsChecking(false);
+          onCheckComplete?.();
+        }
+      }
+    };
+
+    check();
+
+    return () => {
+      isActive = false;
+    };
+  }, [onCheckStart, onCheckComplete]);
 
   React.useEffect(() => {
     let timeoutId: NodeJS.Timeout;
