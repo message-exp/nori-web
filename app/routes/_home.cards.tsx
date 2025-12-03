@@ -18,7 +18,7 @@ export default function CardsPage() {
   }, []);
 
   if (loading) {
-    return <Loading />;
+    return <Loading text="Loading contact cards..." />;
   }
 
   return <CardList />;

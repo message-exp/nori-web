@@ -1,4 +1,7 @@
-import type { TimelineItem } from "~/lib/matrix-api/timeline-item";
+import type {
+  TimelineItem,
+  MergedTimelineItem,
+} from "~/lib/matrix-api/timeline-item";
 import { MessageItem } from "./message";
 
 const LoadingDots = () => (
@@ -11,7 +14,7 @@ const LoadingDots = () => (
 
 interface RoomChatContentProps {
   readonly roomLoading: boolean;
-  readonly messages: readonly TimelineItem[];
+  readonly messages: readonly TimelineItem[] | readonly MergedTimelineItem[];
   readonly hasMore: boolean;
   readonly hasNewer: boolean;
   readonly loading: boolean;
@@ -60,11 +63,17 @@ export default function RoomChatContent({
           )}
 
           {displayMessages.map((message) => {
-            const id = message.event?.getId();
+            // Check if this is a MergedTimelineItem or regular TimelineItem
+            const isMerged = "timelineItem" in message;
+            const timelineItem = isMerged ? message.timelineItem : message;
+            const platform = isMerged ? message.platform : undefined;
+            const id = timelineItem.event?.getId();
+
             return (
               <div key={id} data-msg-id={id}>
                 <MessageItem
-                  message={message}
+                  message={timelineItem}
+                  platform={platform}
                   showJumpButton={isSearching}
                   onJumpToMessage={onJumpToMessage}
                 />

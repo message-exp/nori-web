@@ -7,17 +7,21 @@ import type { TimelineItem } from "~/lib/matrix-api/timeline-item";
 import ImageMessage from "~/components/message/image-message";
 import { useUserAvatar } from "~/hooks/use-user-avatar";
 import { avatarFallback } from "~/lib/utils";
+import { BridgeIcon } from "~/components/ui/bridge-icon";
+import type { PlatformEnum } from "~/lib/contacts-server-api/types";
 
 interface MessageItemProps {
   message: TimelineItem;
   showJumpButton?: boolean;
   onJumpToMessage?: (messageId: string) => void;
+  platform?: PlatformEnum;
 }
 
 export function MessageItem({
   message,
   showJumpButton = false,
   onJumpToMessage,
+  platform,
 }: MessageItemProps) {
   const content =
     message.event!.getContent()["m.new_content"] || message.event!.getContent();
@@ -44,13 +48,27 @@ export function MessageItem({
       <div className="flex flex-row gap-2 items-start justify-between">
         <div className="flex flex-row gap-2 flex-1">
           <div className="flex items-start space-x-2">
-            <Avatar>
-              <AvatarImage src={avatarUrl} />
-              <AvatarFallback>{avatarFallback(senderUsername)}</AvatarFallback>
-            </Avatar>
+            <div className="relative">
+              <Avatar>
+                <AvatarImage src={avatarUrl} />
+                <AvatarFallback>
+                  {avatarFallback(senderUsername)}
+                </AvatarFallback>
+              </Avatar>
+              {/* Platform icon for merged chats */}
+              {platform && (
+                <div className="absolute -bottom-1 -right-1 size-5 bg-gray-800 rounded-full flex items-center justify-center ring-1 ring-gray-900">
+                  <BridgeIcon
+                    platform={platform}
+                    className="size-3 text-white"
+                    showMatrix={true}
+                  />
+                </div>
+              )}
+            </div>
           </div>
           <div className="flex flex-col gap-2">
-            <div className="flex flex-row gap-2">
+            <div className="flex flex-row gap-2 items-center">
               <div className="font-medium text-xs">{senderUsername}</div>
               <div className="text-xs text-muted-foreground">
                 {originalTs

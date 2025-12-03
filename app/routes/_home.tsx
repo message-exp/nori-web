@@ -12,6 +12,12 @@ import { useUserAvatar } from "~/hooks/use-user-avatar";
 import { getCurrentUser } from "~/lib/matrix-api/user";
 import { avatarFallback } from "~/lib/utils";
 
+export type HomeLayoutContext = {
+  isMobile: boolean;
+  showMobileList: boolean;
+  setShowMobileList: React.Dispatch<React.SetStateAction<boolean>>;
+};
+
 function HomeLayoutContent() {
   const isMobile = useIsMobile();
   const [showMobileList, setShowMobileList] = useState(true);

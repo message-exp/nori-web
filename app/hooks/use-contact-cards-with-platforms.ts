@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { getAllContactCards } from "~/lib/contacts-server-api/contacts";
 import { getPlatformContacts } from "~/lib/contacts-server-api/platform-contacts";
 import type {
@@ -10,64 +10,171 @@ export interface ContactCardWithPlatforms extends ContactCard {
   platformContacts: PlatformContact[];
 }
 
+// 全域快取，在所有 hook 實例之間共享
+let cachedContactCards: ContactCardWithPlatforms[] = [];
+let cachePromise: Promise<ContactCardWithPlatforms[]> | null = null;
+
 export function useContactCardsWithPlatforms() {
-  const [contactCards, setContactCards] = useState<ContactCardWithPlatforms[]>(
-    [],
-  );
-  const [loading, setLoading] = useState(true);
+  const [contactCards, setContactCards] =
+    useState<ContactCardWithPlatforms[]>(cachedContactCards);
+  const [loading, setLoading] = useState(cachedContactCards.length === 0);
   const [error, setError] = useState<string | null>(null);
+  const isMountedRef = useRef(true);
 
   const fetchContactCardsWithPlatforms = async () => {
-    try {
-      setLoading(true);
-      setError(null);
+    // 如果已經有快取，直接返回
+    if (cachedContactCards.length > 0) {
+      return cachedContactCards;
+    }
 
-      const allContactCards = await getAllContactCards();
+    // 如果正在載入，等待現有的請求
+    if (cachePromise) {
+      return cachePromise;
+    }
 
-      const contactCardsWithPlatforms: ContactCardWithPlatforms[] =
-        await Promise.all(
-          allContactCards.map(async (card) => {
-            try {
-              const platformContacts = await getPlatformContacts(card.id);
-              return {
-                ...card,
-                platformContacts,
-              };
-            } catch (error) {
-              console.error(
-                `Failed to fetch platform contacts for card ${card.id}:`,
-                error,
-              );
-              return {
-                ...card,
-                platformContacts: [],
-              };
-            }
-          }),
+    // 建立新的載入 promise
+    cachePromise = (async () => {
+      try {
+        const allContactCards = await getAllContactCards();
+
+        const contactCardsWithPlatforms: ContactCardWithPlatforms[] =
+          await Promise.all(
+            allContactCards.map(async (card) => {
+              try {
+                const platformContacts = await getPlatformContacts(card.id);
+                return {
+                  ...card,
+                  platformContacts,
+                };
+              } catch (error) {
+                console.error(
+                  `Failed to fetch platform contacts for card ${card.id}:`,
+                  error,
+                );
+                return {
+                  ...card,
+                  platformContacts: [],
+                };
+              }
+            }),
+          );
+
+        // Only include contact cards that have at least one platform contact
+        const filteredCards = contactCardsWithPlatforms.filter(
+          (card) => card.platformContacts.length > 0,
         );
 
-      // Only include contact cards that have at least one platform contact
-      const filteredCards = contactCardsWithPlatforms.filter(
-        (card) => card.platformContacts.length > 0,
-      );
+        cachedContactCards = filteredCards;
+        return filteredCards;
+      } catch (error) {
+        console.error("Failed to fetch contact cards:", error);
+        throw error;
+      } finally {
+        cachePromise = null;
+      }
+    })();
 
-      setContactCards(filteredCards);
-    } catch (error) {
-      console.error("Failed to fetch contact cards:", error);
-      setError("Failed to load contacts");
-    } finally {
-      setLoading(false);
-    }
+    return cachePromise;
   };
 
   useEffect(() => {
-    fetchContactCardsWithPlatforms();
+    isMountedRef.current = true;
+
+    const loadData = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+
+        const data = await fetchContactCardsWithPlatforms();
+
+        if (isMountedRef.current) {
+          setContactCards(data);
+        }
+      } catch {
+        if (isMountedRef.current) {
+          setError("Failed to load contacts");
+        }
+      } finally {
+        if (isMountedRef.current) {
+          setLoading(false);
+        }
+      }
+    };
+
+    loadData();
+
+    return () => {
+      isMountedRef.current = false;
+    };
   }, []);
+
+  const refetch = async () => {
+    // 清空快取,強制重新載入
+    cachedContactCards = [];
+
+    setLoading(true);
+    setError(null);
+
+    // 立即建立新的 cachePromise,避免 race condition
+    cachePromise = (async () => {
+      try {
+        const allContactCards = await getAllContactCards();
+
+        const contactCardsWithPlatforms: ContactCardWithPlatforms[] =
+          await Promise.all(
+            allContactCards.map(async (card) => {
+              try {
+                const platformContacts = await getPlatformContacts(card.id);
+                return {
+                  ...card,
+                  platformContacts,
+                };
+              } catch (error) {
+                console.error(
+                  `Failed to fetch platform contacts for card ${card.id}:`,
+                  error,
+                );
+                return {
+                  ...card,
+                  platformContacts: [],
+                };
+              }
+            }),
+          );
+
+        const filteredCards = contactCardsWithPlatforms.filter(
+          (card) => card.platformContacts.length > 0,
+        );
+
+        cachedContactCards = filteredCards;
+        return filteredCards;
+      } catch (error) {
+        console.error("Failed to fetch contact cards:", error);
+        throw error;
+      }
+    })();
+
+    try {
+      const data = await cachePromise;
+      if (isMountedRef.current) {
+        setContactCards(data);
+      }
+    } catch {
+      if (isMountedRef.current) {
+        setError("Failed to load contacts");
+      }
+    } finally {
+      cachePromise = null;
+      if (isMountedRef.current) {
+        setLoading(false);
+      }
+    }
+  };
 
   return {
     contactCards,
     loading,
     error,
-    refetch: fetchContactCardsWithPlatforms,
+    refetch,
   };
 }
