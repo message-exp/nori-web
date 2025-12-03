@@ -52,11 +52,6 @@ export default function DMsTypePage() {
       return null;
     }
 
-    // Wait for data to load
-    if (loading) {
-      return null;
-    }
-
     if (type === "contact") {
       const contact = contactCards.find((c) => c.id === id);
       return contact ? { type: "contact", data: contact } : null;
@@ -66,7 +61,7 @@ export default function DMsTypePage() {
     }
 
     return null;
-  }, [type, id, contactCards, dmRooms, loading]);
+  }, [type, id, contactCards, dmRooms]);
 
   // Set selected room ID when current item changes
   useEffect(() => {
@@ -95,9 +90,12 @@ export default function DMsTypePage() {
   }, [currentItem]);
 
   // Set mobile list visibility
+  const isMobile = context?.isMobile;
+  const setShowMobileList = context?.setShowMobileList;
+
   useEffect(() => {
-    if (context?.isMobile) {
-      context.setShowMobileList(false); // Hide sidebar on mobile when viewing specific item
+    if (isMobile && setShowMobileList) {
+      setShowMobileList(false); // Hide sidebar on mobile when viewing specific item
     }
   }, [context]);
 
@@ -105,8 +103,6 @@ export default function DMsTypePage() {
   if (!context || loading) {
     return <Loading text="Loading direct messages..." />;
   }
-
-  const { isMobile } = context;
 
   // Error state
   if (error) {

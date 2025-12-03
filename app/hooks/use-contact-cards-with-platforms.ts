@@ -109,13 +109,53 @@ export function useContactCardsWithPlatforms() {
   }, []);
 
   const refetch = async () => {
+    // 清空快取,強制重新載入
     cachedContactCards = [];
-    cachePromise = null;
+
     setLoading(true);
     setError(null);
 
+    // 立即建立新的 cachePromise,避免 race condition
+    cachePromise = (async () => {
+      try {
+        const allContactCards = await getAllContactCards();
+
+        const contactCardsWithPlatforms: ContactCardWithPlatforms[] =
+          await Promise.all(
+            allContactCards.map(async (card) => {
+              try {
+                const platformContacts = await getPlatformContacts(card.id);
+                return {
+                  ...card,
+                  platformContacts,
+                };
+              } catch (error) {
+                console.error(
+                  `Failed to fetch platform contacts for card ${card.id}:`,
+                  error,
+                );
+                return {
+                  ...card,
+                  platformContacts: [],
+                };
+              }
+            }),
+          );
+
+        const filteredCards = contactCardsWithPlatforms.filter(
+          (card) => card.platformContacts.length > 0,
+        );
+
+        cachedContactCards = filteredCards;
+        return filteredCards;
+      } catch (error) {
+        console.error("Failed to fetch contact cards:", error);
+        throw error;
+      }
+    })();
+
     try {
-      const data = await fetchContactCardsWithPlatforms();
+      const data = await cachePromise;
       if (isMountedRef.current) {
         setContactCards(data);
       }
@@ -124,6 +164,7 @@ export function useContactCardsWithPlatforms() {
         setError("Failed to load contacts");
       }
     } finally {
+      cachePromise = null;
       if (isMountedRef.current) {
         setLoading(false);
       }

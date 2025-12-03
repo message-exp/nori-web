@@ -7,6 +7,7 @@ import {
   ScrollRestoration,
 } from "react-router";
 import { ThemeProvider } from "~/components/theme-provider";
+import { useEffect } from "react";
 
 import type { Route } from "./+types/root";
 import "./app.css";
@@ -22,6 +23,8 @@ export const links: Route.LinksFunction = () => [
     rel: "stylesheet",
     href: "https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap",
   },
+  { rel: "icon", href: "/icons/icon.svg", type: "image/svg+xml" },
+  { rel: "manifest", href: "/manifest.webmanifest" },
 ];
 
 export function Layout({ children }: { children: React.ReactNode }) {
@@ -30,6 +33,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
+        <meta name="theme-color" content="#0f172a" />
         <Meta />
         <Links />
       </head>
@@ -45,6 +49,27 @@ export function Layout({ children }: { children: React.ReactNode }) {
 }
 
 export default function App() {
+  useEffect(() => {
+    if (typeof window === "undefined" || !("serviceWorker" in navigator))
+      return;
+
+    const onLoad = () => {
+      navigator.serviceWorker
+        .register("/sw.js")
+        .then((registration) => {
+          if (registration.waiting) {
+            registration.waiting.postMessage({ type: "SKIP_WAITING" });
+          }
+        })
+        .catch((error) => {
+          console.error("Service worker registration failed:", error);
+        });
+    };
+
+    window.addEventListener("load", onLoad);
+    return () => window.removeEventListener("load", onLoad);
+  }, []);
+
   return <Outlet />;
 }
 

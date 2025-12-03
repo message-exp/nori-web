@@ -214,7 +214,9 @@ const MergedRoomChatComponent = ({
 
       {/* Message input */}
       <div className="border-t p-4">
-        {roomIds.length > 0 && <MessageInput roomIds={roomIds} />}
+        {roomConfigs.length > 0 && (
+          <MessageInput roomIds={roomConfigs.map((config) => config.roomId)} />
+        )}
       </div>
     </div>
   );
