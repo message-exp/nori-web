@@ -1,4 +1,5 @@
 import * as sdk from "matrix-js-sdk";
+import type { PlatformEnum } from "~/lib/contacts-server-api/types";
 
 // reference: https://github.com/matrix-org/matrix-rust-sdk/blob/main/crates/matrix-sdk-ui/src/timeline/item.rs
 
@@ -81,4 +82,11 @@ export class TimelineItem {
     }
     return this.ts;
   }
+}
+
+// Extended timeline item for merged room views
+export interface MergedTimelineItem {
+  timelineItem: TimelineItem;
+  roomId: string;
+  platform: PlatformEnum;
 }

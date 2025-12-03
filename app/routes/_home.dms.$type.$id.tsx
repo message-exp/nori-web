@@ -1,8 +1,10 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo } from "react";
 import { useNavigate, useOutletContext, useParams } from "react-router";
 import { ArrowLeft } from "lucide-react";
+import type { HomeLayoutContext } from "./_home";
 import { Button } from "~/components/ui/button";
 import { RoomChat } from "~/components/room-chat/room-chat";
+import { MergedRoomChat } from "~/components/room-chat/merged-room-chat";
 import {
   DMsList,
   type SelectableItem,
@@ -13,40 +15,20 @@ import {
   ResizablePanel,
   ResizablePanelGroup,
 } from "~/components/ui/resizable";
-import { useContactCardsWithPlatforms } from "~/hooks/use-contact-cards-with-platforms";
-import { useDMRooms } from "~/hooks/use-dm-rooms";
+import { useDMsContext } from "~/contexts/dms-context";
 import { useRoomContext } from "~/contexts/room-context";
 import { Loading } from "~/components/ui/loading";
-
-type HomeLayoutContext = {
-  isMobile: boolean;
-  showMobileList: boolean;
-  setShowMobileList: React.Dispatch<React.SetStateAction<boolean>>;
-};
 
 type ValidType = "contact" | "room";
 
 export default function DMsTypePage() {
-  const { isMobile, setShowMobileList } = useOutletContext<HomeLayoutContext>();
+  const context = useOutletContext<HomeLayoutContext>();
   const navigate = useNavigate();
   const { type, id } = useParams();
   const { setSelectedRoomId } = useRoomContext();
 
-  // Data loading hooks
-  const {
-    contactCards,
-    loading: contactsLoading,
-    error: contactsError,
-  } = useContactCardsWithPlatforms();
-
-  const {
-    dmRooms,
-    loading: dmRoomsLoading,
-    error: dmRoomsError,
-  } = useDMRooms();
-
-  // State for current item
-  const [currentItem, setCurrentItem] = useState<SelectableItem | null>(null);
+  // 從 DMsContext 取得資料
+  const { contactCards, dmRooms, loading, error } = useDMsContext();
 
   // Validate type parameter
   const isValidType = (type: string | undefined): type is ValidType => {
@@ -64,39 +46,29 @@ export default function DMsTypePage() {
     return { type: type === "contact" ? "contact" : "dmRoom", id };
   };
 
-  // Load current item based on type and id
-  useEffect(() => {
+  // Load current item based on type and id using useMemo
+  const currentItem = useMemo<SelectableItem | null>(() => {
     if (!type || !id || !isValidType(type)) {
-      setCurrentItem(null);
-      return;
-    }
-
-    // Wait for data to load
-    if (contactsLoading || dmRoomsLoading) {
-      return;
+      return null;
     }
 
     if (type === "contact") {
       const contact = contactCards.find((c) => c.id === id);
-      setCurrentItem(contact ? { type: "contact", data: contact } : null);
+      return contact ? { type: "contact", data: contact } : null;
     } else if (type === "room") {
       const dmRoom = dmRooms.find((r) => r.roomId === id);
-      if (dmRoom) {
-        setCurrentItem({ type: "dmRoom", data: dmRoom });
-        setSelectedRoomId(id); // Set selected room for RoomChat
-      } else {
-        setCurrentItem(null);
-      }
+      return dmRoom ? { type: "dmRoom", data: dmRoom } : null;
     }
-  }, [
-    type,
-    id,
-    contactCards,
-    dmRooms,
-    contactsLoading,
-    dmRoomsLoading,
-    setSelectedRoomId,
-  ]);
+
+    return null;
+  }, [type, id, contactCards, dmRooms]);
+
+  // Set selected room ID when current item changes
+  useEffect(() => {
+    if (currentItem?.type === "dmRoom") {
+      setSelectedRoomId(currentItem.data.roomId);
+    }
+  }, [currentItem, setSelectedRoomId]);
 
   // Handle item selection from DMsList
   const handleItemSelect = (item: SelectableItem) => {
@@ -108,24 +80,27 @@ export default function DMsTypePage() {
   };
 
   // Set mobile list visibility
+  const isMobile = context?.isMobile;
+  const setShowMobileList = context?.setShowMobileList;
+
   useEffect(() => {
-    if (isMobile) {
+    if (isMobile && setShowMobileList) {
       setShowMobileList(false); // Hide sidebar on mobile when viewing specific item
     }
   }, [isMobile, setShowMobileList]);
 
-  // Loading state - use unified loading pattern like _index.tsx
-  if (contactsLoading || dmRoomsLoading) {
-    return <Loading text="Loading DMs..." />;
+  // Handle case where context is not ready yet
+  if (!context || loading) {
+    return <Loading text="Loading direct messages..." />;
   }
 
   // Error state
-  if (contactsError || dmRoomsError) {
+  if (error) {
     return (
       <div className="flex items-center justify-center h-screen">
         <div className="text-center text-muted-foreground">
           <div className="text-lg mb-2">Error</div>
-          <div className="text-sm mb-4">{contactsError || dmRoomsError}</div>
+          <div className="text-sm mb-4">{error}</div>
           <Button onClick={navigateBackToDMs} variant="outline">
             Back to DMs
           </Button>
@@ -195,18 +170,18 @@ export default function DMsTypePage() {
             {/* Mobile content */}
             <div className="flex-1">
               {currentItem.type === "contact" ? (
-                // Contact placeholder
-                <div className="h-full flex items-center justify-center p-4">
-                  <div className="text-center text-muted-foreground">
-                    <div className="text-lg mb-2">Merged Chat Coming Soon</div>
-                    <div className="text-sm">
-                      Timeline view for {getDisplayName(currentItem)} will be
-                      implemented in the next branch
-                    </div>
-                  </div>
-                </div>
+                // Merged room chat for contact
+                <MergedRoomChat
+                  roomConfigs={currentItem.data.platformContacts.map((pc) => ({
+                    roomId: pc.dm_room_id,
+                    platform: pc.platform,
+                  }))}
+                  contactName={
+                    currentItem.data.nickname || currentItem.data.contact_name
+                  }
+                />
               ) : (
-                // Room chat
+                // Single room chat
                 <RoomChat onBackClick={navigateBackToDMs} />
               )}
             </div>
@@ -227,26 +202,18 @@ export default function DMsTypePage() {
           <ResizablePanel defaultSize={75}>
             <div className="h-full">
               {currentItem.type === "contact" ? (
-                // Contact placeholder
-                <div className="h-full flex items-center justify-center p-4">
-                  <div className="text-center text-muted-foreground">
-                    <div className="border-b pb-4 mb-4">
-                      <h2 className="text-xl font-semibold">
-                        {getDisplayName(currentItem)}
-                      </h2>
-                      <div className="text-sm text-muted-foreground">
-                        {getSubtitle(currentItem)}
-                      </div>
-                    </div>
-                    <div className="text-lg mb-2">Merged Chat Coming Soon</div>
-                    <div className="text-sm">
-                      Timeline view for {getDisplayName(currentItem)} will be
-                      implemented in the next branch
-                    </div>
-                  </div>
-                </div>
+                // Merged room chat for contact
+                <MergedRoomChat
+                  roomConfigs={currentItem.data.platformContacts.map((pc) => ({
+                    roomId: pc.dm_room_id,
+                    platform: pc.platform,
+                  }))}
+                  contactName={
+                    currentItem.data.nickname || currentItem.data.contact_name
+                  }
+                />
               ) : (
-                // Room chat
+                // Single room chat
                 <RoomChat />
               )}
             </div>

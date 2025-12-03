@@ -86,7 +86,7 @@ export default function CardList() {
 
   const renderContent = () => {
     if (isLoading) {
-      return <Loading />;
+      return <Loading text="Loading contact cards..." />;
     }
 
     if (cards.length === 0) {
