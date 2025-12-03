@@ -1,7 +1,7 @@
 import { useState } from "react";
 import reactLogo from "./assets/react.svg";
 import appLogo from "/favicon.svg";
-import PWABadge from "./PWABadge";
+import PWABadge from "./PWABadge.tsx";
 import "./App.css";
 
 function App() {
