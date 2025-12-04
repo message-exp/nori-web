@@ -51,6 +51,7 @@ const RoomChatComponent = ({ onBackClick = () => {} }: RoomChatProps) => {
   const [searchQuery, setSearchQuery] = useState("");
   const [searchResults, setSearchResults] = useState<TimelineItem[]>([]);
   const [isSearching, setIsSearching] = useState(false);
+  const [showSearchInput, setShowSearchInput] = useState(false);
 
   // Highlighted message state
   const [highlightedMessageId, setHighlightedMessageId] = useState<
@@ -98,6 +99,10 @@ const RoomChatComponent = ({ onBackClick = () => {} }: RoomChatProps) => {
   const atBottomRef = useRef(true);
   const prevMessageIdRef = useRef<string | undefined>(undefined);
   const bottomMessageIdRef = useRef<string | undefined>(undefined);
+
+  // Refs for cleanup timeouts in handleJumpToMessage
+  const jumpTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const highlightTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
   const scrollToBottom = useCallback((scrollElement: HTMLElement) => {
     console.log("scroll to bottom");
@@ -262,8 +267,29 @@ const RoomChatComponent = ({ onBackClick = () => {} }: RoomChatProps) => {
     setIsSearching(false);
   }, []);
 
+  // Toggle search input (mobile)
+  const handleToggleSearch = useCallback(() => {
+    setShowSearchInput((prev) => !prev);
+    // Clear search when closing
+    if (showSearchInput) {
+      setSearchQuery("");
+      setSearchResults([]);
+      setIsSearching(false);
+    }
+  }, [showSearchInput]);
+
   // Jump to message
   const handleJumpToMessage = useCallback((messageId: string) => {
+    // Clean up any existing timeouts
+    if (jumpTimeoutRef.current) {
+      clearTimeout(jumpTimeoutRef.current);
+      jumpTimeoutRef.current = null;
+    }
+    if (highlightTimeoutRef.current) {
+      clearTimeout(highlightTimeoutRef.current);
+      highlightTimeoutRef.current = null;
+    }
+
     // First, clear search to show all messages
     setSearchQuery("");
     setSearchResults([]);
@@ -273,7 +299,7 @@ const RoomChatComponent = ({ onBackClick = () => {} }: RoomChatProps) => {
     setHighlightedMessageId(null);
 
     // Wait for the next tick to ensure the message list is rendered
-    setTimeout(() => {
+    jumpTimeoutRef.current = setTimeout(() => {
       const scrollElement = scrollAreaRef.current?.querySelector(
         "[data-radix-scroll-area-viewport]",
       ) as HTMLElement | null;
@@ -293,11 +319,13 @@ const RoomChatComponent = ({ onBackClick = () => {} }: RoomChatProps) => {
         // Add a small delay before highlighting to ensure DOM update
         requestAnimationFrame(() => {
           setHighlightedMessageId(messageId);
-          setTimeout(() => {
+          highlightTimeoutRef.current = setTimeout(() => {
             setHighlightedMessageId(null);
+            highlightTimeoutRef.current = null;
           }, 2000);
         });
       }
+      jumpTimeoutRef.current = null;
     }, 100);
   }, []);
 
@@ -316,6 +344,18 @@ const RoomChatComponent = ({ onBackClick = () => {} }: RoomChatProps) => {
     }
   }, [handleScroll]);
 
+  // Cleanup timeouts on unmount
+  useEffect(() => {
+    return () => {
+      if (jumpTimeoutRef.current) {
+        clearTimeout(jumpTimeoutRef.current);
+      }
+      if (highlightTimeoutRef.current) {
+        clearTimeout(highlightTimeoutRef.current);
+      }
+    };
+  }, []);
+
   if (!selectedRoomId || !room) {
     return (
       <div className="flex h-full items-center justify-center">
@@ -332,44 +372,146 @@ const RoomChatComponent = ({ onBackClick = () => {} }: RoomChatProps) => {
 
   return (
     <div className="flex h-full flex-col">
-      <div className="flex items-center justify-between border-b p-4">
-        <div className="flex items-center gap-3">
-          {isMobile ? (
-            <Button variant="ghost" size="icon" onClick={onBackClick}>
-              <ChevronLeft className="h-5 w-5" />
-            </Button>
-          ) : null}
-          <RoomAvatar
-            roomId={room?.roomId || ""}
-            roomName={room?.name || "Unknown Room"}
-            fallbackAvatarUrl={room?.getAvatarUrl(
-              room.client.baseUrl,
-              64,
-              64,
-              "crop",
+      <div className="flex flex-col border-b">
+        {/* Main header row */}
+        <div className="flex items-center justify-between p-4">
+          <div className="flex items-center gap-3 flex-1 min-w-0">
+            {isMobile ? (
+              <Button variant="ghost" size="icon" onClick={onBackClick}>
+                <ChevronLeft className="h-5 w-5" />
+              </Button>
+            ) : null}
+            <RoomAvatar
+              roomId={room?.roomId || ""}
+              roomName={room?.name || "Unknown Room"}
+              fallbackAvatarUrl={room?.getAvatarUrl(
+                room.client.baseUrl,
+                64,
+                64,
+                "crop",
+              )}
+            />
+            <div className="flex flex-col md:flex-row md:gap-2 md:items-center flex-1 min-w-0">
+              <div className="min-w-0">
+                <h3 className="font-medium truncate">{room?.name}</h3>
+              </div>
+              <div className="hidden md:block">
+                <span className="text-sm text-muted-foreground truncate">
+                  {getRoomTopic(room)}
+                </span>
+              </div>
+              {/* Search input - Desktop only (inline) */}
+              {!isMobile && (
+                <form
+                  onSubmit={handleSearchSubmit}
+                  className="flex items-center gap-2 ml-4"
+                >
+                  <div className="relative">
+                    <Input
+                      type="text"
+                      placeholder="Search messages..."
+                      value={searchQuery}
+                      onChange={handleSearchInputChange}
+                      className="w-48 h-8 pr-8"
+                    />
+                    {searchQuery && (
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="icon"
+                        className="absolute right-0 top-0 h-8 w-8"
+                        onClick={handleClearSearch}
+                        aria-label="Clear search"
+                      >
+                        <X className="h-4 w-4" />
+                        <span className="sr-only">Clear search</span>
+                      </Button>
+                    )}
+                  </div>
+                  <Button
+                    type="submit"
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8"
+                    aria-label="Search messages"
+                  >
+                    <Search className="h-4 w-4" />
+                  </Button>
+                </form>
+              )}
+            </div>
+          </div>
+          <div className="flex gap-1">
+            {/* Search toggle button - Mobile only */}
+            {isMobile && (
+              <TooltipProvider>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={handleToggleSearch}
+                    >
+                      <Search className="h-5 w-5" />
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Search messages</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
             )}
-          />
-          <div className="flex flex-row gap-2 items-center">
-            <div>
-              <h3 className="font-medium">{room?.name}</h3>
-            </div>
-            <div>
-              <span className="text-sm text-muted-foreground">
-                {getRoomTopic(room)}
-              </span>
-            </div>
-            {/* Search input */}
+            <InviteUserDialog room={room}>
+              <TooltipProvider>
+                <Tooltip>
+                  <DialogTrigger asChild>
+                    <TooltipTrigger asChild>
+                      <Button variant="ghost" size="icon">
+                        <UserRoundPlus className="h-5 w-5" />
+                      </Button>
+                    </TooltipTrigger>
+                  </DialogTrigger>
+                  <TooltipContent>
+                    <p>Invite</p>
+                  </TooltipContent>
+                </Tooltip>
+              </TooltipProvider>
+            </InviteUserDialog>
+            <TooltipProvider>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => {
+                      navigate(`/home/${room.roomId}/settings`);
+                    }}
+                  >
+                    <Settings className="h-5 w-5" />
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Settings</p>
+                </TooltipContent>
+              </Tooltip>
+            </TooltipProvider>
+          </div>
+        </div>
+        {/* Search bar - Mobile only (collapsible) */}
+        {isMobile && showSearchInput && (
+          <div className="px-4 pb-4 border-t">
             <form
               onSubmit={handleSearchSubmit}
-              className="flex items-center gap-2 ml-4"
+              className="flex items-center gap-2 pt-3"
             >
-              <div className="relative">
+              <div className="relative flex-1">
                 <Input
                   type="text"
                   placeholder="Search messages..."
                   value={searchQuery}
                   onChange={handleSearchInputChange}
-                  className="w-48 h-8 pr-8"
+                  className="h-8 pr-8"
+                  autoFocus
                 />
                 {searchQuery && (
                   <Button
@@ -378,8 +520,10 @@ const RoomChatComponent = ({ onBackClick = () => {} }: RoomChatProps) => {
                     size="icon"
                     className="absolute right-0 top-0 h-8 w-8"
                     onClick={handleClearSearch}
+                    aria-label="Clear search"
                   >
                     <X className="h-4 w-4" />
+                    <span className="sr-only">Clear search</span>
                   </Button>
                 )}
               </div>
@@ -387,49 +531,14 @@ const RoomChatComponent = ({ onBackClick = () => {} }: RoomChatProps) => {
                 type="submit"
                 variant="ghost"
                 size="icon"
-                className="h-8 w-8"
+                className="h-8 w-8 shrink-0"
+                aria-label="Search messages"
               >
                 <Search className="h-4 w-4" />
               </Button>
             </form>
           </div>
-        </div>
-        <div className="flex gap-1">
-          <InviteUserDialog room={room}>
-            <TooltipProvider>
-              <Tooltip>
-                <DialogTrigger asChild>
-                  <TooltipTrigger asChild>
-                    <Button variant="ghost" size="icon">
-                      <UserRoundPlus className="h-5 w-5" />
-                    </Button>
-                  </TooltipTrigger>
-                </DialogTrigger>
-                <TooltipContent>
-                  <p>Invite</p>
-                </TooltipContent>
-              </Tooltip>
-            </TooltipProvider>
-          </InviteUserDialog>
-          <TooltipProvider>
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => {
-                    navigate(`/home/${room.roomId}/settings`);
-                  }}
-                >
-                  <Settings className="h-5 w-5" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>Settings</p>
-              </TooltipContent>
-            </Tooltip>
-          </TooltipProvider>
-        </div>
+        )}
       </div>
       <div className="flex-1 overflow-hidden">
         <ScrollArea ref={scrollAreaRef} className="h-full">
