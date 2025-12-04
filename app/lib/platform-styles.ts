@@ -29,18 +29,38 @@ export const PLATFORM_STYLES: Record<PlatformEnum, PlatformStyle> = {
 };
 
 // Helper functions
+/**
+ * Get the Tailwind background color class for a platform.
+ * @param platform The platform enum value.
+ * @returns The Tailwind CSS class for the platform's background color.
+ */
 export function getPlatformBgColor(platform: PlatformEnum): string {
   return PLATFORM_STYLES[platform].bgColor;
 }
 
+/**
+ * Get the Tailwind text color class for a platform.
+ * @param platform The platform enum value.
+ * @returns The Tailwind CSS class for the platform's text color.
+ */
 export function getPlatformTextColor(platform: PlatformEnum): string {
   return PLATFORM_STYLES[platform].textColor;
 }
 
+/**
+ * Get the hex color value for a platform.
+ * @param platform The platform enum value.
+ * @returns The hex color string for the platform.
+ */
 export function getPlatformHexColor(platform: PlatformEnum): string {
   return PLATFORM_STYLES[platform].hexColor;
 }
 
+/**
+ * Get the display name for a platform.
+ * @param platform The platform enum value.
+ * @returns The display name string for the platform.
+ */
 export function getPlatformDisplayName(platform: PlatformEnum): string {
   return PLATFORM_STYLES[platform].displayName;
 }
