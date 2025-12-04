@@ -135,6 +135,20 @@ body {
     @apply bg-background text-foreground;
   }
 
+  /* Message highlight animation */
+  @keyframes message-highlight-fade {
+    0% {
+      background-color: rgba(59, 130, 246, 0.2);
+    }
+    100% {
+      background-color: transparent;
+    }
+  }
+
+  .message-highlight {
+    animation: message-highlight-fade 2s ease-out;
+  }
+
   /* shadcn/ui sidebar */
   :root {
     --sidebar-background: 0 0% 98%;

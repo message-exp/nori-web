@@ -154,6 +154,37 @@ export function isDMRoom(room: Room | null): boolean {
   return false;
 }
 
+/**
+ * Get the other user's Matrix user ID in a DM room
+ * @param roomId The room ID
+ * @returns The other user's Matrix user ID, or null if not found
+ */
+export function getDMPartnerUserId(roomId: string): string | null {
+  if (!client.client) {
+    console.error("Matrix client is not initialized");
+    return null;
+  }
+
+  const room = getRoom(roomId);
+  if (!room) {
+    console.error(`Room ${roomId} not found`);
+    return null;
+  }
+
+  const currentUserId = client.client.getUserId();
+  if (!currentUserId) {
+    console.error("Current user ID not found");
+    return null;
+  }
+
+  const members = room.getJoinedMembers();
+
+  // Find the other user (not the current user)
+  const otherUser = members.find((member) => member.userId !== currentUserId);
+
+  return otherUser?.userId || null;
+}
+
 export async function getRoomAvatar(room: Room | null) {
   if (!room) {
     console.log("room not found");
