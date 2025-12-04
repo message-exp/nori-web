@@ -140,17 +140,6 @@ export function isDMRoom(room: Room | null): boolean {
     console.error(`isDMRoom: Error checking getDMInviter:`, error);
   }
 
-  // Fallback: Traditional member count check (but more lenient for bridged rooms)
-  // if (memberCount <= 3) {
-  //   // console.log(
-  //   //   `isDMRoom: Room "${roomName}" has ≤3 members, might be DM but no direct markers found`,
-  //   // );
-  // } else {
-  //   // console.log(
-  //   //   `isDMRoom: Room "${roomName}" is not DM - member count is ${memberCount}, likely a group chat`,
-  //   // );
-  // }
-
   return false;
 }
 
