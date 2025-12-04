@@ -52,11 +52,6 @@ export default function DMsTypePage() {
       return null;
     }
 
-    // Wait for data to load
-    if (loading) {
-      return null;
-    }
-
     if (type === "contact") {
       const contact = contactCards.find((c) => c.id === id);
       return contact ? { type: "contact", data: contact } : null;
@@ -66,7 +61,7 @@ export default function DMsTypePage() {
     }
 
     return null;
-  }, [type, id, contactCards, dmRooms, loading]);
+  }, [type, id, contactCards, dmRooms]);
 
   // Set selected room ID when current item changes
   useEffect(() => {
@@ -90,23 +85,23 @@ export default function DMsTypePage() {
     return currentItem.data.platformContacts.map((pc) => ({
       roomId: pc.dm_room_id,
       platform: pc.platform,
-      platformUserId: pc.platform_user_id,
     }));
   }, [currentItem]);
 
   // Set mobile list visibility
+  const isMobile = context?.isMobile;
+  const setShowMobileList = context?.setShowMobileList;
+
   useEffect(() => {
-    if (context?.isMobile) {
-      context.setShowMobileList(false); // Hide sidebar on mobile when viewing specific item
+    if (isMobile && setShowMobileList) {
+      setShowMobileList(false); // Hide sidebar on mobile when viewing specific item
     }
-  }, [context]);
+  }, [isMobile, setShowMobileList]);
 
   // Handle case where context is not ready yet
   if (!context || loading) {
     return <Loading text="Loading direct messages..." />;
   }
-
-  const { isMobile } = context;
 
   // Error state
   if (error) {
@@ -151,7 +146,7 @@ export default function DMsTypePage() {
   const getSubtitle = (item: SelectableItem): string => {
     if (item.type === "contact") {
       const count = item.data.platformContacts.length;
-      return `${count} platform${count !== 1 ? "s" : ""} connected`;
+      return `${count} platform${count === 1 ? "" : "s"} connected`;
     }
     return `${item.data.platform} DM`;
   };

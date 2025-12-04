@@ -23,18 +23,19 @@ export default function DMsIndex() {
     navigate(path);
   };
 
+  const isMobile = context?.isMobile;
+  const setShowMobileList = context?.setShowMobileList;
+
   useEffect(() => {
-    if (context?.isMobile) {
-      context.setShowMobileList(true);
+    if (isMobile && setShowMobileList) {
+      setShowMobileList(true);
     }
-  }, [context]);
+  }, [isMobile, setShowMobileList]);
 
   // Handle case where context is not ready yet
   if (!context) {
     return <Loading text="Loading application..." />;
   }
-
-  const { isMobile } = context;
 
   if (loading) {
     return <Loading text="Loading direct messages..." />;

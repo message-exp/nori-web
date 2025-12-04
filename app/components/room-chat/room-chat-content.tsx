@@ -18,6 +18,10 @@ interface RoomChatContentProps {
   readonly hasMore: boolean;
   readonly hasNewer: boolean;
   readonly loading: boolean;
+  readonly isSearching?: boolean;
+  readonly searchResults?: readonly TimelineItem[];
+  readonly onJumpToMessage?: (messageId: string) => void;
+  readonly highlightedMessageId?: string | null;
 }
 
 export default function RoomChatContent({
@@ -26,7 +30,14 @@ export default function RoomChatContent({
   hasMore,
   hasNewer,
   loading,
+  isSearching = false,
+  searchResults = [],
+  onJumpToMessage,
+  highlightedMessageId = null,
 }: RoomChatContentProps) {
+  const displayMessages = isSearching ? searchResults : messages;
+  const showLoadingDots = !isSearching;
+
   const renderContent = () => {
     if (roomLoading) {
       return (
@@ -36,16 +47,24 @@ export default function RoomChatContent({
       );
     }
 
-    if (messages.length > 0) {
+    if (isSearching && searchResults.length === 0) {
+      return (
+        <p className="text-center text-muted-foreground">
+          No messages found matching your search
+        </p>
+      );
+    }
+
+    if (displayMessages.length > 0) {
       return (
         <div className="message-list-wrapper space-y-2">
-          {hasMore && loading && (
+          {showLoadingDots && hasMore && loading && (
             <div className="py-4">
               <LoadingDots />
             </div>
           )}
 
-          {messages.map((message) => {
+          {displayMessages.map((message) => {
             // Check if this is a MergedTimelineItem or regular TimelineItem
             const isMerged = "timelineItem" in message;
             const timelineItem = isMerged ? message.timelineItem : message;
@@ -54,12 +73,18 @@ export default function RoomChatContent({
 
             return (
               <div key={id} data-msg-id={id}>
-                <MessageItem message={timelineItem} platform={platform} />
+                <MessageItem
+                  message={timelineItem}
+                  platform={platform}
+                  showJumpButton={isSearching}
+                  onJumpToMessage={onJumpToMessage}
+                  isHighlighted={id === highlightedMessageId}
+                />
               </div>
             );
           })}
 
-          {hasNewer && loading && (
+          {showLoadingDots && hasNewer && loading && (
             <div className="py-4">
               <LoadingDots />
             </div>

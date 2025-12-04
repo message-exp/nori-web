@@ -98,9 +98,8 @@ const MergedRoomChatComponent = ({
   const saveReferencePoints = useCallback(() => {
     if (messages.length === 0) return;
 
-    prevMessageIdRef.current = messages[0].timelineItem.event?.getId();
-    bottomMessageIdRef.current =
-      messages[messages.length - 1].timelineItem.event?.getId();
+    prevMessageIdRef.current = messages.at(0)?.timelineItem.event?.getId();
+    bottomMessageIdRef.current = messages.at(-1)?.timelineItem.event?.getId();
   }, [messages]);
 
   useLayoutEffect(() => {

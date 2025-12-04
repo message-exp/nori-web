@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { ClientEvent } from "matrix-js-sdk";
 import {
   Select,
@@ -37,61 +37,58 @@ export function MessageInputSelector({
 }: Readonly<MessageInputSelectorProps>) {
   const [roomInfos, setRoomInfos] = useState<RoomInfo[]>([]);
 
+  const updateRoomInfos = useCallback(() => {
+    const infos = roomIds
+      .map((roomId): RoomInfo | null => {
+        const room = getRoom(roomId);
+        if (!room) return null;
+
+        const platform = detectPlatform(room);
+        const userId = getDMPartnerUserId(roomId);
+        let displayName: string | undefined;
+
+        if (userId) {
+          const user = getUser(userId);
+          displayName = user?.displayName || undefined;
+        }
+
+        return {
+          roomId,
+          platform,
+          platformUserName: displayName,
+        };
+      })
+      .filter((info): info is RoomInfo => info !== null);
+
+    setRoomInfos(infos);
+  }, [roomIds]);
+
+  // Listen for sync state changes
+  const handleSync = useCallback(() => {
+    updateRoomInfos();
+  }, [updateRoomInfos]);
+
+  // Listen for account data changes
+  const handleAccountData = useCallback(() => {
+    updateRoomInfos();
+  }, [updateRoomInfos]);
+
   useEffect(() => {
-    const updateRoomInfos = () => {
-      const infos = roomIds
-        .map((roomId): RoomInfo | null => {
-          const room = getRoom(roomId);
-          if (!room) return null;
-
-          const platform = detectPlatform(room);
-          const userId = getDMPartnerUserId(roomId);
-          let displayName: string | undefined;
-
-          if (userId) {
-            const user = getUser(userId);
-            displayName = user?.displayName || undefined;
-          }
-
-          return {
-            roomId,
-            platform,
-            platformUserName: displayName,
-          };
-        })
-        .filter((info): info is RoomInfo => info !== null);
-
-      setRoomInfos(infos);
-    };
-
     // Initial fetch
     updateRoomInfos();
 
-    // Listen for sync state changes
-    const handleSync = () => {
-      updateRoomInfos();
-    };
-
-    // Listen for account data changes
-    const handleAccountData = () => {
-      updateRoomInfos();
-    };
-
-    // Capture the current client instance for cleanup
-    const currentClient = client.client;
-
-    if (currentClient) {
-      currentClient.on(ClientEvent.Sync, handleSync);
-      currentClient.on(ClientEvent.AccountData, handleAccountData);
+    if (client.client) {
+      client.client.on(ClientEvent.Sync, handleSync);
+      client.client.on(ClientEvent.AccountData, handleAccountData);
     }
 
     return () => {
-      if (currentClient) {
-        currentClient.off(ClientEvent.Sync, handleSync);
-        currentClient.off(ClientEvent.AccountData, handleAccountData);
+      if (client.client) {
+        client.client.off(ClientEvent.Sync, handleSync);
+        client.client.off(ClientEvent.AccountData, handleAccountData);
       }
     };
-  }, [roomIds]);
+  }, [updateRoomInfos, handleSync, handleAccountData]);
 
   // Only show selector if multiple rooms exist
   if (roomInfos.length <= 1) {
