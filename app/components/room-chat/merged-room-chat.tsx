@@ -16,18 +16,28 @@ import RoomChatContent from "./room-chat-content";
 interface RoomConfig {
   roomId: string;
   platform: PlatformEnum;
+  platformContactId?: string;
 }
 
 interface MergedRoomChatProps {
   readonly roomConfigs: RoomConfig[];
   readonly contactName: string;
+  readonly defaultPlatformContactId?: string | null;
 }
 
 const MergedRoomChatComponent = ({
   roomConfigs,
   contactName,
+  defaultPlatformContactId,
 }: MergedRoomChatProps) => {
   const [roomLoading, setRoomLoading] = useState(false);
+
+  // Find default room ID based on defaultPlatformContactId
+  const defaultRoomId = defaultPlatformContactId
+    ? roomConfigs.find(
+        (config) => config.platformContactId === defaultPlatformContactId,
+      )?.roomId
+    : undefined;
 
   // Get merged messages from all rooms
   const {
@@ -208,7 +218,10 @@ const MergedRoomChatComponent = ({
       {/* Message input */}
       <div className="border-t p-4">
         {roomConfigs.length > 0 && (
-          <MessageInput roomIds={roomConfigs.map((config) => config.roomId)} />
+          <MessageInput
+            roomIds={roomConfigs.map((config) => config.roomId)}
+            defaultRoomId={defaultRoomId}
+          />
         )}
       </div>
     </div>

@@ -27,12 +27,14 @@ interface RoomInfo {
 interface MessageInputSelectorProps {
   roomIds: string[];
   selectedRoomId: string;
+  defaultRoomId?: string;
   onRoomChange: (roomId: string) => void;
 }
 
 export function MessageInputSelector({
   roomIds,
   selectedRoomId,
+  defaultRoomId,
   onRoomChange,
 }: Readonly<MessageInputSelectorProps>) {
   const [roomInfos, setRoomInfos] = useState<RoomInfo[]>([]);

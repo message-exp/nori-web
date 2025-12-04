@@ -14,6 +14,12 @@ export interface ContactCardWithPlatforms extends ContactCard {
 let cachedContactCards: ContactCardWithPlatforms[] = [];
 let cachePromise: Promise<ContactCardWithPlatforms[]> | null = null;
 
+// Export function to invalidate cache
+export function invalidateContactCardsCache() {
+  cachedContactCards = [];
+  cachePromise = null;
+}
+
 export function useContactCardsWithPlatforms() {
   const [contactCards, setContactCards] =
     useState<ContactCardWithPlatforms[]>(cachedContactCards);

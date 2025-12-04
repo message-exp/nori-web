@@ -1,6 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Send } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "~/components/ui/button";
@@ -16,16 +16,26 @@ const formSchema = z.object({
 
 interface MessageInputProps {
   roomIds: string[];
+  defaultRoomId?: string;
 }
 
-export function MessageInput({ roomIds }: Readonly<MessageInputProps>) {
-  // State for selected room - default to first room
-  const [selectedRoomId, setSelectedRoomId] = useState<string>(
-    roomIds[0] || "",
-  );
+export function MessageInput({
+  roomIds,
+  defaultRoomId,
+}: Readonly<MessageInputProps>) {
+  // State for selected room - default to defaultRoomId if provided, otherwise first room
+  const [selectedRoomId, setSelectedRoomId] = useState<string>(() => {
+    if (defaultRoomId && roomIds.includes(defaultRoomId)) {
+      return defaultRoomId;
+    }
+    return roomIds[0] || "";
+  });
 
   const [isLoading, setIsLoading] = useState(false);
   const [isEmpty, setIsEmpty] = useState(true);
+
+  // Track previous roomIds to detect when we switch to a different contact
+  const prevRoomIdsRef = useRef<string[]>(roomIds);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -42,13 +52,37 @@ export function MessageInput({ roomIds }: Readonly<MessageInputProps>) {
     setIsEmpty(!text || text.trim() === "");
   }, [text]);
 
-  // Sync selectedRoomId with roomIds when they change
+  // Reset to default when switching to a different contact
   useEffect(() => {
-    // When roomIds has data but selectedRoomId is not found, reset to first room
-    if (roomIds.length > 0 && !roomIds.includes(selectedRoomId)) {
-      setSelectedRoomId(roomIds[0]);
+    // Check if roomIds changed (switched to different contact)
+    const roomIdsChanged =
+      prevRoomIdsRef.current.length !== roomIds.length ||
+      !prevRoomIdsRef.current.every((id, index) => id === roomIds[index]);
+
+    if (roomIdsChanged) {
+      // Update the ref
+      prevRoomIdsRef.current = roomIds;
+
+      // Reset to default room or first room
+      if (defaultRoomId && roomIds.includes(defaultRoomId)) {
+        setSelectedRoomId(defaultRoomId);
+      } else if (roomIds.length > 0) {
+        setSelectedRoomId(roomIds[0]);
+      }
     }
-  }, [roomIds, selectedRoomId]);
+  }, [roomIds, defaultRoomId]);
+
+  // Sync selectedRoomId with roomIds when selected room is not in the list
+  useEffect(() => {
+    // When selectedRoomId is not found in roomIds, reset to default or first room
+    if (roomIds.length > 0 && !roomIds.includes(selectedRoomId)) {
+      if (defaultRoomId && roomIds.includes(defaultRoomId)) {
+        setSelectedRoomId(defaultRoomId);
+      } else {
+        setSelectedRoomId(roomIds[0]);
+      }
+    }
+  }, [roomIds, selectedRoomId, defaultRoomId]);
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     if (!values.text || !client.client || !selectedRoomId) return;
@@ -81,6 +115,7 @@ export function MessageInput({ roomIds }: Readonly<MessageInputProps>) {
         <MessageInputSelector
           roomIds={roomIds}
           selectedRoomId={selectedRoomId}
+          defaultRoomId={defaultRoomId}
           onRoomChange={setSelectedRoomId}
         />
 

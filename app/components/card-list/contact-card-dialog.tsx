@@ -22,6 +22,7 @@ import { ContactBasicInfo } from "./contact-basic-info";
 import { PlatformContactsList } from "./platform-contacts-list";
 import { DeleteConfirmation } from "~/components/ui/delete-confirmation";
 import { usePlatformContacts } from "~/hooks/use-platform-contacts";
+import { invalidateContactCardsCache } from "~/hooks/use-contact-cards-with-platforms";
 
 interface ContactCardDialogProps {
   readonly contactCard: ContactCardType | null;
@@ -80,6 +81,8 @@ export default function ContactCardDialog({
         default_platform_contact_id: contactId,
       });
       onCardUpdated?.(updatedCard);
+      // Invalidate the global cache so next time it will refetch
+      invalidateContactCardsCache();
     } catch (err) {
       console.error("Failed to set default platform contact:", err);
       setError("Failed to set default platform contact");
