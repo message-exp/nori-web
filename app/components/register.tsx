@@ -26,10 +26,6 @@ import {
 import { Input } from "~/components/ui/input";
 import { HOME_SERVER } from "~/lib/env-config-helper";
 import { register } from "~/lib/matrix-api/register";
-import {
-  ConnectionError,
-  MatrixError,
-} from "matrix-js-sdk/lib/http-api/errors";
 
 // define form schema
 const formSchema = z.object({
