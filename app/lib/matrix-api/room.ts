@@ -82,8 +82,6 @@ export function isDMRoom(room: Room | null): boolean {
     return false;
   }
 
-  const roomName = room.name || room.roomId;
-
   const currentUserId = client.client.getUserId();
   if (!currentUserId) {
     return false;
@@ -104,7 +102,6 @@ export function isDMRoom(room: Room | null): boolean {
 
   // Method 2: Check for is_direct flag in member events (Element's approach)
   const members = room.getJoinedMembers();
-  const memberCount = members.length;
 
   // Check if any member has is_direct flag set
   for (const member of members) {
