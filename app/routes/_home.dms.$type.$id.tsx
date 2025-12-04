@@ -79,6 +79,15 @@ export default function DMsTypePage() {
     }
   };
 
+  // Prepare room configs
+  const roomConfigs = useMemo(() => {
+    if (currentItem?.type !== "contact") return [];
+    return currentItem.data.platformContacts.map((pc) => ({
+      roomId: pc.dm_room_id,
+      platform: pc.platform,
+    }));
+  }, [currentItem]);
+
   // Set mobile list visibility
   const isMobile = context?.isMobile;
   const setShowMobileList = context?.setShowMobileList;
@@ -137,7 +146,7 @@ export default function DMsTypePage() {
   const getSubtitle = (item: SelectableItem): string => {
     if (item.type === "contact") {
       const count = item.data.platformContacts.length;
-      return `${count} platform${count !== 1 ? "s" : ""} connected`;
+      return `${count} platform${count === 1 ? "" : "s"} connected`;
     }
     return `${item.data.platform} DM`;
   };
@@ -172,10 +181,7 @@ export default function DMsTypePage() {
               {currentItem.type === "contact" ? (
                 // Merged room chat for contact
                 <MergedRoomChat
-                  roomConfigs={currentItem.data.platformContacts.map((pc) => ({
-                    roomId: pc.dm_room_id,
-                    platform: pc.platform,
-                  }))}
+                  roomConfigs={roomConfigs}
                   contactName={
                     currentItem.data.nickname || currentItem.data.contact_name
                   }
@@ -204,10 +210,7 @@ export default function DMsTypePage() {
               {currentItem.type === "contact" ? (
                 // Merged room chat for contact
                 <MergedRoomChat
-                  roomConfigs={currentItem.data.platformContacts.map((pc) => ({
-                    roomId: pc.dm_room_id,
-                    platform: pc.platform,
-                  }))}
+                  roomConfigs={roomConfigs}
                   contactName={
                     currentItem.data.nickname || currentItem.data.contact_name
                   }

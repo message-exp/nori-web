@@ -26,6 +26,5 @@ export async function getUserAvatar(user: User | null) {
   }
 
   const returnUrl = await getImageObjectUrl(mxcUrl);
-  console.log("return url: ", returnUrl);
   return returnUrl;
 }

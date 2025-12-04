@@ -305,7 +305,7 @@ const RoomChatComponent = ({ onBackClick = () => {} }: RoomChatProps) => {
         </ScrollArea>
       </div>
       <div className="border-t p-4">
-        <MessageInput roomId={selectedRoomId} />
+        <MessageInput roomIds={[selectedRoomId]} />
       </div>
     </div>
   );
