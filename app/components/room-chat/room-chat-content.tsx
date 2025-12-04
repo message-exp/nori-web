@@ -21,6 +21,7 @@ interface RoomChatContentProps {
   readonly isSearching?: boolean;
   readonly searchResults?: readonly TimelineItem[];
   readonly onJumpToMessage?: (messageId: string) => void;
+  readonly highlightedMessageId?: string | null;
 }
 
 export default function RoomChatContent({
@@ -32,6 +33,7 @@ export default function RoomChatContent({
   isSearching = false,
   searchResults = [],
   onJumpToMessage,
+  highlightedMessageId = null,
 }: RoomChatContentProps) {
   const displayMessages = isSearching ? searchResults : messages;
   const showLoadingDots = !isSearching;
@@ -76,6 +78,7 @@ export default function RoomChatContent({
                   platform={platform}
                   showJumpButton={isSearching}
                   onJumpToMessage={onJumpToMessage}
+                  isHighlighted={id === highlightedMessageId}
                 />
               </div>
             );

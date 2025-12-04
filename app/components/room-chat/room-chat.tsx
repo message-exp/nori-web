@@ -52,6 +52,11 @@ const RoomChatComponent = ({ onBackClick = () => {} }: RoomChatProps) => {
   const [searchResults, setSearchResults] = useState<TimelineItem[]>([]);
   const [isSearching, setIsSearching] = useState(false);
 
+  // Highlighted message state
+  const [highlightedMessageId, setHighlightedMessageId] = useState<
+    string | null
+  >(null);
+
   // selected room changes
   useEffect(() => {
     if (selectedRoomId && client.client) {
@@ -72,6 +77,12 @@ const RoomChatComponent = ({ onBackClick = () => {} }: RoomChatProps) => {
     lastLoadDirection,
     lastLoadTrigger,
   } = useRoomMessages(room);
+
+  // Use ref to store latest messages to avoid callback re-creation
+  const messagesRef = useRef(messages);
+  useEffect(() => {
+    messagesRef.current = messages;
+  }, [messages]);
 
   useEffect(() => {
     if (messages.length == 0 && loading) {
@@ -206,20 +217,26 @@ const RoomChatComponent = ({ onBackClick = () => {} }: RoomChatProps) => {
     }
 
     const query = searchQuery.toLowerCase();
-    const results = messages.filter((message) => {
-      if (!message.isMessage() || !message.event) return false;
+    const results: TimelineItem[] = [];
+    const MAX_RESULTS = 50;
+
+    for (const message of messagesRef.current) {
+      if (!message.isMessage() || !message.event) continue;
 
       const content =
         message.event.getContent()["m.new_content"] ||
         message.event.getContent();
       const body = content.body || "";
 
-      return body.toLowerCase().includes(query);
-    });
+      if (body.toLowerCase().includes(query)) {
+        results.push(message);
+        if (results.length >= MAX_RESULTS) break;
+      }
+    }
 
     setSearchResults(results);
     setIsSearching(true);
-  }, [searchQuery, messages]);
+  }, [searchQuery]);
 
   // Handle search input change
   const handleSearchInputChange = useCallback(
@@ -252,6 +269,9 @@ const RoomChatComponent = ({ onBackClick = () => {} }: RoomChatProps) => {
     setSearchResults([]);
     setIsSearching(false);
 
+    // Clear any existing highlight to allow re-triggering animation
+    setHighlightedMessageId(null);
+
     // Wait for the next tick to ensure the message list is rendered
     setTimeout(() => {
       const scrollElement = scrollAreaRef.current?.querySelector(
@@ -270,11 +290,13 @@ const RoomChatComponent = ({ onBackClick = () => {} }: RoomChatProps) => {
           block: "center",
         });
 
-        // Highlight the message briefly
-        messageElement.style.backgroundColor = "rgba(59, 130, 246, 0.1)";
-        setTimeout(() => {
-          messageElement.style.backgroundColor = "";
-        }, 2000);
+        // Add a small delay before highlighting to ensure DOM update
+        requestAnimationFrame(() => {
+          setHighlightedMessageId(messageId);
+          setTimeout(() => {
+            setHighlightedMessageId(null);
+          }, 2000);
+        });
       }
     }, 100);
   }, []);
@@ -420,6 +442,7 @@ const RoomChatComponent = ({ onBackClick = () => {} }: RoomChatProps) => {
             isSearching={isSearching}
             searchResults={searchResults}
             onJumpToMessage={handleJumpToMessage}
+            highlightedMessageId={highlightedMessageId}
           />
         </ScrollArea>
       </div>

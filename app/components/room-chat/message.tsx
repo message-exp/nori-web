@@ -15,6 +15,7 @@ interface MessageItemProps {
   showJumpButton?: boolean;
   onJumpToMessage?: (messageId: string) => void;
   platform?: PlatformEnum;
+  isHighlighted?: boolean;
 }
 
 export function MessageItem({
@@ -22,6 +23,7 @@ export function MessageItem({
   showJumpButton = false,
   onJumpToMessage,
   platform,
+  isHighlighted = false,
 }: MessageItemProps) {
   const content =
     message.event!.getContent()["m.new_content"] || message.event!.getContent();
@@ -44,7 +46,7 @@ export function MessageItem({
   };
 
   return (
-    <div className="">
+    <div className={isHighlighted ? "message-highlight" : ""}>
       <div className="flex flex-row gap-2 items-start justify-between">
         <div className="flex flex-row gap-2 flex-1">
           <div className="flex items-start space-x-2">
@@ -128,6 +130,7 @@ export function MessageItem({
               size="sm"
               onClick={handleJumpClick}
               className="h-8"
+              aria-label="Jump to message in conversation"
             >
               Jump
             </Button>
