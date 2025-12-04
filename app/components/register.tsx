@@ -26,6 +26,10 @@ import {
 import { Input } from "~/components/ui/input";
 import { HOME_SERVER } from "~/lib/env-config-helper";
 import { register } from "~/lib/matrix-api/register";
+import {
+  ConnectionError,
+  MatrixError,
+} from "matrix-js-sdk/lib/http-api/errors";
 
 // define form schema
 const formSchema = z.object({
@@ -63,11 +67,32 @@ export function Register({
       console.log("register response", response);
     } catch (error) {
       console.error("Error registering:", error);
-      setError(
-        error instanceof Error
-          ? error.message
-          : "An error occurred during registration.",
-      );
+
+      // Determine error type and display appropriate message
+      if (error instanceof ConnectionError) {
+        setError(
+          "Connection timeout or network error. Please check your network and try again",
+        );
+      } else if (error instanceof MatrixError) {
+        // Handle various Matrix errors
+        if (error.errcode === "M_USER_IN_USE") {
+          setError("This username is already taken");
+        } else if (error.errcode === "M_INVALID_USERNAME") {
+          setError("Invalid username format");
+        } else if (error.errcode === "M_EXCLUSIVE") {
+          setError("This username is reserved");
+        } else if (error.errcode === "M_LIMIT_EXCEEDED") {
+          setError("Too many registration attempts. Please try again later");
+        } else if (error.errcode === "M_WEAK_PASSWORD") {
+          setError("Password is too weak. Please use a stronger password");
+        } else {
+          setError(error.data.error || "An error occurred during registration");
+        }
+      } else if (error instanceof Error) {
+        setError(error.message);
+      } else {
+        setError("An unknown error occurred. Please try again later");
+      }
       return;
     }
 

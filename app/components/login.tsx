@@ -26,6 +26,10 @@ import {
 import { Input } from "~/components/ui/input";
 import { HOME_SERVER } from "~/lib/env-config-helper";
 import { login } from "~/lib/matrix-api/login";
+import {
+  ConnectionError,
+  MatrixError,
+} from "matrix-js-sdk/lib/http-api/errors";
 
 // define form schema
 const formSchema = z.object({
@@ -64,7 +68,26 @@ export function Login({
       console.log("login response", response);
     } catch (error) {
       console.error("Error logging in:", error);
-      setError("Invalid username or password");
+
+      // Determine error type and display appropriate message
+      if (error instanceof ConnectionError) {
+        setError(
+          "Connection timeout or network error. Please check your network and try again",
+        );
+      } else if (error instanceof MatrixError) {
+        // M_FORBIDDEN means authentication failed (wrong password)
+        if (error.errcode === "M_FORBIDDEN") {
+          setError("Invalid username or password");
+        } else if (error.errcode === "M_USER_DEACTIVATED") {
+          setError("This account has been deactivated");
+        } else if (error.errcode === "M_LIMIT_EXCEEDED") {
+          setError("Too many login attempts. Please try again later");
+        } else {
+          setError(error.data.error || "An error occurred during login");
+        }
+      } else {
+        setError("An unknown error occurred. Please try again later");
+      }
       return;
     }
 
