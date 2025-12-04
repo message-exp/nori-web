@@ -1,4 +1,4 @@
-import { MessageSquare, Search, X } from "lucide-react";
+import { ChevronLeft, MessageSquare, Search, X } from "lucide-react";
 import {
   memo,
   useCallback,
@@ -25,11 +25,13 @@ interface RoomConfig {
 interface MergedRoomChatProps {
   readonly roomConfigs: RoomConfig[];
   readonly contactName: string;
+  readonly onBackClick?: () => void;
 }
 
 const MergedRoomChatComponent = ({
   roomConfigs,
   contactName,
+  onBackClick = () => {},
 }: MergedRoomChatProps) => {
   const isMobile = useIsMobile();
   const [roomLoading, setRoomLoading] = useState(false);
@@ -335,6 +337,11 @@ const MergedRoomChatComponent = ({
         {/* Main header row */}
         <div className="flex items-center justify-between p-4">
           <div className="flex items-center gap-3 flex-1 min-w-0">
+            {isMobile ? (
+              <Button variant="ghost" size="icon" onClick={onBackClick}>
+                <ChevronLeft className="h-5 w-5" />
+              </Button>
+            ) : null}
             <div className="flex flex-col md:flex-row md:gap-2 md:items-center flex-1 min-w-0">
               <div className="min-w-0">
                 <h3 className="font-medium">{contactName}</h3>
