@@ -85,7 +85,6 @@ export default function DMsTypePage() {
     return currentItem.data.platformContacts.map((pc) => ({
       roomId: pc.dm_room_id,
       platform: pc.platform,
-      platformUserId: pc.platform_user_id,
     }));
   }, [currentItem]);
 
@@ -97,7 +96,7 @@ export default function DMsTypePage() {
     if (isMobile && setShowMobileList) {
       setShowMobileList(false); // Hide sidebar on mobile when viewing specific item
     }
-  }, [context]);
+  }, [isMobile, setShowMobileList]);
 
   // Handle case where context is not ready yet
   if (!context || loading) {

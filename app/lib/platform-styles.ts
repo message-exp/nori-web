@@ -35,7 +35,12 @@ export const PLATFORM_STYLES: Record<PlatformEnum, PlatformStyle> = {
  * @returns The Tailwind CSS class for the platform's background color.
  */
 export function getPlatformBgColor(platform: PlatformEnum): string {
-  return PLATFORM_STYLES[platform].bgColor;
+  const style = PLATFORM_STYLES[platform];
+  if (!style) {
+    console.warn(`Unknown platform: ${platform}`);
+    return "bg-gray-500";
+  }
+  return style.bgColor;
 }
 
 /**
@@ -44,7 +49,12 @@ export function getPlatformBgColor(platform: PlatformEnum): string {
  * @returns The Tailwind CSS class for the platform's text color.
  */
 export function getPlatformTextColor(platform: PlatformEnum): string {
-  return PLATFORM_STYLES[platform].textColor;
+  const style = PLATFORM_STYLES[platform];
+  if (!style) {
+    console.warn(`Unknown platform: ${platform}`);
+    return "text-white";
+  }
+  return style.textColor;
 }
 
 /**
@@ -53,7 +63,12 @@ export function getPlatformTextColor(platform: PlatformEnum): string {
  * @returns The hex color string for the platform.
  */
 export function getPlatformHexColor(platform: PlatformEnum): string {
-  return PLATFORM_STYLES[platform].hexColor;
+  const style = PLATFORM_STYLES[platform];
+  if (!style) {
+    console.warn(`Unknown platform: ${platform}`);
+    return "#888888";
+  }
+  return style.hexColor;
 }
 
 /**
@@ -62,5 +77,10 @@ export function getPlatformHexColor(platform: PlatformEnum): string {
  * @returns The display name string for the platform.
  */
 export function getPlatformDisplayName(platform: PlatformEnum): string {
-  return PLATFORM_STYLES[platform].displayName;
+  const style = PLATFORM_STYLES[platform];
+  if (!style) {
+    console.warn(`Unknown platform: ${platform}`);
+    return "Unknown";
+  }
+  return style.displayName;
 }

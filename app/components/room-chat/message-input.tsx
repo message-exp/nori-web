@@ -51,7 +51,7 @@ export function MessageInput({ roomIds }: Readonly<MessageInputProps>) {
   }, [roomIds, selectedRoomId]);
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-    if (!values.text || !client.client) return;
+    if (!values.text || !client.client || !selectedRoomId) return;
 
     try {
       setIsLoading(true);

@@ -30,7 +30,7 @@ export default function DMsIndex() {
     if (isMobile && setShowMobileList) {
       setShowMobileList(true);
     }
-  }, [context]);
+  }, [isMobile, setShowMobileList]);
 
   // Handle case where context is not ready yet
   if (!context) {
