@@ -118,7 +118,7 @@ export class Client {
     return new Promise((resolve, reject) => {
       const timeout = setTimeout(() => {
         reject(new Error("Matrix client sync timeout"));
-      }, 60000);
+      }, 1000);
 
       this.client.once(sdk.ClientEvent.Sync, (state, prevState, res) => {
         if (state === "PREPARED") {

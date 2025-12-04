@@ -68,31 +68,32 @@ export function Register({
     } catch (error) {
       console.error("Error registering:", error);
 
-      // Determine error type and display appropriate message
-      if (error instanceof ConnectionError) {
-        setError(
-          "Connection timeout or network error. Please check your network and try again",
-        );
-      } else if (error instanceof MatrixError) {
-        // Handle various Matrix errors
-        if (error.errcode === "M_USER_IN_USE") {
-          setError("This username is already taken");
-        } else if (error.errcode === "M_INVALID_USERNAME") {
-          setError("Invalid username format");
-        } else if (error.errcode === "M_EXCLUSIVE") {
-          setError("This username is reserved");
-        } else if (error.errcode === "M_LIMIT_EXCEEDED") {
-          setError("Too many registration attempts. Please try again later");
-        } else if (error.errcode === "M_WEAK_PASSWORD") {
-          setError("Password is too weak. Please use a stronger password");
-        } else {
-          setError(error.data.error || "An error occurred during registration");
+      let errorMessage = "Unknown error";
+
+      if (error && typeof error === "object") {
+        const errorObj = error as { message?: string };
+        const errorStr = errorObj.message ?? JSON.stringify(error);
+
+        // Define error patterns to extract
+        const errorPatterns = [
+          { keyword: "Too Many Requests", message: "Too Many Requests" },
+          {
+            keyword: "Matrix client sync timeout",
+            message: "Matrix client sync timeout",
+          },
+          // Add more error patterns here as needed
+        ];
+
+        // Check each pattern
+        for (const pattern of errorPatterns) {
+          if (errorStr.includes(pattern.keyword)) {
+            errorMessage = pattern.message;
+            break;
+          }
         }
-      } else if (error instanceof Error) {
-        setError(error.message);
-      } else {
-        setError("An unknown error occurred. Please try again later");
       }
+
+      setError(errorMessage);
       return;
     }
 

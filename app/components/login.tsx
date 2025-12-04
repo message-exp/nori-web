@@ -26,10 +26,6 @@ import {
 import { Input } from "~/components/ui/input";
 import { HOME_SERVER } from "~/lib/env-config-helper";
 import { login } from "~/lib/matrix-api/login";
-import {
-  ConnectionError,
-  MatrixError,
-} from "matrix-js-sdk/lib/http-api/errors";
 
 // define form schema
 const formSchema = z.object({
@@ -69,25 +65,36 @@ export function Login({
     } catch (error) {
       console.error("Error logging in:", error);
 
-      // Determine error type and display appropriate message
-      if (error instanceof ConnectionError) {
-        setError(
-          "Connection timeout or network error. Please check your network and try again",
-        );
-      } else if (error instanceof MatrixError) {
-        // M_FORBIDDEN means authentication failed (wrong password)
-        if (error.errcode === "M_FORBIDDEN") {
-          setError("Invalid username or password");
-        } else if (error.errcode === "M_USER_DEACTIVATED") {
-          setError("This account has been deactivated");
-        } else if (error.errcode === "M_LIMIT_EXCEEDED") {
-          setError("Too many login attempts. Please try again later");
-        } else {
-          setError(error.data.error || "An error occurred during login");
+      let errorMessage = "Unknown error";
+
+      if (error && typeof error === "object") {
+        const errorObj = error as { message?: string };
+        const errorStr = errorObj.message ?? JSON.stringify(error);
+
+        // Define error patterns to extract
+        const errorPatterns = [
+          {
+            keyword: "Invalid username or password",
+            message: "Invalid username or password",
+          },
+          { keyword: "Too Many Requests", message: "Too Many Requests" },
+          {
+            keyword: "Matrix client sync timeout",
+            message: "Matrix client sync timeout",
+          },
+          // Add more error patterns here as needed
+        ];
+
+        // Check each pattern
+        for (const pattern of errorPatterns) {
+          if (errorStr.includes(pattern.keyword)) {
+            errorMessage = pattern.message;
+            break;
+          }
         }
-      } else {
-        setError("An unknown error occurred. Please try again later");
       }
+
+      setError(errorMessage);
       return;
     }
 
