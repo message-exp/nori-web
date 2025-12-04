@@ -7,6 +7,7 @@ import type {
 
 export async function getAllContactCards(): Promise<ContactCardResponse[]> {
   const response = await contactsApi.get("/api/contact-cards/");
+  console.log(response.data);
   return response.data;
 }
 export async function createContactCards(
