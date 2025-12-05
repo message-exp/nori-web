@@ -27,6 +27,7 @@ export function useContactCardForm({
       contact_name: contactCard.contact_name,
       nickname: contactCard.nickname || "",
       contact_avatar_url: contactCard.contact_avatar_url || "",
+      default_platform_contact_id: contactCard.default_platform_contact_id,
     },
   });
 
@@ -36,6 +37,7 @@ export function useContactCardForm({
         contact_name: values.contact_name,
         nickname: values.nickname || null,
         contact_avatar_url: values.contact_avatar_url || null,
+        default_platform_contact_id: values.default_platform_contact_id || null,
       };
       const updatedCard = await updateContactCard(contactCard.id, updateData);
       onCardUpdated?.(updatedCard);
@@ -52,6 +54,7 @@ export function useContactCardForm({
       contact_name: contactCard.contact_name,
       nickname: contactCard.nickname || "",
       contact_avatar_url: contactCard.contact_avatar_url || "",
+      default_platform_contact_id: contactCard.default_platform_contact_id,
     });
   };
 

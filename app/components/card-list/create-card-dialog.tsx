@@ -68,6 +68,7 @@ export default function CreateCardDialog({
         contact_name: values.contact_name,
         nickname: values.nickname || null,
         contact_avatar_url: null,
+        default_platform_contact_id: null,
       };
 
       const newCard = await createContactCards(createData);

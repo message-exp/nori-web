@@ -82,8 +82,6 @@ export function isDMRoom(room: Room | null): boolean {
     return false;
   }
 
-  const roomName = room.name || room.roomId;
-
   const currentUserId = client.client.getUserId();
   if (!currentUserId) {
     return false;
@@ -104,7 +102,6 @@ export function isDMRoom(room: Room | null): boolean {
 
   // Method 2: Check for is_direct flag in member events (Element's approach)
   const members = room.getJoinedMembers();
-  const memberCount = members.length;
 
   // Check if any member has is_direct flag set
   for (const member of members) {
@@ -138,17 +135,6 @@ export function isDMRoom(room: Room | null): boolean {
     }
   } catch (error) {
     console.error(`isDMRoom: Error checking getDMInviter:`, error);
-  }
-
-  // Fallback: Traditional member count check (but more lenient for bridged rooms)
-  if (memberCount <= 3) {
-    console.log(
-      `isDMRoom: Room "${roomName}" has ≤3 members, might be DM but no direct markers found`,
-    );
-  } else {
-    console.log(
-      `isDMRoom: Room "${roomName}" is not DM - member count is ${memberCount}, likely a group chat`,
-    );
   }
 
   return false;

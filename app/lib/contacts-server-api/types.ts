@@ -9,6 +9,7 @@ export interface ContactCard {
   contact_name: string;
   nickname: string | null;
   contact_avatar_url: string | null;
+  default_platform_contact_id: string | null; // Foreign key to PlatformContact
 }
 
 export interface PlatformContact {

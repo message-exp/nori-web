@@ -8,7 +8,10 @@ import {
   DialogFooter,
 } from "~/components/ui/dialog";
 import { Alert, AlertDescription } from "~/components/ui/alert";
-import { deleteContactCard } from "~/lib/contacts-server-api/contacts";
+import {
+  deleteContactCard,
+  updateContactCard,
+} from "~/lib/contacts-server-api/contacts";
 import type {
   ContactCard as ContactCardType,
   PlatformContact,
@@ -19,6 +22,7 @@ import { ContactBasicInfo } from "./contact-basic-info";
 import { PlatformContactsList } from "./platform-contacts-list";
 import { DeleteConfirmation } from "~/components/ui/delete-confirmation";
 import { usePlatformContacts } from "~/hooks/use-platform-contacts";
+import { invalidateContactCardsCache } from "~/hooks/use-contact-cards-with-platforms";
 
 interface ContactCardDialogProps {
   readonly contactCard: ContactCardType | null;
@@ -65,6 +69,26 @@ export default function ContactCardDialog({
     }
   }, [contactCard, open]);
 
+  const handleSetDefaultPlatformContact = async (contactId: string | null) => {
+    if (!contactCard) return;
+
+    setError(null);
+    try {
+      const updatedCard = await updateContactCard(contactCard.id, {
+        contact_name: contactCard.contact_name,
+        nickname: contactCard.nickname,
+        contact_avatar_url: contactCard.contact_avatar_url,
+        default_platform_contact_id: contactId,
+      });
+      onCardUpdated?.(updatedCard);
+      // Invalidate the global cache so next time it will refetch
+      invalidateContactCardsCache();
+    } catch (err) {
+      console.error("Failed to set default platform contact:", err);
+      setError("Failed to set default platform contact");
+    }
+  };
+
   const handleDelete = async () => {
     if (!contactCard) return;
 
@@ -109,8 +133,10 @@ export default function ContactCardDialog({
             platformContacts={platformContacts}
             dmRooms={dmRooms}
             isLoading={isLoading}
+            defaultPlatformContactId={contactCard.default_platform_contact_id}
             onAddPlatformContact={addPlatformContact}
             onDeletePlatformContact={removePlatformContact}
+            onSetDefaultPlatformContact={handleSetDefaultPlatformContact}
           />
         </div>
 
