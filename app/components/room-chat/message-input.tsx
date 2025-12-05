@@ -1,6 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Send } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "~/components/ui/button";
@@ -37,6 +37,14 @@ export function MessageInput({
   // Track previous roomIds to detect when we switch to a different contact
   const prevRoomIdsRef = useRef<string[]>(roomIds);
 
+  // Helper function to get the preferred room ID (default or first)
+  const getPreferredRoomId = useCallback(() => {
+    if (defaultRoomId && roomIds.includes(defaultRoomId)) {
+      return defaultRoomId;
+    }
+    return roomIds[0] || "";
+  }, [defaultRoomId, roomIds]);
+
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -64,25 +72,17 @@ export function MessageInput({
       prevRoomIdsRef.current = roomIds;
 
       // Reset to default room or first room
-      if (defaultRoomId && roomIds.includes(defaultRoomId)) {
-        setSelectedRoomId(defaultRoomId);
-      } else if (roomIds.length > 0) {
-        setSelectedRoomId(roomIds[0]);
-      }
+      setSelectedRoomId(getPreferredRoomId());
     }
-  }, [roomIds, defaultRoomId]);
+  }, [roomIds, defaultRoomId, getPreferredRoomId]);
 
   // Sync selectedRoomId with roomIds when selected room is not in the list
   useEffect(() => {
     // When selectedRoomId is not found in roomIds, reset to default or first room
     if (roomIds.length > 0 && !roomIds.includes(selectedRoomId)) {
-      if (defaultRoomId && roomIds.includes(defaultRoomId)) {
-        setSelectedRoomId(defaultRoomId);
-      } else {
-        setSelectedRoomId(roomIds[0]);
-      }
+      setSelectedRoomId(getPreferredRoomId());
     }
-  }, [roomIds, selectedRoomId, defaultRoomId]);
+  }, [roomIds, selectedRoomId, getPreferredRoomId]);
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     if (!values.text || !client.client || !selectedRoomId) return;
@@ -115,7 +115,6 @@ export function MessageInput({
         <MessageInputSelector
           roomIds={roomIds}
           selectedRoomId={selectedRoomId}
-          defaultRoomId={defaultRoomId}
           onRoomChange={setSelectedRoomId}
         />
 

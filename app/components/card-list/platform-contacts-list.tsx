@@ -110,6 +110,9 @@ export function PlatformContactsList({
                     <Button
                       variant={isDefault ? "default" : "outline"}
                       size="sm"
+                      aria-label={
+                        isDefault ? "Remove as default" : "Set as default"
+                      }
                       onClick={() =>
                         onSetDefaultPlatformContact(
                           isDefault ? null : contact.id,
