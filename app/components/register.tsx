@@ -26,6 +26,7 @@ import {
 import { Input } from "~/components/ui/input";
 import { HOME_SERVER } from "~/lib/env-config-helper";
 import { register } from "~/lib/matrix-api/register";
+import { parseErrorMessage } from "~/lib/utils";
 
 // define form schema
 const formSchema = z.object({
@@ -64,30 +65,10 @@ export function Register({
     } catch (error) {
       console.error("Error registering:", error);
 
-      let errorMessage = "Unknown error";
-
-      if (error && typeof error === "object") {
-        const errorObj = error as { message?: string };
-        const errorStr = errorObj.message ?? JSON.stringify(error);
-
-        // Define error patterns to extract
-        const errorPatterns = [
-          { keyword: "Too Many Requests", message: "Too Many Requests" },
-          {
-            keyword: "Matrix client sync timeout",
-            message: "Matrix client sync timeout",
-          },
-          // Add more error patterns here as needed
-        ];
-
-        // Check each pattern
-        for (const pattern of errorPatterns) {
-          if (errorStr.includes(pattern.keyword)) {
-            errorMessage = pattern.message;
-            break;
-          }
-        }
-      }
+      const errorMessage = parseErrorMessage(error, [
+        "Too Many Requests",
+        "Matrix client sync timeout",
+      ]);
 
       setError(errorMessage);
       return;

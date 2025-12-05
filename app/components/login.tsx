@@ -26,6 +26,7 @@ import {
 import { Input } from "~/components/ui/input";
 import { HOME_SERVER } from "~/lib/env-config-helper";
 import { login } from "~/lib/matrix-api/login";
+import { parseErrorMessage } from "~/lib/utils";
 
 // define form schema
 const formSchema = z.object({
@@ -65,34 +66,11 @@ export function Login({
     } catch (error) {
       console.error("Error logging in:", error);
 
-      let errorMessage = "Unknown error";
-
-      if (error && typeof error === "object") {
-        const errorObj = error as { message?: string };
-        const errorStr = errorObj.message ?? JSON.stringify(error);
-
-        // Define error patterns to extract
-        const errorPatterns = [
-          {
-            keyword: "Invalid username or password",
-            message: "Invalid username or password",
-          },
-          { keyword: "Too Many Requests", message: "Too Many Requests" },
-          {
-            keyword: "Matrix client sync timeout",
-            message: "Matrix client sync timeout",
-          },
-          // Add more error patterns here as needed
-        ];
-
-        // Check each pattern
-        for (const pattern of errorPatterns) {
-          if (errorStr.includes(pattern.keyword)) {
-            errorMessage = pattern.message;
-            break;
-          }
-        }
-      }
+      const errorMessage = parseErrorMessage(error, [
+        "Invalid username or password",
+        "Too Many Requests",
+        "Matrix client sync timeout",
+      ]);
 
       setError(errorMessage);
       return;
