@@ -100,15 +100,15 @@ const RoomChatComponent = ({ onBackClick = () => {} }: RoomChatProps) => {
   const prevMessageIdRef = useRef<string | undefined>(undefined);
   const bottomMessageIdRef = useRef<string | undefined>(undefined);
 
-  // Refs for cleanup timeouts in handleJumpToMessage
-  const jumpTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  // Refs for cleanup in handleJumpToMessage
   const highlightTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const scrollEndListenerRef = useRef<{
+    element: HTMLElement;
+    handler: () => void;
+  } | null>(null);
+  const scrollEndFallbackRef = useRef<NodeJS.Timeout | null>(null);
 
   const scrollToBottom = useCallback((scrollElement: HTMLElement) => {
-    console.log("scroll to bottom");
-    console.log("scroll height: ", scrollElement.scrollHeight);
-    console.log("before scroll: ", scrollElement.scrollTop);
-
     requestAnimationFrame(() => {
       scrollElement.scrollTop = scrollElement.scrollHeight;
     });
@@ -139,22 +139,15 @@ const RoomChatComponent = ({ onBackClick = () => {} }: RoomChatProps) => {
       } else {
         scrollElement.scrollTop = refEl.offsetTop;
       }
-      console.log(
-        `scroll to (${lastLoadDirection || "initial"}): `,
-        referenceId,
-      );
     },
     [lastLoadDirection],
   );
 
   const saveReferencePoints = useCallback(() => {
+    if (messages.length === 0) return;
+
     prevMessageIdRef.current = messages[0].event?.getId();
     bottomMessageIdRef.current = messages[messages.length - 1].event?.getId();
-    console.log("save top id:     ", messages[0].event?.getId());
-    console.log(
-      "save bottom id:  ",
-      messages[messages.length - 1].event?.getId(),
-    );
   }, [messages]);
 
   useLayoutEffect(() => {
@@ -169,15 +162,10 @@ const RoomChatComponent = ({ onBackClick = () => {} }: RoomChatProps) => {
     if (isInitialState) {
       scrollToBottom(scrollElement);
     } else {
-      console.log("top id:    ", prevMessageIdRef.current);
-      console.log("bottom id: ", bottomMessageIdRef.current);
-      console.log("load trigger: ", lastLoadTrigger);
-
       const referenceId = getReferenceId();
       if (referenceId) {
         scrollToReference(scrollElement, referenceId);
       } else if (lastLoadTrigger === "new_message") {
-        // 新訊息進來時，滾動到底部
         scrollToBottom(scrollElement);
       }
     }
@@ -200,13 +188,11 @@ const RoomChatComponent = ({ onBackClick = () => {} }: RoomChatProps) => {
 
       // Load older messages when scrolled to top
       if (scrollTop === 0 && hasMore) {
-        console.log("has more: ", hasMore);
         loadMessages("backwards");
       }
 
       // Load newer messages when scrolled to bottom
       if (scrollTop + clientHeight >= scrollHeight - 1 && hasNewer) {
-        console.log("has newer: ", hasNewer);
         loadMessages("forwards", "user_scroll");
       }
     },
@@ -280,14 +266,23 @@ const RoomChatComponent = ({ onBackClick = () => {} }: RoomChatProps) => {
 
   // Jump to message
   const handleJumpToMessage = useCallback((messageId: string) => {
-    // Clean up any existing timeouts
-    if (jumpTimeoutRef.current) {
-      clearTimeout(jumpTimeoutRef.current);
-      jumpTimeoutRef.current = null;
-    }
+    // Clean up any existing highlight timeout
     if (highlightTimeoutRef.current) {
       clearTimeout(highlightTimeoutRef.current);
       highlightTimeoutRef.current = null;
+    }
+
+    // Clean up any existing scroll end listener
+    if (scrollEndListenerRef.current) {
+      const { element, handler } = scrollEndListenerRef.current;
+      element.removeEventListener("scrollend", handler);
+      scrollEndListenerRef.current = null;
+    }
+
+    // Clean up any existing fallback timeout
+    if (scrollEndFallbackRef.current) {
+      clearTimeout(scrollEndFallbackRef.current);
+      scrollEndFallbackRef.current = null;
     }
 
     // First, clear search to show all messages
@@ -298,35 +293,61 @@ const RoomChatComponent = ({ onBackClick = () => {} }: RoomChatProps) => {
     // Clear any existing highlight to allow re-triggering animation
     setHighlightedMessageId(null);
 
-    // Wait for the next tick to ensure the message list is rendered
-    jumpTimeoutRef.current = setTimeout(() => {
-      const scrollElement = scrollAreaRef.current?.querySelector(
-        "[data-radix-scroll-area-viewport]",
-      ) as HTMLElement | null;
+    // Wait for browser to complete rendering using RAF
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        const scrollElement = scrollAreaRef.current?.querySelector(
+          "[data-radix-scroll-area-viewport]",
+        ) as HTMLElement | null;
 
-      if (!scrollElement) return;
+        if (!scrollElement) return;
 
-      const messageElement = scrollElement.querySelector<HTMLElement>(
-        `[data-msg-id="${messageId}"]`,
-      );
+        const messageElement = scrollElement.querySelector<HTMLElement>(
+          `[data-msg-id="${messageId}"]`,
+        );
 
-      if (messageElement) {
-        messageElement.scrollIntoView({
-          behavior: "smooth",
-          block: "center",
-        });
+        if (messageElement) {
+          messageElement.scrollIntoView({
+            behavior: "smooth",
+            block: "center",
+          });
 
-        // Add a small delay before highlighting to ensure DOM update
-        requestAnimationFrame(() => {
-          setHighlightedMessageId(messageId);
-          highlightTimeoutRef.current = setTimeout(() => {
-            setHighlightedMessageId(null);
-            highlightTimeoutRef.current = null;
-          }, 2000);
-        });
-      }
-      jumpTimeoutRef.current = null;
-    }, 100);
+          const handleScrollEnd = () => {
+            // Verify the message is still in DOM and visible
+            if (document.contains(messageElement)) {
+              setHighlightedMessageId(messageId);
+              highlightTimeoutRef.current = setTimeout(() => {
+                setHighlightedMessageId(null);
+                highlightTimeoutRef.current = null;
+              }, 2000);
+            }
+            // Cleanup listener if it exists
+            if (scrollEndListenerRef.current) {
+              scrollElement.removeEventListener("scrollend", handleScrollEnd);
+              scrollEndListenerRef.current = null;
+            }
+            // Cleanup fallback timeout if it exists
+            if (scrollEndFallbackRef.current) {
+              clearTimeout(scrollEndFallbackRef.current);
+              scrollEndFallbackRef.current = null;
+            }
+          };
+
+          // Check if browser supports scrollend event
+          if ("onscrollend" in scrollElement) {
+            scrollElement.addEventListener("scrollend", handleScrollEnd);
+            // Store the listener for cleanup
+            scrollEndListenerRef.current = {
+              element: scrollElement,
+              handler: handleScrollEnd,
+            };
+          } else {
+            // Fallback: Use setTimeout to trigger highlight after scroll
+            scrollEndFallbackRef.current = setTimeout(handleScrollEnd, 1000);
+          }
+        }
+      });
+    });
   }, []);
 
   useEffect(() => {
@@ -344,14 +365,18 @@ const RoomChatComponent = ({ onBackClick = () => {} }: RoomChatProps) => {
     }
   }, [handleScroll]);
 
-  // Cleanup timeouts on unmount
+  // Cleanup on unmount
   useEffect(() => {
     return () => {
-      if (jumpTimeoutRef.current) {
-        clearTimeout(jumpTimeoutRef.current);
-      }
       if (highlightTimeoutRef.current) {
         clearTimeout(highlightTimeoutRef.current);
+      }
+      if (scrollEndListenerRef.current) {
+        const { element, handler } = scrollEndListenerRef.current;
+        element.removeEventListener("scrollend", handler);
+      }
+      if (scrollEndFallbackRef.current) {
+        clearTimeout(scrollEndFallbackRef.current);
       }
     };
   }, []);

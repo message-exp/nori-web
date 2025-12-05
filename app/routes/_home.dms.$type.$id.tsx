@@ -1,6 +1,5 @@
 import { useCallback, useEffect, useMemo } from "react";
 import { useNavigate, useOutletContext, useParams } from "react-router";
-import { ArrowLeft } from "lucide-react";
 import type { HomeLayoutContext } from "./_home";
 import { Button } from "~/components/ui/button";
 import { RoomChat } from "~/components/room-chat/room-chat";
@@ -136,66 +135,26 @@ export default function DMsTypePage() {
     );
   }
 
-  // Helper functions for display
-  const getDisplayName = (item: SelectableItem): string => {
-    if (item.type === "contact") {
-      return item.data.nickname || item.data.contact_name;
-    }
-    return item.data.roomName;
-  };
-
-  const getSubtitle = (item: SelectableItem): string => {
-    if (item.type === "contact") {
-      const count = item.data.platformContacts.length;
-      return `${count} platform${count === 1 ? "" : "s"} connected`;
-    }
-    return `${item.data.platform} DM`;
-  };
-
   return (
     <div className="h-screen">
       {isMobile ? (
         <div className="h-full w-full transition-all duration-300">
-          <div className="flex flex-col h-full">
-            {/* Mobile header */}
-            <div className="flex items-center gap-3 p-4 border-b">
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={navigateBackToDMs}
-                className="shrink-0"
-              >
-                <ArrowLeft className="h-4 w-4" />
-              </Button>
-              <div className="flex-1">
-                <h2 className="text-xl font-semibold">
-                  {getDisplayName(currentItem)}
-                </h2>
-                <div className="text-sm text-muted-foreground">
-                  {getSubtitle(currentItem)}
-                </div>
-              </div>
-            </div>
-
-            {/* Mobile content */}
-            <div className="flex-1">
-              {currentItem.type === "contact" ? (
-                // Merged room chat for contact
-                <MergedRoomChat
-                  roomConfigs={roomConfigs}
-                  contactName={
-                    currentItem.data.nickname || currentItem.data.contact_name
-                  }
-                  defaultPlatformContactId={
-                    currentItem.data.default_platform_contact_id
-                  }
-                />
-              ) : (
-                // Single room chat
-                <RoomChat onBackClick={navigateBackToDMs} />
-              )}
-            </div>
-          </div>
+          {currentItem.type === "contact" ? (
+            // Merged room chat for contact
+            <MergedRoomChat
+              roomConfigs={roomConfigs}
+              contactName={
+                currentItem.data.nickname || currentItem.data.contact_name
+              }
+              onBackClick={navigateBackToDMs}
+              defaultPlatformContactId={
+                currentItem.data.default_platform_contact_id
+              }
+            />
+          ) : (
+            // Single room chat
+            <RoomChat onBackClick={navigateBackToDMs} />
+          )}
         </div>
       ) : (
         // Desktop layout
