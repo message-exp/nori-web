@@ -260,40 +260,41 @@ const MergedRoomChatComponent = ({
     // Clear any existing highlight to allow re-triggering animation
     setHighlightedMessageId(null);
 
-    // Wait for the next tick to ensure the message list is rendered
-    jumpTimeoutRef.current = setTimeout(() => {
-      const scrollElement = scrollAreaRef.current?.querySelector(
-        "[data-radix-scroll-area-viewport]",
-      ) as HTMLElement | null;
+    // Wait for browser to complete rendering using RAF
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        const scrollElement = scrollAreaRef.current?.querySelector(
+          "[data-radix-scroll-area-viewport]",
+        ) as HTMLElement | null;
 
-      if (!scrollElement) return;
+        if (!scrollElement) return;
 
-      const messageElement = scrollElement.querySelector<HTMLElement>(
-        `[data-msg-id="${messageId}"]`,
-      );
+        const messageElement = scrollElement.querySelector<HTMLElement>(
+          `[data-msg-id="${messageId}"]`,
+        );
 
-      if (messageElement) {
-        messageElement.scrollIntoView({
-          behavior: "smooth",
-          block: "center",
-        });
+        if (messageElement) {
+          messageElement.scrollIntoView({
+            behavior: "smooth",
+            block: "center",
+          });
 
-        const handleScrollEnd = () => {
-          // Verify the message is still in DOM and visible
-          if (document.contains(messageElement)) {
-            setHighlightedMessageId(messageId);
-            highlightTimeoutRef.current = setTimeout(() => {
-              setHighlightedMessageId(null);
-              highlightTimeoutRef.current = null;
-            }, 2000);
-          }
-          scrollElement.removeEventListener("scrollend", handleScrollEnd);
-        };
+          const handleScrollEnd = () => {
+            // Verify the message is still in DOM and visible
+            if (document.contains(messageElement)) {
+              setHighlightedMessageId(messageId);
+              highlightTimeoutRef.current = setTimeout(() => {
+                setHighlightedMessageId(null);
+                highlightTimeoutRef.current = null;
+              }, 2000);
+            }
+            scrollElement.removeEventListener("scrollend", handleScrollEnd);
+          };
 
-        scrollElement.addEventListener("scrollend", handleScrollEnd);
-      }
-      jumpTimeoutRef.current = null;
-    }, 100);
+          scrollElement.addEventListener("scrollend", handleScrollEnd);
+        }
+      });
+    });
   }, []);
 
   useEffect(() => {
