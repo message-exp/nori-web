@@ -9,21 +9,32 @@ import {
 import { client } from "~/lib/matrix-api/client";
 import type { Room } from "matrix-js-sdk";
 
-export const InviteList: React.FC = () => {
+interface InviteListProps {
+  onInviteCountChange?: (count: number) => void;
+}
+
+export const InviteList: React.FC<InviteListProps> = ({
+  onInviteCountChange,
+}) => {
   const [invites, setInvites] = useState<Room[]>([]);
 
   // 取目前 invite 的房間
   const refresh = () => {
-    setInvites(getInvites());
+    const currentInvites = getInvites();
+    setInvites(currentInvites);
+    onInviteCountChange?.(currentInvites.length);
   };
 
   useEffect(() => {
     refresh();
+
     client.client?.on(sdk.ClientEvent.Sync, refresh);
     client.client?.on(sdk.RoomEvent.Timeline, refresh);
+    client.client?.on(sdk.RoomMemberEvent.Membership, refresh);
     return () => {
       client.client?.removeListener(sdk.ClientEvent.Sync, refresh);
       client.client?.removeListener(sdk.RoomEvent.Timeline, refresh);
+      client.client?.removeListener(sdk.RoomMemberEvent.Membership, refresh);
     };
   }, []);
 
