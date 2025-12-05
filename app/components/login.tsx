@@ -26,6 +26,7 @@ import {
 import { Input } from "~/components/ui/input";
 import { HOME_SERVER } from "~/lib/env-config-helper";
 import { login } from "~/lib/matrix-api/login";
+import { parseErrorMessage } from "~/lib/utils";
 
 // define form schema
 const formSchema = z.object({
@@ -64,7 +65,14 @@ export function Login({
       console.log("login response", response);
     } catch (error) {
       console.error("Error logging in:", error);
-      setError("Invalid username or password");
+
+      const errorMessage = parseErrorMessage(error, [
+        "Invalid username or password",
+        "Too Many Requests",
+        "Matrix client sync timeout",
+      ]);
+
+      setError(errorMessage);
       return;
     }
 

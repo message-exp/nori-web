@@ -26,6 +26,7 @@ import {
 import { Input } from "~/components/ui/input";
 import { HOME_SERVER } from "~/lib/env-config-helper";
 import { register } from "~/lib/matrix-api/register";
+import { parseErrorMessage } from "~/lib/utils";
 
 // define form schema
 const formSchema = z.object({
@@ -63,11 +64,13 @@ export function Register({
       console.log("register response", response);
     } catch (error) {
       console.error("Error registering:", error);
-      setError(
-        error instanceof Error
-          ? error.message
-          : "An error occurred during registration.",
-      );
+
+      const errorMessage = parseErrorMessage(error, [
+        "Too Many Requests",
+        "Matrix client sync timeout",
+      ]);
+
+      setError(errorMessage);
       return;
     }
 
