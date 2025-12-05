@@ -1,12 +1,13 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Send } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "~/components/ui/button";
 import { Form, FormControl, FormField, FormItem } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
 import { MessageInputSelector } from "./message-input-selector";
+import { MessageEmojiPicker } from "./emoji-picker";
 import { client } from "~/lib/matrix-api/client";
 import { sendTextMessage } from "~/lib/matrix-api/room-messages";
 
@@ -26,6 +27,7 @@ export function MessageInput({ roomIds }: Readonly<MessageInputProps>) {
 
   const [isLoading, setIsLoading] = useState(false);
   const [isEmpty, setIsEmpty] = useState(true);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -71,6 +73,13 @@ export function MessageInput({ roomIds }: Readonly<MessageInputProps>) {
     }
   };
 
+  // Handle emoji selection
+  const handleEmojiSelect = (emoji: string) => {
+    const currentText = form.getValues("text");
+    form.setValue("text", currentText + emoji);
+    inputRef.current?.focus();
+  };
+
   return (
     <Form {...form}>
       <form
@@ -96,11 +105,16 @@ export function MessageInput({ roomIds }: Readonly<MessageInputProps>) {
                     placeholder="Type a message..."
                     onKeyDown={handleKeyDown}
                     {...field}
+                    ref={(e) => {
+                      field.ref(e);
+                      inputRef.current = e;
+                    }}
                   />
                 </FormControl>
               </FormItem>
             )}
           />
+          <MessageEmojiPicker onEmojiSelect={handleEmojiSelect} />
           <Button
             type="submit"
             variant="default"

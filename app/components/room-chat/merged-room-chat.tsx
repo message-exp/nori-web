@@ -4,6 +4,7 @@ import {
   useCallback,
   useEffect,
   useLayoutEffect,
+  useMemo,
   useRef,
   useState,
 } from "react";
@@ -28,6 +29,12 @@ const MergedRoomChatComponent = ({
   contactName,
 }: MergedRoomChatProps) => {
   const [roomLoading, setRoomLoading] = useState(false);
+
+  // Extract roomIds from roomConfigs
+  const roomIds = useMemo(
+    () => roomConfigs.map((config) => config.roomId),
+    [roomConfigs],
+  );
 
   // Get merged messages from all rooms
   const {
@@ -185,7 +192,7 @@ const MergedRoomChatComponent = ({
             <div>
               <span className="text-sm text-muted-foreground">
                 {roomConfigs.length} platform
-                {roomConfigs.length === 1 ? "" : "s"} merged
+                {roomConfigs.length !== 1 ? "s" : ""} merged
               </span>
             </div>
           </div>
@@ -207,9 +214,7 @@ const MergedRoomChatComponent = ({
 
       {/* Message input */}
       <div className="border-t p-4">
-        {roomConfigs.length > 0 && (
-          <MessageInput roomIds={roomConfigs.map((config) => config.roomId)} />
-        )}
+        {roomIds.length > 0 && <MessageInput roomIds={roomIds} />}
       </div>
     </div>
   );
