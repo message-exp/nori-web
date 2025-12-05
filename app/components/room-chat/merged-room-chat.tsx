@@ -277,14 +277,19 @@ const MergedRoomChatComponent = ({
           block: "center",
         });
 
-        // Add a small delay before highlighting to ensure DOM update
-        requestAnimationFrame(() => {
-          setHighlightedMessageId(messageId);
-          highlightTimeoutRef.current = setTimeout(() => {
-            setHighlightedMessageId(null);
-            highlightTimeoutRef.current = null;
-          }, 2000);
-        });
+        const handleScrollEnd = () => {
+          // Verify the message is still in DOM and visible
+          if (document.contains(messageElement)) {
+            setHighlightedMessageId(messageId);
+            highlightTimeoutRef.current = setTimeout(() => {
+              setHighlightedMessageId(null);
+              highlightTimeoutRef.current = null;
+            }, 2000);
+          }
+          scrollElement.removeEventListener("scrollend", handleScrollEnd);
+        };
+
+        scrollElement.addEventListener("scrollend", handleScrollEnd);
       }
       jumpTimeoutRef.current = null;
     }, 100);
