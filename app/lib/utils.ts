@@ -104,3 +104,36 @@ export function avatarFallback(name: string) {
     .slice(0, 2)
     .join("");
 }
+
+/**
+ * Parse error object and extract user-friendly error message
+ * @param error - The error object caught in catch block
+ * @param patterns - Array of error patterns to match against
+ * @returns User-friendly error message string
+ */
+export function parseErrorMessage(
+  error: unknown,
+  patterns: string[] = [],
+): string {
+  let errorMessage = "Unknown error";
+
+  if (error && typeof error === "object") {
+    const errorObj = error as { message?: string };
+    const errorStr = errorObj.message ?? JSON.stringify(error);
+
+    // Check each pattern
+    let matched = false;
+    for (const pattern of patterns) {
+      if (errorStr.includes(pattern)) {
+        errorMessage = pattern;
+        matched = true;
+        break;
+      }
+    }
+    if (!matched) {
+      errorMessage = errorStr;
+    }
+  }
+
+  return errorMessage;
+}

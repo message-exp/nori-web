@@ -7,6 +7,7 @@ import { Button } from "~/components/ui/button";
 import { Form, FormControl, FormField, FormItem } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
 import { MessageInputSelector } from "./message-input-selector";
+import { MessageEmojiPicker } from "./emoji-picker";
 import { client } from "~/lib/matrix-api/client";
 import { sendTextMessage } from "~/lib/matrix-api/room-messages";
 
@@ -33,6 +34,7 @@ export function MessageInput({
 
   const [isLoading, setIsLoading] = useState(false);
   const [isEmpty, setIsEmpty] = useState(true);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   // Track previous roomIds to detect when we switch to a different contact
   const prevRoomIdsRef = useRef<string[]>(roomIds);
@@ -105,6 +107,13 @@ export function MessageInput({
     }
   };
 
+  // Handle emoji selection
+  const handleEmojiSelect = (emoji: string) => {
+    const currentText = form.getValues("text");
+    form.setValue("text", currentText + emoji);
+    inputRef.current?.focus();
+  };
+
   return (
     <Form {...form}>
       <form
@@ -130,11 +139,16 @@ export function MessageInput({
                     placeholder="Type a message..."
                     onKeyDown={handleKeyDown}
                     {...field}
+                    ref={(e) => {
+                      field.ref(e);
+                      inputRef.current = e;
+                    }}
                   />
                 </FormControl>
               </FormItem>
             )}
           />
+          <MessageEmojiPicker onEmojiSelect={handleEmojiSelect} />
           <Button
             type="submit"
             variant="default"
