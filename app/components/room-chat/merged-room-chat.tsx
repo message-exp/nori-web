@@ -322,6 +322,12 @@ const MergedRoomChatComponent = ({
     };
   }, []);
 
+  // Extract roomIds from roomConfigs
+  const roomIds = useMemo(
+    () => roomConfigs.map((config) => config.roomId),
+    [roomConfigs],
+  );
+
   if (roomConfigs.length === 0) {
     return (
       <div className="flex h-full items-center justify-center">
