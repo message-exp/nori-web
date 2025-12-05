@@ -1,6 +1,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Send } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "~/components/ui/button";
@@ -27,6 +27,7 @@ export function MessageInput({ roomIds }: Readonly<MessageInputProps>) {
 
   const [isLoading, setIsLoading] = useState(false);
   const [isEmpty, setIsEmpty] = useState(true);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -76,6 +77,7 @@ export function MessageInput({ roomIds }: Readonly<MessageInputProps>) {
   const handleEmojiSelect = (emoji: string) => {
     const currentText = form.getValues("text");
     form.setValue("text", currentText + emoji);
+    inputRef.current?.focus();
   };
 
   return (
@@ -103,6 +105,10 @@ export function MessageInput({ roomIds }: Readonly<MessageInputProps>) {
                     placeholder="Type a message..."
                     onKeyDown={handleKeyDown}
                     {...field}
+                    ref={(e) => {
+                      field.ref(e);
+                      inputRef.current = e;
+                    }}
                   />
                 </FormControl>
               </FormItem>
