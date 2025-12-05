@@ -4,6 +4,7 @@ import {
   useCallback,
   useEffect,
   useLayoutEffect,
+  useMemo,
   useRef,
   useState,
 } from "react";
@@ -475,9 +476,7 @@ const MergedRoomChatComponent = ({
 
       {/* Message input */}
       <div className="border-t p-4">
-        {roomConfigs.length > 0 && (
-          <MessageInput roomIds={roomConfigs.map((config) => config.roomId)} />
-        )}
+        {roomIds.length > 0 && <MessageInput roomIds={roomIds} />}
       </div>
     </div>
   );
