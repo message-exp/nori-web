@@ -9,6 +9,7 @@ type DMsContextType = {
   dmRooms: DMRoomInfo[];
   loading: boolean;
   error: string | null;
+  refetchContactCards: () => Promise<void>;
 };
 
 const DMsContext = createContext<DMsContextType | undefined>(undefined);
@@ -20,6 +21,7 @@ export function DMsProvider({
     contactCards,
     loading: contactsLoading,
     error: contactsError,
+    refetch,
   } = useContactCardsWithPlatforms();
 
   const {
@@ -32,8 +34,14 @@ export function DMsProvider({
   const error = contactsError || dmRoomsError;
 
   const value = useMemo(
-    () => ({ contactCards, dmRooms, loading, error }),
-    [contactCards, dmRooms, loading, error],
+    () => ({
+      contactCards,
+      dmRooms,
+      loading,
+      error,
+      refetchContactCards: refetch,
+    }),
+    [contactCards, dmRooms, loading, error, refetch],
   );
 
   return <DMsContext.Provider value={value}>{children}</DMsContext.Provider>;

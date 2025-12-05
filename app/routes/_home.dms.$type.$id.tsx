@@ -84,6 +84,7 @@ export default function DMsTypePage() {
     return currentItem.data.platformContacts.map((pc) => ({
       roomId: pc.dm_room_id,
       platform: pc.platform,
+      platformContactId: pc.id,
     }));
   }, [currentItem]);
 
@@ -146,6 +147,9 @@ export default function DMsTypePage() {
                 currentItem.data.nickname || currentItem.data.contact_name
               }
               onBackClick={navigateBackToDMs}
+              defaultPlatformContactId={
+                currentItem.data.default_platform_contact_id
+              }
             />
           ) : (
             // Single room chat
@@ -172,6 +176,9 @@ export default function DMsTypePage() {
                   roomConfigs={roomConfigs}
                   contactName={
                     currentItem.data.nickname || currentItem.data.contact_name
+                  }
+                  defaultPlatformContactId={
+                    currentItem.data.default_platform_contact_id
                   }
                 />
               ) : (

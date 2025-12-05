@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Plus, MessageCircle } from "lucide-react";
+import { Plus, MessageCircle, Star } from "lucide-react";
 import { Button } from "~/components/ui/button";
 import { BridgeIcon } from "~/components/ui/bridge-icon";
 import { DeleteConfirmation } from "~/components/ui/delete-confirmation";
@@ -11,16 +11,20 @@ interface PlatformContactsListProps {
   readonly platformContacts: PlatformContact[];
   readonly dmRooms: DMRoomInfo[];
   readonly isLoading: boolean;
+  readonly defaultPlatformContactId?: string | null;
   readonly onAddPlatformContact: (selectedRoom: DMRoomInfo) => Promise<boolean>;
   readonly onDeletePlatformContact: (contactId: string) => Promise<boolean>;
+  readonly onSetDefaultPlatformContact?: (contactId: string | null) => void;
 }
 
 export function PlatformContactsList({
   platformContacts,
   dmRooms,
   isLoading,
+  defaultPlatformContactId,
   onAddPlatformContact,
   onDeletePlatformContact,
+  onSetDefaultPlatformContact,
 }: PlatformContactsListProps) {
   const [showAddPlatform, setShowAddPlatform] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState<string | null>(
@@ -76,35 +80,65 @@ export function PlatformContactsList({
           )}
 
           {/* Platform contacts list */}
-          {platformContacts.map((contact) => (
-            <div
-              key={contact.id}
-              className="flex items-center justify-between p-3 border rounded-lg"
-            >
-              <div className="flex items-center gap-3">
-                <div className="flex items-center justify-center size-8 bg-gray-800 rounded-full">
-                  <BridgeIcon platform={contact.platform} showMatrix={true} />
+          {platformContacts.map((contact) => {
+            const isDefault = contact.id === defaultPlatformContactId;
+            return (
+              <div
+                key={contact.id}
+                className={`flex items-center justify-between p-3 border rounded-lg ${
+                  isDefault ? "border-primary bg-primary/5" : ""
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center justify-center size-8 bg-gray-800 rounded-full">
+                    <BridgeIcon platform={contact.platform} showMatrix={true} />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <p className="font-medium">{contact.platform}</p>
+                      {isDefault && (
+                        <Star className="size-4 fill-primary text-primary" />
+                      )}
+                    </div>
+                    <p className="text-sm text-muted-foreground">
+                      {contact.platform_user_id}
+                    </p>
+                  </div>
                 </div>
-                <div>
-                  <p className="font-medium">{contact.platform}</p>
-                  <p className="text-sm text-muted-foreground">
-                    {contact.platform_user_id}
-                  </p>
+                <div className="flex items-center gap-2">
+                  {onSetDefaultPlatformContact && (
+                    <Button
+                      variant={isDefault ? "default" : "outline"}
+                      size="sm"
+                      aria-label={
+                        isDefault ? "Remove as default" : "Set as default"
+                      }
+                      onClick={() =>
+                        onSetDefaultPlatformContact(
+                          isDefault ? null : contact.id,
+                        )
+                      }
+                    >
+                      <Star
+                        className={`size-4 ${isDefault ? "fill-current" : ""}`}
+                      />
+                    </Button>
+                  )}
+                  <DeleteConfirmation
+                    showConfirm={showDeleteConfirm === contact.id}
+                    isDeleting={deletingContact === contact.id}
+                    onShowConfirm={() => setShowDeleteConfirm(contact.id)}
+                    onConfirmDelete={() => handleDeleteConfirm(contact.id)}
+                    onCancel={() => setShowDeleteConfirm(null)}
+                    buttonVariant="outline"
+                    buttonSize="sm"
+                    showIcon={true}
+                    className="text-destructive hover:text-destructive"
+                  />
                 </div>
               </div>
-              <DeleteConfirmation
-                showConfirm={showDeleteConfirm === contact.id}
-                isDeleting={deletingContact === contact.id}
-                onShowConfirm={() => setShowDeleteConfirm(contact.id)}
-                onConfirmDelete={() => handleDeleteConfirm(contact.id)}
-                onCancel={() => setShowDeleteConfirm(null)}
-                buttonVariant="outline"
-                buttonSize="sm"
-                showIcon={true}
-                className="text-destructive hover:text-destructive"
-              />
-            </div>
-          ))}
+            );
+          })}
 
           {/* Empty state */}
           {platformContacts.length === 0 && !showAddPlatform && (
