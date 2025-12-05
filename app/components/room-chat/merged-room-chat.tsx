@@ -79,9 +79,13 @@ const MergedRoomChatComponent = ({
   const prevMessageIdRef = useRef<string | undefined>(undefined);
   const bottomMessageIdRef = useRef<string | undefined>(undefined);
 
-  // Refs for cleanup timeouts in handleJumpToMessage
-  const jumpTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  // Refs for cleanup in handleJumpToMessage
   const highlightTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const scrollEndListenerRef = useRef<{
+    element: HTMLElement;
+    handler: () => void;
+  } | null>(null);
+  const scrollEndFallbackRef = useRef<NodeJS.Timeout | null>(null);
 
   const scrollToBottom = useCallback((scrollElement: HTMLElement) => {
     requestAnimationFrame(() => {
@@ -242,14 +246,23 @@ const MergedRoomChatComponent = ({
 
   // Jump to message
   const handleJumpToMessage = useCallback((messageId: string) => {
-    // Clean up any existing timeouts
-    if (jumpTimeoutRef.current) {
-      clearTimeout(jumpTimeoutRef.current);
-      jumpTimeoutRef.current = null;
-    }
+    // Clean up any existing highlight timeout
     if (highlightTimeoutRef.current) {
       clearTimeout(highlightTimeoutRef.current);
       highlightTimeoutRef.current = null;
+    }
+
+    // Clean up any existing scroll end listener
+    if (scrollEndListenerRef.current) {
+      const { element, handler } = scrollEndListenerRef.current;
+      element.removeEventListener("scrollend", handler);
+      scrollEndListenerRef.current = null;
+    }
+
+    // Clean up any existing fallback timeout
+    if (scrollEndFallbackRef.current) {
+      clearTimeout(scrollEndFallbackRef.current);
+      scrollEndFallbackRef.current = null;
     }
 
     // First, clear search to show all messages
@@ -288,10 +301,30 @@ const MergedRoomChatComponent = ({
                 highlightTimeoutRef.current = null;
               }, 2000);
             }
-            scrollElement.removeEventListener("scrollend", handleScrollEnd);
+            // Cleanup listener if it exists
+            if (scrollEndListenerRef.current) {
+              scrollElement.removeEventListener("scrollend", handleScrollEnd);
+              scrollEndListenerRef.current = null;
+            }
+            // Cleanup fallback timeout if it exists
+            if (scrollEndFallbackRef.current) {
+              clearTimeout(scrollEndFallbackRef.current);
+              scrollEndFallbackRef.current = null;
+            }
           };
 
-          scrollElement.addEventListener("scrollend", handleScrollEnd);
+          // Check if browser supports scrollend event
+          if ("onscrollend" in scrollElement) {
+            scrollElement.addEventListener("scrollend", handleScrollEnd);
+            // Store the listener for cleanup
+            scrollEndListenerRef.current = {
+              element: scrollElement,
+              handler: handleScrollEnd,
+            };
+          } else {
+            // Fallback: Use setTimeout to trigger highlight after scroll
+            scrollEndFallbackRef.current = setTimeout(handleScrollEnd, 1000);
+          }
         }
       });
     });
@@ -311,14 +344,18 @@ const MergedRoomChatComponent = ({
     }
   }, [handleScroll]);
 
-  // Cleanup timeouts on unmount
+  // Cleanup on unmount
   useEffect(() => {
     return () => {
-      if (jumpTimeoutRef.current) {
-        clearTimeout(jumpTimeoutRef.current);
-      }
       if (highlightTimeoutRef.current) {
         clearTimeout(highlightTimeoutRef.current);
+      }
+      if (scrollEndListenerRef.current) {
+        const { element, handler } = scrollEndListenerRef.current;
+        element.removeEventListener("scrollend", handler);
+      }
+      if (scrollEndFallbackRef.current) {
+        clearTimeout(scrollEndFallbackRef.current);
       }
     };
   }, []);

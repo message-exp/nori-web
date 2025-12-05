@@ -100,14 +100,15 @@ const RoomChatComponent = ({ onBackClick = () => {} }: RoomChatProps) => {
   const prevMessageIdRef = useRef<string | undefined>(undefined);
   const bottomMessageIdRef = useRef<string | undefined>(undefined);
 
-  // Ref for cleanup timeout in handleJumpToMessage
+  // Refs for cleanup in handleJumpToMessage
   const highlightTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const scrollEndListenerRef = useRef<{
+    element: HTMLElement;
+    handler: () => void;
+  } | null>(null);
+  const scrollEndFallbackRef = useRef<NodeJS.Timeout | null>(null);
 
   const scrollToBottom = useCallback((scrollElement: HTMLElement) => {
-    console.log("scroll to bottom");
-    console.log("scroll height: ", scrollElement.scrollHeight);
-    console.log("before scroll: ", scrollElement.scrollTop);
-
     requestAnimationFrame(() => {
       scrollElement.scrollTop = scrollElement.scrollHeight;
     });
@@ -138,22 +139,15 @@ const RoomChatComponent = ({ onBackClick = () => {} }: RoomChatProps) => {
       } else {
         scrollElement.scrollTop = refEl.offsetTop;
       }
-      console.log(
-        `scroll to (${lastLoadDirection || "initial"}): `,
-        referenceId,
-      );
     },
     [lastLoadDirection],
   );
 
   const saveReferencePoints = useCallback(() => {
+    if (messages.length === 0) return;
+
     prevMessageIdRef.current = messages[0].event?.getId();
     bottomMessageIdRef.current = messages[messages.length - 1].event?.getId();
-    console.log("save top id:     ", messages[0].event?.getId());
-    console.log(
-      "save bottom id:  ",
-      messages[messages.length - 1].event?.getId(),
-    );
   }, [messages]);
 
   useLayoutEffect(() => {
@@ -168,15 +162,10 @@ const RoomChatComponent = ({ onBackClick = () => {} }: RoomChatProps) => {
     if (isInitialState) {
       scrollToBottom(scrollElement);
     } else {
-      console.log("top id:    ", prevMessageIdRef.current);
-      console.log("bottom id: ", bottomMessageIdRef.current);
-      console.log("load trigger: ", lastLoadTrigger);
-
       const referenceId = getReferenceId();
       if (referenceId) {
         scrollToReference(scrollElement, referenceId);
       } else if (lastLoadTrigger === "new_message") {
-        // 新訊息進來時，滾動到底部
         scrollToBottom(scrollElement);
       }
     }
@@ -199,13 +188,11 @@ const RoomChatComponent = ({ onBackClick = () => {} }: RoomChatProps) => {
 
       // Load older messages when scrolled to top
       if (scrollTop === 0 && hasMore) {
-        console.log("has more: ", hasMore);
         loadMessages("backwards");
       }
 
       // Load newer messages when scrolled to bottom
       if (scrollTop + clientHeight >= scrollHeight - 1 && hasNewer) {
-        console.log("has newer: ", hasNewer);
         loadMessages("forwards", "user_scroll");
       }
     },
@@ -285,6 +272,19 @@ const RoomChatComponent = ({ onBackClick = () => {} }: RoomChatProps) => {
       highlightTimeoutRef.current = null;
     }
 
+    // Clean up any existing scroll end listener
+    if (scrollEndListenerRef.current) {
+      const { element, handler } = scrollEndListenerRef.current;
+      element.removeEventListener("scrollend", handler);
+      scrollEndListenerRef.current = null;
+    }
+
+    // Clean up any existing fallback timeout
+    if (scrollEndFallbackRef.current) {
+      clearTimeout(scrollEndFallbackRef.current);
+      scrollEndFallbackRef.current = null;
+    }
+
     // First, clear search to show all messages
     setSearchQuery("");
     setSearchResults([]);
@@ -321,10 +321,30 @@ const RoomChatComponent = ({ onBackClick = () => {} }: RoomChatProps) => {
                 highlightTimeoutRef.current = null;
               }, 2000);
             }
-            scrollElement.removeEventListener("scrollend", handleScrollEnd);
+            // Cleanup listener if it exists
+            if (scrollEndListenerRef.current) {
+              scrollElement.removeEventListener("scrollend", handleScrollEnd);
+              scrollEndListenerRef.current = null;
+            }
+            // Cleanup fallback timeout if it exists
+            if (scrollEndFallbackRef.current) {
+              clearTimeout(scrollEndFallbackRef.current);
+              scrollEndFallbackRef.current = null;
+            }
           };
 
-          scrollElement.addEventListener("scrollend", handleScrollEnd);
+          // Check if browser supports scrollend event
+          if ("onscrollend" in scrollElement) {
+            scrollElement.addEventListener("scrollend", handleScrollEnd);
+            // Store the listener for cleanup
+            scrollEndListenerRef.current = {
+              element: scrollElement,
+              handler: handleScrollEnd,
+            };
+          } else {
+            // Fallback: Use setTimeout to trigger highlight after scroll
+            scrollEndFallbackRef.current = setTimeout(handleScrollEnd, 1000);
+          }
         }
       });
     });
@@ -345,11 +365,18 @@ const RoomChatComponent = ({ onBackClick = () => {} }: RoomChatProps) => {
     }
   }, [handleScroll]);
 
-  // Cleanup timeout on unmount
+  // Cleanup on unmount
   useEffect(() => {
     return () => {
       if (highlightTimeoutRef.current) {
         clearTimeout(highlightTimeoutRef.current);
+      }
+      if (scrollEndListenerRef.current) {
+        const { element, handler } = scrollEndListenerRef.current;
+        element.removeEventListener("scrollend", handler);
+      }
+      if (scrollEndFallbackRef.current) {
+        clearTimeout(scrollEndFallbackRef.current);
       }
     };
   }, []);
